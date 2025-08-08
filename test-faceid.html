@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Face ID Test - Mobile Environment</title>
+    
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        /* iPhone 14 viewport simulation */
+        .device-frame {
+            width: 390px;
+            height: 844px;
+            max-width: 100vw;
+            max-height: 100vh;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden;
+            border-radius: 47px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Status bar simulation */
+        .status-bar {
+            height: 44px;
+            background: rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .status-bar .time {
+            flex: 1;
+            text-align: center;
+        }
+
+        .status-bar .battery {
+            font-size: 12px;
+        }
+
+        /* Main content area */
+        .content {
+            padding: 20px;
+            height: calc(100% - 44px);
+            overflow-y: auto;
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .app-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(45deg, #fff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .app-subtitle {
+            font-size: 16px;
+            opacity: 0.8;
+            font-weight: 400;
+        }
+
+        /* Test sections */
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        /* Status indicators */
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .status-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .status-label {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-value {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-success { color: #4ade80; }
+        .status-error { color: #f87171; }
+        .status-warning { color: #fbbf24; }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 12px;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0A84FF, #5AC8FA);
+            color: white;
+            box-shadow: 0 4px 20px rgba(10, 132, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #FF3B30, #FF6B35);
+            color: white;
+            box-shadow: 0 4px 20px rgba(255, 59, 48, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Face ID animation */
+        .faceid-animation {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .faceid-circle {
+            width: 100%;
+            height: 100%;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            position: relative;
+            animation: pulse 2s infinite;
+        }
+
+        .faceid-circle::before {
+            content: '👤';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        /* Console log area */
+        .console-area {
+            background: #000;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'SF Mono', Consolas, monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #333;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 4px 0;
+            border-bottom: 1px solid #222;
+        }
+
+        .log-timestamp {
+            color: #666;
+            font-size: 11px;
+        }
+
+        .log-level-info { color: #5AC8FA; }
+        .log-level-error { color: #FF3B30; }
+        .log-level-success { color: #34C759; }
+        .log-level-warning { color: #FFCC02; }
+
+        /* Storage inspector */
+        .storage-item {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-family: 'SF Mono', Consolas, monospace;
+            font-size: 11px;
+        }
+
+        .storage-key {
+            color: #5AC8FA;
+            font-weight: 600;
+        }
+
+        .storage-value {
+            color: #fff;
+            margin-top: 4px;
+            word-break: break-all;
+        }
+
+        /* Environment info */
+        .env-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .env-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .env-label {
+            opacity: 0.7;
+            margin-bottom: 2px;
+        }
+
+        .env-value {
+            font-weight: 600;
+            color: #5AC8FA;
+        }
+
+        /* Success/Error states */
+        .result-success {
+            background: linear-gradient(135deg, #34C759, #32D74B);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .result-error {
+            background: linear-gradient(135deg, #FF3B30, #FF6B35);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 400px) {
+            .device-frame {
+                border-radius: 0;
+                width: 100vw;
+                height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="device-frame">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="signal">📶</div>
+            <div class="time" id="current-time">9:41</div>
+            <div class="battery">100% 🔋</div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Header -->
+            <div class="app-header">
+                <div class="app-title">Face ID Test</div>
+                <div class="app-subtitle">Mobile Environment Simulation</div>
+            </div>
+
+            <!-- Environment Status -->
+            <div class="test-section">
+                <div class="section-title">Environment Status</div>
+                <div class="status-grid" id="environment-status">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- WebAuthn Tests -->
+            <div class="test-section">
+                <div class="section-title">WebAuthn Tests</div>
+                <div id="test-results"></div>
+                
+                <div class="faceid-animation" id="faceid-animation" style="display: none;">
+                    <div class="faceid-circle"></div>
+                </div>
+
+                <button class="btn btn-primary" onclick="testRegistration()" id="register-btn">
+                    🆔 Test Face ID Registration
+                </button>
+                
+                <button class="btn btn-secondary" onclick="testAuthentication()" id="auth-btn">
+                    🔓 Test Face ID Authentication
+                </button>
+                
+                <button class="btn btn-secondary" onclick="checkAvailability()" id="check-btn">
+                    🔍 Check Availability
+                </button>
+                
+                <button class="btn btn-danger" onclick="clearStorage()" id="clear-btn">
+                    🗑️ Clear All Data
+                </button>
+            </div>
+
+            <!-- Storage Inspector -->
+            <div class="test-section">
+                <div class="section-title">Storage Inspector</div>
+                <div id="storage-content">
+                    <!-- Populated by JavaScript -->
+                </div>
+                <button class="btn btn-secondary" onclick="refreshStorage()">
+                    🔄 Refresh Storage
+                </button>
+            </div>
+
+            <!-- Console Logs -->
+            <div class="test-section">
+                <div class="section-title">Console Logs</div>
+                <div class="console-area" id="console-logs">
+                    <!-- Populated by JavaScript -->
+                </div>
+                <button class="btn btn-secondary" onclick="clearLogs()">
+                    🧹 Clear Logs
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global test state
+        let testState = {
+            logs: [],
+            isRegistered: false,
+            isAvailable: false,
+            isSupported: false
+        };
+
+        // WebAuthn Configuration (matching the app config)
+        const webauthnConfig = {
+            rp: {
+                name: "Revado Health Test",
+                id: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'localhost' : window.location.hostname
+            },
+            authentication: {
+                timeout: 60000,
+                userVerification: "preferred",
+                attestation: "none",
+                authenticatorAttachment: "platform",
+                residentKey: "preferred"
+            },
+            pubKeyCredParams: [
+                { alg: -7, type: "public-key" },
+                { alg: -257, type: "public-key" },
+                { alg: -8, type: "public-key" }
+            ],
+            transports: ["internal"],
+            challenge: { length: 32 },
+            storage: {
+                credentials: "webauthn_credentials",
+                userEmail: "webauthn_user_email",
+                lastCredentialId: "biometricCredentialId",
+                biometricEnabled: "biometricEnabled"
+            }
+        };
+
+        // iOS Safari User Agent simulation
+        function simulateIOSUserAgent() {
+            const originalUserAgent = navigator.userAgent;
+            const iosUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1";
+            
+            Object.defineProperty(navigator, 'userAgent', {
+                get: function() { return iosUserAgent; }
+            });
+
+            log('info', `User Agent simulated: ${iosUserAgent.substring(0, 50)}...`);
+            return originalUserAgent;
+        }
+
+        // Simulate iOS environment
+        function simulateIOSEnvironment() {
+            // Simulate iOS user agent
+            simulateIOSUserAgent();
+            
+            // Add iOS-specific properties
+            window.DeviceMotionEvent = window.DeviceMotionEvent || function() {};
+            window.DeviceOrientationEvent = window.DeviceOrientationEvent || function() {};
+            
+            // Simulate touch events
+            if (!window.TouchEvent) {
+                window.TouchEvent = function() {};
+            }
+            
+            log('success', 'iOS environment simulation activated');
+        }
+
+        // Enhanced WebAuthn API with test scenarios
+        function enhanceWebAuthnAPI() {
+            // Store original methods if they exist
+            const originalCreate = navigator.credentials?.create?.bind(navigator.credentials);
+            const originalGet = navigator.credentials?.get?.bind(navigator.credentials);
+            const originalIsUVPAA = PublicKeyCredential?.isUserVerifyingPlatformAuthenticatorAvailable?.bind(PublicKeyCredential);
+
+            // Mock WebAuthn API if not supported
+            if (!window.PublicKeyCredential) {
+                log('warning', 'WebAuthn not supported, creating mock API');
+                
+                window.PublicKeyCredential = {
+                    isUserVerifyingPlatformAuthenticatorAvailable: async function() {
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        return true;
+                    }
+                };
+
+                if (!navigator.credentials) {
+                    navigator.credentials = {};
+                }
+
+                navigator.credentials.create = async function(options) {
+                    log('info', 'Mock credential creation started');
+                    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate user interaction time
+                    
+                    // Generate mock credential
+                    const credentialId = 'test-credential-' + Date.now();
+                    const rawId = new TextEncoder().encode(credentialId);
+                    
+                    return {
+                        id: credentialId,
+                        rawId: rawId,
+                        type: 'public-key',
+                        response: {
+                            clientDataJSON: new TextEncoder().encode(JSON.stringify({
+                                type: 'webauthn.create',
+                                challenge: 'test-challenge',
+                                origin: window.location.origin
+                            })),
+                            attestationObject: new Uint8Array(64).fill(1)
+                        },
+                        authenticatorAttachment: 'platform',
+                        getClientExtensionResults: () => ({ credProps: { rk: true } })
+                    };
+                };
+
+                navigator.credentials.get = async function(options) {
+                    log('info', 'Mock authentication started');
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    // Check if we have stored credentials
+                    const storedCreds = JSON.parse(localStorage.getItem(webauthnConfig.storage.credentials) || '{}');
+                    const credIds = Object.keys(storedCreds);
+                    
+                    if (credIds.length === 0) {
+                        throw new Error('No credentials found for authentication');
+                    }
+                    
+                    const credentialId = credIds[0];
+                    const rawId = new TextEncoder().encode(credentialId);
+                    
+                    return {
+                        id: credentialId,
+                        rawId: rawId,
+                        type: 'public-key',
+                        response: {
+                            clientDataJSON: new TextEncoder().encode(JSON.stringify({
+                                type: 'webauthn.get',
+                                challenge: 'test-challenge',
+                                origin: window.location.origin
+                            })),
+                            authenticatorData: new Uint8Array(37).fill(2),
+                            signature: new Uint8Array(64).fill(3),
+                            userHandle: new TextEncoder().encode('test-user')
+                        }
+                    };
+                };
+            } else {
+                log('success', 'Native WebAuthn API detected');
+                
+                // Enhance existing API with test scenarios
+                if (window.location.search.includes('simulate-error')) {
+                    PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable = async function() {
+                        return false;
+                    };
+                    log('warning', 'Simulating platform authenticator unavailable');
+                }
+                
+                if (window.location.search.includes('simulate-timeout')) {
+                    const originalCreate = navigator.credentials.create;
+                    navigator.credentials.create = async function(options) {
+                        throw new Error('NotAllowedError: Timeout');
+                    };
+                    log('warning', 'Simulating timeout error');
+                }
+            }
+        }
+
+        // Logging system
+        function log(level, message, data = null) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = {
+                timestamp,
+                level,
+                message,
+                data
+            };
+            
+            testState.logs.push(logEntry);
+            
+            // Also log to browser console for debugging
+            const consoleMethod = level === 'error' ? 'error' : level === 'warning' ? 'warn' : 'log';
+            console[consoleMethod](`[FaceID Test] ${message}`, data || '');
+            
+            updateConsoleDisplay();
+        }
+
+        function updateConsoleDisplay() {
+            const container = document.getElementById('console-logs');
+            const maxLogs = 20;
+            const recentLogs = testState.logs.slice(-maxLogs);
+            
+            container.innerHTML = recentLogs.map(log => `
+                <div class="log-entry">
+                    <div class="log-timestamp">${log.timestamp}</div>
+                    <div class="log-level-${log.level}">${log.message}</div>
+                    ${log.data ? `<div style="opacity: 0.7; font-size: 11px; margin-top: 2px;">${JSON.stringify(log.data, null, 2).substring(0, 200)}...</div>` : ''}
+                </div>
+            `).join('');
+            
+            // Auto scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Utility functions
+        function bufferToBase64(buffer) {
+            const bytes = new Uint8Array(buffer);
+            let binary = '';
+            for (let i = 0; i < bytes.length; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
+
+        function base64ToBuffer(base64) {
+            const binary = atob(base64);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function generateChallenge() {
+            const challenge = new Uint8Array(32);
+            crypto.getRandomValues(challenge);
+            return challenge;
+        }
+
+        // Test functions
+        async function checkAvailability() {
+            log('info', 'Checking WebAuthn availability...');
+            showAnimation(true);
+            
+            try {
+                // Check basic WebAuthn support
+                testState.isSupported = !!window.PublicKeyCredential;
+                log('info', `WebAuthn supported: ${testState.isSupported}`);
+                
+                if (testState.isSupported) {
+                    // Check platform authenticator
+                    testState.isAvailable = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+                    log('info', `Platform authenticator available: ${testState.isAvailable}`);
+                } else {
+                    testState.isAvailable = false;
+                }
+                
+                // Check for existing registrations
+                const storedCreds = localStorage.getItem(webauthnConfig.storage.credentials);
+                testState.isRegistered = !!storedCreds && JSON.parse(storedCreds).length > 0;
+                
+                updateEnvironmentStatus();
+                showTestResult('success', `WebAuthn Status: ${testState.isSupported ? 'Supported' : 'Not Supported'}, Platform Auth: ${testState.isAvailable ? 'Available' : 'Not Available'}`);
+                
+            } catch (error) {
+                log('error', 'Availability check failed', error);
+                showTestResult('error', `Availability check failed: ${error.message}`);
+            }
+            
+            showAnimation(false);
+        }
+
+        async function testRegistration() {
+            log('info', 'Starting Face ID registration test...');
+            showAnimation(true);
+            setButtonLoading('register-btn', true);
+            
+            try {
+                // Check availability first
+                if (!testState.isSupported) {
+                    throw new Error('WebAuthn not supported');
+                }
+                
+                if (!testState.isAvailable) {
+                    throw new Error('Platform authenticator not available');
+                }
+                
+                // Generate test user data
+                const userId = 'test-user-' + Date.now();
+                const userEmail = 'test@revado.com';
+                
+                // Create credential options
+                const challenge = generateChallenge();
+                const publicKeyCredentialCreationOptions = {
+                    challenge,
+                    rp: webauthnConfig.rp,
+                    user: {
+                        id: new TextEncoder().encode(userId),
+                        name: userEmail,
+                        displayName: 'Test User',
+                    },
+                    pubKeyCredParams: webauthnConfig.pubKeyCredParams,
+                    authenticatorSelection: {
+                        authenticatorAttachment: webauthnConfig.authentication.authenticatorAttachment,
+                        residentKey: webauthnConfig.authentication.residentKey,
+                        userVerification: webauthnConfig.authentication.userVerification
+                    },
+                    timeout: webauthnConfig.authentication.timeout,
+                    attestation: webauthnConfig.authentication.attestation
+                };
+
+                log('info', 'Creating credential with options:', publicKeyCredentialCreationOptions);
+                
+                // Create credential
+                const credential = await navigator.credentials.create({
+                    publicKey: publicKeyCredentialCreationOptions
+                });
+
+                if (!credential) {
+                    throw new Error('Credential creation returned null');
+                }
+
+                log('success', 'Credential created successfully', {
+                    id: credential.id,
+                    type: credential.type
+                });
+
+                // Store credential
+                const credentialId = bufferToBase64(credential.rawId);
+                const credentials = JSON.parse(localStorage.getItem(webauthnConfig.storage.credentials) || '{}');
+                credentials[credentialId] = {
+                    id: credentialId,
+                    userEmail,
+                    userId,
+                    deviceName: 'Test Device',
+                    createdAt: new Date().toISOString(),
+                    lastUsed: new Date().toISOString()
+                };
+
+                localStorage.setItem(webauthnConfig.storage.credentials, JSON.stringify(credentials));
+                localStorage.setItem(webauthnConfig.storage.userEmail, userEmail);
+                localStorage.setItem(webauthnConfig.storage.biometricEnabled, 'true');
+
+                testState.isRegistered = true;
+                updateEnvironmentStatus();
+                refreshStorage();
+                
+                showTestResult('success', `Face ID registered successfully! Credential ID: ${credentialId.substring(0, 20)}...`);
+                
+            } catch (error) {
+                log('error', 'Registration failed', error);
+                let errorMessage = 'Registration failed';
+                
+                if (error.name === 'NotAllowedError') {
+                    errorMessage = 'User cancelled or timeout';
+                } else if (error.name === 'InvalidStateError') {
+                    errorMessage = 'Credential already exists';
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                
+                showTestResult('error', errorMessage);
+            }
+            
+            showAnimation(false);
+            setButtonLoading('register-btn', false);
+        }
+
+        async function testAuthentication() {
+            log('info', 'Starting Face ID authentication test...');
+            showAnimation(true);
+            setButtonLoading('auth-btn', true);
+            
+            try {
+                // Check if registered
+                const storedCreds = JSON.parse(localStorage.getItem(webauthnConfig.storage.credentials) || '{}');
+                const credentialIds = Object.keys(storedCreds);
+                
+                if (credentialIds.length === 0) {
+                    throw new Error('No credentials registered. Please register first.');
+                }
+                
+                // Create authentication options
+                const challenge = generateChallenge();
+                const publicKeyCredentialRequestOptions = {
+                    challenge,
+                    rpId: webauthnConfig.rp.id,
+                    allowCredentials: credentialIds.map(id => ({
+                        id: base64ToBuffer(id),
+                        type: 'public-key',
+                        transports: webauthnConfig.transports
+                    })),
+                    userVerification: webauthnConfig.authentication.userVerification,
+                    timeout: webauthnConfig.authentication.timeout
+                };
+
+                log('info', 'Authenticating with options:', {
+                    ...publicKeyCredentialRequestOptions,
+                    allowCredentials: publicKeyCredentialRequestOptions.allowCredentials.map(c => ({ ...c, id: '[ArrayBuffer]' }))
+                });
+
+                // Get assertion
+                const assertion = await navigator.credentials.get({
+                    publicKey: publicKeyCredentialRequestOptions
+                });
+
+                if (!assertion) {
+                    throw new Error('Authentication returned null');
+                }
+
+                const credentialId = bufferToBase64(assertion.rawId);
+                log('success', 'Authentication successful', { credentialId });
+
+                // Update last used
+                const credentials = JSON.parse(localStorage.getItem(webauthnConfig.storage.credentials) || '{}');
+                if (credentials[credentialId]) {
+                    credentials[credentialId].lastUsed = new Date().toISOString();
+                    localStorage.setItem(webauthnConfig.storage.credentials, JSON.stringify(credentials));
+                }
+
+                refreshStorage();
+                showTestResult('success', `Authentication successful! Used credential: ${credentialId.substring(0, 20)}...`);
+                
+            } catch (error) {
+                log('error', 'Authentication failed', error);
+                let errorMessage = 'Authentication failed';
+                
+                if (error.name === 'NotAllowedError') {
+                    errorMessage = 'User cancelled authentication';
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                
+                showTestResult('error', errorMessage);
+            }
+            
+            showAnimation(false);
+            setButtonLoading('auth-btn', false);
+        }
+
+        function clearStorage() {
+            log('info', 'Clearing all stored data...');
+            
+            // Clear WebAuthn data
+            Object.values(webauthnConfig.storage).forEach(key => {
+                localStorage.removeItem(key);
+            });
+            
+            // Clear legacy data
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('biometricCredentialId');
+            
+            testState.isRegistered = false;
+            updateEnvironmentStatus();
+            refreshStorage();
+            
+            showTestResult('success', 'All data cleared successfully');
+            log('success', 'Storage cleared');
+        }
+
+        // UI Helper functions
+        function showAnimation(show) {
+            const animation = document.getElementById('faceid-animation');
+            animation.style.display = show ? 'block' : 'none';
+        }
+
+        function setButtonLoading(buttonId, loading) {
+            const button = document.getElementById(buttonId);
+            if (loading) {
+                button.innerHTML = '<div class="spinner"></div> Processing...';
+                button.disabled = true;
+            } else {
+                // Restore original text
+                const originalTexts = {
+                    'register-btn': '🆔 Test Face ID Registration',
+                    'auth-btn': '🔓 Test Face ID Authentication',
+                    'check-btn': '🔍 Check Availability',
+                    'clear-btn': '🗑️ Clear All Data'
+                };
+                button.innerHTML = originalTexts[buttonId];
+                button.disabled = false;
+            }
+        }
+
+        function showTestResult(type, message) {
+            const container = document.getElementById('test-results');
+            const className = type === 'success' ? 'result-success' : 'result-error';
+            
+            container.innerHTML = `
+                <div class="${className}">
+                    ${type === 'success' ? '✅' : '❌'} ${message}
+                </div>
+            `;
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        function updateEnvironmentStatus() {
+            const container = document.getElementById('environment-status');
+            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+            const isHTTPS = window.location.protocol === 'https:';
+            
+            container.innerHTML = `
+                <div class="status-item">
+                    <div class="status-label">HTTPS</div>
+                    <div class="status-value ${isHTTPS ? 'status-success' : 'status-error'}">
+                        ${isHTTPS ? '✓ Yes' : '✗ No'}
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">iOS Device</div>
+                    <div class="status-value ${isIOS ? 'status-success' : 'status-warning'}">
+                        ${isIOS ? '✓ Yes' : '⚠ No'}
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">WebAuthn</div>
+                    <div class="status-value ${testState.isSupported ? 'status-success' : 'status-error'}">
+                        ${testState.isSupported ? '✓ Supported' : '✗ Not Supported'}
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Face ID</div>
+                    <div class="status-value ${testState.isAvailable ? 'status-success' : 'status-error'}">
+                        ${testState.isAvailable ? '✓ Available' : '✗ Not Available'}
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Registered</div>
+                    <div class="status-value ${testState.isRegistered ? 'status-success' : 'status-warning'}">
+                        ${testState.isRegistered ? '✓ Yes' : '⚠ No'}
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Secure Context</div>
+                    <div class="status-value ${window.isSecureContext ? 'status-success' : 'status-error'}">
+                        ${window.isSecureContext ? '✓ Yes' : '✗ No'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function refreshStorage() {
+            const container = document.getElementById('storage-content');
+            const storageKeys = [
+                ...Object.values(webauthnConfig.storage),
+                'userEmail',
+                'biometricCredentialId'
+            ];
+            
+            const items = [];
+            storageKeys.forEach(key => {
+                const value = localStorage.getItem(key);
+                if (value !== null) {
+                    items.push({ key, value });
+                }
+            });
+            
+            if (items.length === 0) {
+                container.innerHTML = '<div style="text-align: center; opacity: 0.7; padding: 20px;">No stored data found</div>';
+            } else {
+                container.innerHTML = items.map(item => `
+                    <div class="storage-item">
+                        <div class="storage-key">${item.key}</div>
+                        <div class="storage-value">${item.value.length > 100 ? item.value.substring(0, 100) + '...' : item.value}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function clearLogs() {
+            testState.logs = [];
+            updateConsoleDisplay();
+        }
+
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Initialize the test environment
+        function initializeTestEnvironment() {
+            log('info', 'Initializing Face ID test environment...');
+            
+            // Set up iOS simulation
+            simulateIOSEnvironment();
+            
+            // Enhance WebAuthn API
+            enhanceWebAuthnAPI();
+            
+            // Update time every second
+            setInterval(updateTime, 1000);
+            updateTime();
+            
+            // Initial status update
+            updateEnvironmentStatus();
+            refreshStorage();
+            
+            // Check initial availability
+            checkAvailability();
+            
+            log('success', 'Test environment initialized');
+            log('info', 'Environment details:', {
+                userAgent: navigator.userAgent,
+                protocol: window.location.protocol,
+                hostname: window.location.hostname,
+                isSecureContext: window.isSecureContext,
+                hasWebAuthn: !!window.PublicKeyCredential
+            });
+        }
+
+        // Start when DOM is ready
+        document.addEventListener('DOMContentLoaded', initializeTestEnvironment);
+    </script>
+</body>
+</html>

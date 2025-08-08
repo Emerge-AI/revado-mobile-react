@@ -1,0 +1,73 @@
+{
+  "name": "Revado Health Records",
+  "short_name": "Revado",
+  "description": "Import, manage, and share your health records with dentists in 5 minutes",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0A84FF",
+  "orientation": "portrait-primary",
+  "categories": ["health", "medical"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-1.png",
+      "sizes": "1290x2796",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshot-2.png",
+      "sizes": "1290x2796",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Upload Records",
+      "short_name": "Upload",
+      "description": "Upload new health records",
+      "url": "/upload",
+      "icons": [
+        {
+          "src": "/upload-icon.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Share with Dentist",
+      "short_name": "Share",
+      "description": "Share records with your dentist",
+      "url": "/share",
+      "icons": [
+        {
+          "src": "/share-icon.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}

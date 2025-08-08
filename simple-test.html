@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revado Backend Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #1d1d1f;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        .status-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .status-card h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-error { background: #f8d7da; color: #721c24; }
+        .badge-info { background: #d1ecf1; color: #0c5460; }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .file-upload {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .file-upload:hover {
+            background: #eef2ff;
+            border-color: #764ba2;
+        }
+        .file-upload input {
+            display: none;
+        }
+        
+        .progress {
+            width: 100%;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+            display: none;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .log {
+            background: #2d3748;
+            color: #48bb78;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .log-entry {
+            margin: 4px 0;
+            opacity: 0;
+            animation: fadeIn 0.3s ease forwards;
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        .result {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+        }
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 Revado Backend Tester</h1>
+        <p class="subtitle">Test file upload and email with attachments</p>
+        
+        <!-- Backend Status -->
+        <div class="status-card">
+            <h3>🖥️ Backend Status</h3>
+            <div id="status">
+                <span class="badge badge-info">Checking connection...</span>
+            </div>
+            <button onclick="checkBackend()" style="margin-top: 10px;">Refresh Status</button>
+        </div>
+        
+        <!-- File Upload -->
+        <div class="status-card">
+            <h3>📤 Upload Test File</h3>
+            <div class="file-upload" onclick="document.getElementById('fileInput').click()">
+                <p style="margin: 0;">📁 Click to select or drag & drop</p>
+                <small>Images (JPG, PNG) or PDFs</small>
+                <input type="file" id="fileInput" accept="image/*,.pdf" onchange="uploadFile(this.files[0])">
+            </div>
+            <div class="progress" id="progress">
+                <div class="progress-bar" id="progressBar">0%</div>
+            </div>
+            <div id="uploadResult" class="result"></div>
+        </div>
+        
+        <!-- Email Test -->
+        <div class="status-card">
+            <h3>📧 Test Email with Attachments</h3>
+            <p>This simulates what happens when sharing records with a dentist:</p>
+            <input type="email" 
+                   id="emailInput" 
+                   placeholder="Enter dentist email" 
+                   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 10px;">
+            <button onclick="testEmailFlow()" id="emailBtn" disabled>Send Health Records</button>
+            <div id="emailResult" class="result"></div>
+        </div>
+        
+        <!-- Activity Log -->
+        <div class="log" id="log">
+            <div class="log-entry">🚀 Test interface ready...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3001/api';
+        let uploadedFiles = [];
+        
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = `[${time}] ${icons[type]} ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        async function checkBackend() {
+            const statusDiv = document.getElementById('status');
+            
+            try {
+                log('Checking backend connection...');
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                
+                if (data.status === 'healthy') {
+                    statusDiv.innerHTML = `
+                        <span class="badge badge-success">✅ Connected</span>
+                        <span class="badge badge-info">Database: ${data.database.status}</span>
+                        <span class="badge badge-info">Storage: ${data.storage.status}</span>
+                        <span class="badge badge-info">${data.storage.fileCount || 0} files stored</span>
+                    `;
+                    log('Backend is healthy and ready', 'success');
+                    document.getElementById('emailBtn').disabled = false;
+                } else {
+                    statusDiv.innerHTML = '<span class="badge badge-warning">⚠️ Partially Available</span>';
+                    log('Backend is running but not fully healthy', 'warning');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '<span class="badge badge-error">❌ Not Connected</span>';
+                log(`Backend not available: ${error.message}`, 'error');
+                log('Start backend with: cd backend && npm start', 'info');
+            }
+        }
+        
+        async function uploadFile(file) {
+            if (!file) return;
+            
+            const progressDiv = document.getElementById('progress');
+            const progressBar = document.getElementById('progressBar');
+            const resultDiv = document.getElementById('uploadResult');
+            
+            progressDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+            
+            log(`Uploading: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('userId', 'test-user');
+            
+            try {
+                const xhr = new XMLHttpRequest();
+                
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        progressBar.style.width = percent + '%';
+                        progressBar.textContent = percent + '%';
+                    }
+                });
+                
+                xhr.addEventListener('load', function() {
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        uploadedFiles.push(response.file);
+                        
+                        resultDiv.className = 'result success';
+                        resultDiv.innerHTML = `
+                            ✅ Upload successful!<br>
+                            <small>
+                            File ID: ${response.file.id}<br>
+                            Stored at: ${response.file.url}<br>
+                            Size: ${(response.file.size / 1024).toFixed(2)} KB
+                            </small>
+                        `;
+                        resultDiv.style.display = 'block';
+                        
+                        log(`File uploaded successfully: ${response.file.filename}`, 'success');
+                        document.getElementById('emailBtn').disabled = false;
+                        
+                        setTimeout(() => {
+                            progressDiv.style.display = 'none';
+                            progressBar.style.width = '0%';
+                        }, 1000);
+                    } else {
+                        throw new Error('Upload failed');
+                    }
+                });
+                
+                xhr.addEventListener('error', function() {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = '❌ Upload failed';
+                    resultDiv.style.display = 'block';
+                    log('Upload failed', 'error');
+                });
+                
+                xhr.open('POST', `${API_URL}/upload/single`);
+                xhr.setRequestHeader('X-User-Id', 'test-user');
+                xhr.send(formData);
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ ' + error.message;
+                resultDiv.style.display = 'block';
+                log('Upload error: ' + error.message, 'error');
+            }
+        }
+        
+        async function testEmailFlow() {
+            const email = document.getElementById('emailInput').value;
+            const resultDiv = document.getElementById('emailResult');
+            
+            if (!email) {
+                alert('Please enter an email address');
+                return;
+            }
+            
+            log(`Simulating email to: ${email}`);
+            
+            resultDiv.className = 'result success';
+            resultDiv.innerHTML = `
+                📧 Email package prepared!<br>
+                <small>
+                <strong>What would be sent:</strong><br>
+                • PDF Summary of all health records<br>
+                ${uploadedFiles.map(f => 
+                    `• ${f.size < 500 * 1024 ? '📎 Attached' : '📄 Referenced'}: ${f.originalName || f.filename}<br>`
+                ).join('')}
+                • Recipient: ${email}<br>
+                <br>
+                <em>Note: Actual email requires EmailJS configuration</em>
+                </small>
+            `;
+            resultDiv.style.display = 'block';
+            
+            log('Email package created with PDF and attachments', 'success');
+            
+            // Show what the email would contain
+            if (uploadedFiles.length > 0) {
+                const attachedCount = uploadedFiles.filter(f => f.size < 500 * 1024).length;
+                log(`${attachedCount} file(s) would be attached to email`, 'info');
+                log(`Files over 500KB are referenced in PDF only`, 'info');
+            }
+        }
+        
+        // Check backend on load
+        window.onload = () => {
+            checkBackend();
+            log('Ready to test file upload and email flow', 'success');
+        };
+        
+        // File drag and drop
+        const fileUpload = document.querySelector('.file-upload');
+        
+        fileUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUpload.style.background = '#e6e9ff';
+        });
+        
+        fileUpload.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            fileUpload.style.background = '#f8f9ff';
+        });
+        
+        fileUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUpload.style.background = '#f8f9ff';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                uploadFile(files[0]);
+            }
+        });
+    </script>
+</body>
+</html>
