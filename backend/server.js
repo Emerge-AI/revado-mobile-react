@@ -12,6 +12,7 @@ import { fileURLToPath } from 'url';
 import uploadRoutes from './routes/upload.js';
 import recordsRoutes from './routes/records.js';
 import healthRoutes from './routes/health.js';
+import analyzeRoutes from './routes/analyze.js';
 
 // Import database
 import { initDatabase } from './database/init.js';
@@ -117,6 +118,7 @@ if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
 app.use('/api/health', healthRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/records', recordsRoutes);
+app.use('/api/analyze', analyzeRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -126,7 +128,12 @@ app.get('/', (req, res) => {
     endpoints: {
       health: '/api/health',
       upload: '/api/upload',
-      records: '/api/records'
+      records: '/api/records',
+      analyze: '/api/analyze'
+    },
+    features: {
+      aiAnalysis: process.env.ENABLE_AI_ANALYSIS === 'true',
+      model: process.env.AI_MODEL || 'claude-3-5-sonnet-20241022'
     }
   });
 });

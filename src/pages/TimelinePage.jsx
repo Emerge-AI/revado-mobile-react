@@ -1,215 +1,454 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHealthRecords } from '../contexts/HealthRecordsContext';
+import RecordCard from '../components/RecordCard';
+import ShareHistory from '../components/ShareHistory';
+import TimelineEvent from '../components/TimelineEvent';
+import RecordDetailModal from '../components/RecordDetailModal';
 import { 
   DocumentTextIcon,
-  EyeIcon,
-  EyeSlashIcon,
-  TrashIcon,
+  Squares2X2Icon,
+  ListBulletIcon,
   ClockIcon,
-  CheckCircleIcon,
-  ChevronRightIcon
+  ShareIcon,
+  ChartBarIcon,
+  FunnelIcon,
+  ArrowUpTrayIcon,
+  PaperAirplaneIcon
 } from '@heroicons/react/24/outline';
+import {
+  Squares2X2Icon as Squares2X2IconSolid,
+  ListBulletIcon as ListBulletIconSolid
+} from '@heroicons/react/24/solid';
 
 function TimelinePage() {
-  const { records, deleteRecord, toggleRecordVisibility } = useHealthRecords();
+  const { records, deleteRecord, toggleRecordVisibility, generateSharePackage, getShareHistory } = useHealthRecords();
   const [selectedRecord, setSelectedRecord] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
+  const [showShareHistory, setShowShareHistory] = useState(false);
+  const [shareRecord, setShareRecord] = useState(null);
+  const [shareEmail, setShareEmail] = useState('');
+  const [isSharing, setIsSharing] = useState(false);
+  const [filterType, setFilterType] = useState('all'); // 'all', 'uploads', 'shares'
 
-  const sortedRecords = [...records].sort(
-    (a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt)
-  );
+  // Combine uploads and shares into a unified timeline with date grouping
+  const timelineData = useMemo(() => {
+    const shareHistory = getShareHistory?.() || [];
+    
+    // Add type to uploads
+    const uploadEvents = records.map(record => ({
+      ...record,
+      type: 'upload',
+      timestamp: record.uploadedAt
+    }));
+    
+    // Add type to shares
+    const shareEvents = shareHistory.map(share => ({
+      ...share,
+      type: 'share',
+      timestamp: share.sharedAt
+    }));
+    
+    // Combine and sort by timestamp
+    const allEvents = [...uploadEvents, ...shareEvents];
+    
+    // Apply filter
+    let filteredEvents = allEvents;
+    if (filterType === 'uploads') {
+      filteredEvents = allEvents.filter(e => e.type === 'upload');
+    } else if (filterType === 'shares') {
+      filteredEvents = allEvents.filter(e => e.type === 'share');
+    }
+    
+    // Sort by timestamp (newest first)
+    const sortedEvents = filteredEvents.sort((a, b) => 
+      new Date(b.timestamp) - new Date(a.timestamp)
+    );
+
+    // Group by date for section headers
+    const groupedByDate = {};
+    sortedEvents.forEach(event => {
+      const date = new Date(event.timestamp);
+      const dateKey = date.toDateString();
+      
+      if (!groupedByDate[dateKey]) {
+        groupedByDate[dateKey] = {
+          date: date,
+          events: []
+        };
+      }
+      groupedByDate[dateKey].events.push(event);
+    });
+    
+    return Object.values(groupedByDate).sort((a, b) => b.date - a.date);
+  }, [records, getShareHistory, filterType]);
+  
+  const timelineEvents = useMemo(() => {
+    return timelineData.flatMap(group => group.events);
+  }, [timelineData]);
+
+  // Removed unused sortedRecords variable
 
   const handleDelete = (recordId) => {
     deleteRecord(recordId);
     setDeleteConfirm(null);
   };
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircleIcon className="w-5 h-5 text-green-500" />;
-      case 'processing':
-        return <ClockIcon className="w-5 h-5 text-orange-500 animate-pulse" />;
-      default:
-        return <ClockIcon className="w-5 h-5 text-ios-gray-500" />;
+  const handleEventClick = (event) => {
+    if (event.type === 'upload') {
+      setSelectedRecord(event);
+      setShowDetailModal(true);
+    } else if (event.type === 'share') {
+      // Could show share details modal
+      console.log('Share event clicked:', event);
     }
+  };
+  
+  const handleCloseDetailModal = () => {
+    setShowDetailModal(false);
+    setSelectedRecord(null);
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300';
-      case 'processing':
-        return 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300';
-      default:
-        return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
+  const handleShare = async (recordId) => {
+    if (recordId) {
+      setShareRecord(recordId);
+    } else if (shareEmail && shareRecord) {
+      setIsSharing(true);
+      try {
+        await generateSharePackage(shareEmail, { 
+          recordId: shareRecord,
+          recipientName: shareEmail.split('@')[0] 
+        });
+        setShareRecord(null);
+        setShareEmail('');
+        // Close detail modal if open
+        handleCloseDetailModal();
+        // Show success message or navigate
+      } catch (error) {
+        console.error('Share failed:', error);
+        // Show error message
+      } finally {
+        setIsSharing(false);
+      }
     }
   };
+  
+  const handleDeleteFromModal = (recordId) => {
+    setDeleteConfirm(recordId);
+    handleCloseDetailModal();
+  };
+  
+  const handleToggleVisibilityFromModal = (recordId) => {
+    toggleRecordVisibility(recordId);
+    handleCloseDetailModal();
+  };
+
+  const getStats = () => {
+    const completed = records.filter(r => r.status === 'completed').length;
+    const processing = records.filter(r => r.status === 'processing').length;
+    const hidden = records.filter(r => r.hidden).length;
+    const shareHistory = getShareHistory();
+    return { completed, processing, hidden, totalShares: shareHistory.length };
+  };
+
+  const stats = getStats();
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black pb-20">
-      <div className="pt-safe-top px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-black pb-20">
+      <div className="pt-safe-top">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="py-6"
+          className="px-4 py-6 bg-white dark:bg-gray-900 shadow-sm"
         >
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Health Timeline
-          </h1>
-          <p className="text-ios-gray-600 dark:text-ios-gray-400 mt-1">
-            {records.length} total records
-          </p>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Health Timeline
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">
+                {timelineEvents.length} events • {records.length} records
+              </p>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowShareHistory(true)}
+                className="p-2 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
+              >
+                <ShareIcon className="w-5 h-5" />
+              </motion.button>
+              
+              <div className="flex bg-white dark:bg-gray-800 rounded-xl p-1 shadow-sm">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 rounded-lg transition-all duration-200 ${
+                    viewMode === 'list'
+                      ? 'bg-blue-500 text-white shadow-sm'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  {viewMode === 'list' ? (
+                    <ListBulletIconSolid className="w-4 h-4" />
+                  ) : (
+                    <ListBulletIcon className="w-4 h-4" />
+                  )}
+                </button>
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 rounded-lg transition-all duration-200 ${
+                    viewMode === 'grid'
+                      ? 'bg-blue-500 text-white shadow-sm'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  {viewMode === 'grid' ? (
+                    <Squares2X2IconSolid className="w-4 h-4" />
+                  ) : (
+                    <Squares2X2Icon className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          {/* Filter Buttons */}
+          <div className="flex space-x-2 mt-4">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setFilterType('all')}
+              className={`flex-1 py-2 px-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+                filterType === 'all'
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+              }`}
+            >
+              <ClockIcon className="w-4 h-4" />
+              All Events
+            </motion.button>
+            
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setFilterType('uploads')}
+              className={`flex-1 py-2 px-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+                filterType === 'uploads'
+                  ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+              }`}
+            >
+              <ArrowUpTrayIcon className="w-4 h-4" />
+              Uploads
+            </motion.button>
+            
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setFilterType('shares')}
+              className={`flex-1 py-2 px-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+                filterType === 'shares'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+              }`}
+            >
+              <PaperAirplaneIcon className="w-4 h-4" />
+              Shares
+            </motion.button>
+          </div>
+          
+          {/* Stats */}
+          <div className="grid grid-cols-4 gap-3 mt-4">
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 text-center">
+              <p className="text-lg font-bold text-green-600 dark:text-green-400">{stats.completed}</p>
+              <p className="text-xs text-green-600 dark:text-green-400">Completed</p>
+            </div>
+            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-3 text-center">
+              <p className="text-lg font-bold text-orange-600 dark:text-orange-400">{stats.processing}</p>
+              <p className="text-xs text-orange-600 dark:text-orange-400">Processing</p>
+            </div>
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-center">
+              <p className="text-lg font-bold text-gray-600 dark:text-gray-400">{stats.hidden}</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">Hidden</p>
+            </div>
+            <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 text-center">
+              <p className="text-lg font-bold text-purple-600 dark:text-purple-400">{stats.totalShares}</p>
+              <p className="text-xs text-purple-600 dark:text-purple-400">Shares</p>
+            </div>
+          </div>
         </motion.div>
 
-        {sortedRecords.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-12"
-          >
-            <DocumentTextIcon className="w-16 h-16 text-ios-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-              No Records Yet
-            </h3>
-            <p className="text-ios-gray-600 dark:text-ios-gray-400">
-              Upload your first health record to get started
-            </p>
-          </motion.div>
-        ) : (
-          <div className="space-y-3">
-            {sortedRecords.map((record, index) => (
-              <motion.div
-                key={record.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.05 * index }}
-                className={`bg-ios-gray-100 dark:bg-ios-gray-900 rounded-2xl p-4 ${
-                  record.hidden ? 'opacity-60' : ''
-                }`}
-              >
-                <div 
-                  className="flex items-start justify-between cursor-pointer"
-                  onClick={() => setSelectedRecord(
-                    selectedRecord === record.id ? null : record.id
-                  )}
-                >
-                  <div className="flex items-start space-x-3 flex-1">
-                    {getStatusIcon(record.status)}
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-900 dark:text-white">
-                        {record.name}
-                      </h3>
-                      <p className="text-sm text-ios-gray-600 dark:text-ios-gray-400">
-                        {new Date(record.uploadedAt).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </p>
-                      
-                      <div className="flex items-center space-x-2 mt-2">
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                          getStatusColor(record.status)
-                        }`}>
-                          {record.status}
-                        </span>
-                        {record.hidden && (
-                          <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-ios-gray-200 text-ios-gray-700 dark:bg-ios-gray-800 dark:text-ios-gray-300">
-                            Hidden
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+        {/* Timeline Events */}
+        <div className="px-4 py-6">
+          {timelineEvents.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-12"
+            >
+              <DocumentTextIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                No Events Yet
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                {filterType === 'shares' ? 
+                  'Share your first record to see it here' : 
+                  'Upload your first health record to get started'}
+              </p>
+            </motion.div>
+          ) : viewMode === 'grid' ? (
+            /* Grid View - No timeline connectors */
+            <div className="grid grid-cols-2 gap-4">
+              {timelineEvents.map((event, index) => (
+                <TimelineEvent
+                  key={event.id || `${event.type}-${index}`}
+                  event={event}
+                  viewMode={viewMode}
+                  showConnector={false}
+                  onClick={handleEventClick}
+                />
+              ))}
+            </div>
+          ) : (
+            /* Timeline View with Date Sections */
+            <div className="relative">
+              {timelineData.map((dateGroup, groupIndex) => {
+                const formatSectionDate = (date) => {
+                  const today = new Date();
+                  const yesterday = new Date(today);
+                  yesterday.setDate(yesterday.getDate() - 1);
                   
-                  <ChevronRightIcon className={`w-5 h-5 text-ios-gray-400 transition-transform ${
-                    selectedRecord === record.id ? 'rotate-90' : ''
-                  }`} />
-                </div>
-
-                {/* Expanded Details */}
-                <AnimatePresence>
-                  {selectedRecord === record.id && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="pt-4 mt-4 border-t border-ios-gray-200 dark:border-ios-gray-800">
-                        {record.extractedData && (
-                          <div className="mb-4 space-y-2">
-                            <p className="text-sm">
-                              <span className="text-ios-gray-500">Patient:</span>{' '}
-                              <span className="text-gray-900 dark:text-white font-medium">
-                                {record.extractedData.patientName}
-                              </span>
-                            </p>
-                            <p className="text-sm">
-                              <span className="text-ios-gray-500">Provider:</span>{' '}
-                              <span className="text-gray-900 dark:text-white font-medium">
-                                {record.extractedData.provider}
-                              </span>
-                            </p>
-                            <p className="text-sm">
-                              <span className="text-ios-gray-500">Type:</span>{' '}
-                              <span className="text-gray-900 dark:text-white font-medium">
-                                {record.extractedData.type}
-                              </span>
-                            </p>
-                            <p className="text-sm">
-                              <span className="text-ios-gray-500">Summary:</span>{' '}
-                              <span className="text-gray-900 dark:text-white">
-                                {record.extractedData.summary}
-                              </span>
-                            </p>
-                          </div>
-                        )}
+                  if (date.toDateString() === today.toDateString()) {
+                    return 'Today';
+                  } else if (date.toDateString() === yesterday.toDateString()) {
+                    return 'Yesterday';
+                  } else {
+                    return date.toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      month: 'long',
+                      day: 'numeric'
+                    });
+                  }
+                };
+                
+                return (
+                  <motion.div
+                    key={dateGroup.date.toDateString()}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: groupIndex * 0.1 }}
+                  >
+                    {/* Sticky Section Header */}
+                    <div className="sticky top-0 z-10 bg-gray-50/95 dark:bg-black/95 backdrop-blur-xl px-4 py-3 mb-6 -mx-4">
+                      <h3 className="font-semibold text-gray-600 dark:text-gray-400 text-sm">
+                        {formatSectionDate(dateGroup.date)}
+                      </h3>
+                    </div>
+                    
+                    {/* Events for this date */}
+                    <div className="space-y-4">
+                      {dateGroup.events.map((event, eventIndex) => {
+                        const isFirst = eventIndex === 0;
+                        const isLast = eventIndex === dateGroup.events.length - 1 && groupIndex === timelineData.length - 1;
                         
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleRecordVisibility(record.id);
-                            }}
-                            className="flex-1 bg-white dark:bg-ios-gray-800 py-2 rounded-xl font-medium text-sm flex items-center justify-center space-x-1 hover:bg-ios-gray-50 dark:hover:bg-ios-gray-700 transition-colors"
-                          >
-                            {record.hidden ? (
-                              <>
-                                <EyeIcon className="w-4 h-4" />
-                                <span>Show</span>
-                              </>
-                            ) : (
-                              <>
-                                <EyeSlashIcon className="w-4 h-4" />
-                                <span>Hide</span>
-                              </>
-                            )}
-                          </button>
-                          
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setDeleteConfirm(record.id);
-                            }}
-                            className="flex-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 py-2 rounded-xl font-medium text-sm flex items-center justify-center space-x-1 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
-                          >
-                            <TrashIcon className="w-4 h-4" />
-                            <span>Delete</span>
-                          </button>
-                        </div>
-                      </div>
-                    </motion.div>
+                        return (
+                          <TimelineEvent
+                            key={event.id || `${event.type}-${eventIndex}`}
+                            event={event}
+                            viewMode={viewMode}
+                            isFirst={isFirst && groupIndex === 0}
+                            isLast={isLast}
+                            showConnector={true}
+                            isActive={selectedRecord?.id === event.id}
+                            onClick={handleEventClick}
+                          />
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Record Detail Modal */}
+        <RecordDetailModal
+          record={selectedRecord}
+          isOpen={showDetailModal}
+          onClose={handleCloseDetailModal}
+          onShare={handleShare}
+          onDelete={handleDeleteFromModal}
+          onToggleVisibility={handleToggleVisibilityFromModal}
+        />
+        
+        {/* Share History Modal */}
+        <ShareHistory 
+          isOpen={showShareHistory}
+          onClose={() => setShowShareHistory(false)}
+        />
+        
+        {/* Share Single Record Modal */}
+        {shareRecord && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+            onClick={() => setShareRecord(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-white dark:bg-gray-900 rounded-3xl p-6 max-w-sm w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                Share Record
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                Enter the healthcare provider's email address to share this record.
+              </p>
+              
+              <input
+                type="email"
+                placeholder="provider@example.com"
+                value={shareEmail}
+                onChange={(e) => setShareEmail(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-0 rounded-2xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-700 transition-all mb-6"
+              />
+              
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShareRecord(null)}
+                  className="flex-1 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleShare()}
+                  disabled={!shareEmail || isSharing}
+                  className="flex-1 bg-blue-500 text-white py-3 rounded-2xl font-semibold hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  {isSharing ? (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="w-5 h-5 border-2 border-white border-t-transparent rounded-full mx-auto"
+                    />
+                  ) : (
+                    'Share'
                   )}
-                </AnimatePresence>
-              </motion.div>
-            ))}
-          </div>
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
 
         {/* Delete Confirmation */}
@@ -217,33 +456,35 @@ function TimelinePage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-white dark:bg-ios-gray-900 rounded-2xl p-6 max-w-sm w-full"
+              className="bg-white dark:bg-gray-900 rounded-3xl p-6 max-w-sm w-full"
             >
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                 Delete Record?
               </h3>
-              <p className="text-sm text-ios-gray-600 dark:text-ios-gray-400 mb-6">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
                 This action cannot be undone. The record will be permanently removed.
               </p>
               
               <div className="flex space-x-3">
                 <button
                   onClick={() => setDeleteConfirm(null)}
-                  className="flex-1 bg-ios-gray-100 dark:bg-ios-gray-800 text-gray-900 dark:text-white py-2 rounded-xl font-medium"
+                  className="flex-1 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                 >
                   Cancel
                 </button>
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => handleDelete(deleteConfirm)}
-                  className="flex-1 bg-red-500 text-white py-2 rounded-xl font-semibold"
+                  className="flex-1 bg-red-500 text-white py-3 rounded-2xl font-semibold hover:bg-red-600 transition-colors"
                 >
                   Delete
-                </button>
+                </motion.button>
               </div>
             </motion.div>
           </motion.div>

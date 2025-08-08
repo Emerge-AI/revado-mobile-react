@@ -92,4 +92,25 @@
     );
     animation: shimmer 2s infinite;
   }
+  
+  /* Custom timeline styles */
+  .timeline-gradient {
+    background: linear-gradient(180deg, transparent 0%, rgba(99, 102, 241, 0.1) 50%, transparent 100%);
+  }
+  
+  /* Enhanced backdrop blur */
+  .backdrop-blur-xl {
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+  
+  /* Smooth scrolling for timeline */
+  .timeline-scroll {
+    scroll-behavior: smooth;
+  }
+  
+  /* iOS-style spring animations */
+  .spring-bounce {
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
 }

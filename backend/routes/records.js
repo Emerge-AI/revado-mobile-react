@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 import { getAll, getOne, runQuery } from '../database/init.js';
 
 const router = express.Router();
@@ -30,15 +31,30 @@ router.get('/', async (req, res) => {
     
     const records = await getAll(query, params);
     
-    // Transform records to include URLs
+    // Transform records to include URLs and proper field mapping
     const transformedRecords = records.map(record => {
       const fileType = record.file_type;
       const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${fileType}s/${record.filename}`;
       
       return {
-        ...record,
+        id: record.id,
+        originalName: record.original_name,
+        displayName: record.display_name || path.parse(record.original_name).name,
+        filename: record.filename,
         url: fileUrl,
-        extractedData: record.extracted_data ? JSON.parse(record.extracted_data) : null
+        size: record.file_size,
+        mimeType: record.mime_type,
+        type: record.file_type,
+        status: record.status,
+        hidden: record.hidden,
+        uploadedAt: record.uploaded_at,
+        processedAt: record.processed_at,
+        extractedData: record.extracted_data ? JSON.parse(record.extracted_data) : null,
+        aiAnalysis: record.ai_analysis ? JSON.parse(record.ai_analysis) : null,
+        analysisStatus: record.analysis_status,
+        analysisConfidence: record.analysis_confidence,
+        documentType: record.document_type,
+        analyzedAt: record.analyzed_at
       };
     });
     
@@ -80,9 +96,24 @@ router.get('/:id', async (req, res) => {
     res.json({
       success: true,
       record: {
-        ...record,
+        id: record.id,
+        originalName: record.original_name,
+        displayName: record.display_name || path.parse(record.original_name).name,
+        filename: record.filename,
         url: fileUrl,
-        extractedData: record.extracted_data ? JSON.parse(record.extracted_data) : null
+        size: record.file_size,
+        mimeType: record.mime_type,
+        type: record.file_type,
+        status: record.status,
+        hidden: record.hidden,
+        uploadedAt: record.uploaded_at,
+        processedAt: record.processed_at,
+        extractedData: record.extracted_data ? JSON.parse(record.extracted_data) : null,
+        aiAnalysis: record.ai_analysis ? JSON.parse(record.ai_analysis) : null,
+        analysisStatus: record.analysis_status,
+        analysisConfidence: record.analysis_confidence,
+        documentType: record.document_type,
+        analyzedAt: record.analyzed_at
       }
     });
   } catch (error) {
@@ -160,9 +191,24 @@ router.put('/:id', async (req, res) => {
       success: true,
       message: 'Record updated successfully',
       record: {
-        ...updatedRecord,
+        id: updatedRecord.id,
+        originalName: updatedRecord.original_name,
+        displayName: updatedRecord.display_name || path.parse(updatedRecord.original_name).name,
+        filename: updatedRecord.filename,
         url: fileUrl,
-        extractedData: updatedRecord.extracted_data ? JSON.parse(updatedRecord.extracted_data) : null
+        size: updatedRecord.file_size,
+        mimeType: updatedRecord.mime_type,
+        type: updatedRecord.file_type,
+        status: updatedRecord.status,
+        hidden: updatedRecord.hidden,
+        uploadedAt: updatedRecord.uploaded_at,
+        processedAt: updatedRecord.processed_at,
+        extractedData: updatedRecord.extracted_data ? JSON.parse(updatedRecord.extracted_data) : null,
+        aiAnalysis: updatedRecord.ai_analysis ? JSON.parse(updatedRecord.ai_analysis) : null,
+        analysisStatus: updatedRecord.analysis_status,
+        analysisConfidence: updatedRecord.analysis_confidence,
+        documentType: updatedRecord.document_type,
+        analyzedAt: updatedRecord.analyzed_at
       }
     });
   } catch (error) {

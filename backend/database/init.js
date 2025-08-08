@@ -37,12 +37,13 @@ export function initDatabase() {
         if (err) console.error('Error creating users table:', err);
       });
 
-      // Create records table
+      // Create records table with AI analysis fields
       db.run(`
         CREATE TABLE IF NOT EXISTS records (
           id TEXT PRIMARY KEY,
           user_id TEXT NOT NULL,
           original_name TEXT NOT NULL,
+          display_name TEXT NOT NULL,
           filename TEXT NOT NULL,
           file_path TEXT NOT NULL,
           file_type TEXT NOT NULL,
@@ -50,13 +51,37 @@ export function initDatabase() {
           mime_type TEXT,
           status TEXT DEFAULT 'uploaded',
           extracted_data TEXT,
+          ai_analysis TEXT,
+          analysis_status TEXT DEFAULT 'pending',
+          analysis_confidence REAL,
+          document_type TEXT,
           hidden BOOLEAN DEFAULT 0,
           uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           processed_at DATETIME,
+          analyzed_at DATETIME,
           FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         )
       `, (err) => {
         if (err) console.error('Error creating records table:', err);
+        else {
+          // Add new columns for existing databases
+          const newColumns = [
+            { name: 'display_name', type: 'TEXT' },
+            { name: 'ai_analysis', type: 'TEXT' },
+            { name: 'analysis_status', type: 'TEXT DEFAULT "pending"' },
+            { name: 'analysis_confidence', type: 'REAL' },
+            { name: 'document_type', type: 'TEXT' },
+            { name: 'analyzed_at', type: 'DATETIME' }
+          ];
+          
+          newColumns.forEach(col => {
+            db.run(`ALTER TABLE records ADD COLUMN ${col.name} ${col.type}`, (alterErr) => {
+              if (alterErr && !alterErr.message.includes('duplicate column')) {
+                console.error(`Error adding ${col.name} column:`, alterErr);
+              }
+            });
+          });
+        }
       });
 
       // Create share_history table

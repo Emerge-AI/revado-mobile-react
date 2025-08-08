@@ -2,6 +2,7 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { uploadSingle, uploadMultiple, getFileInfo, deleteUploadedFile } from '../middleware/upload.js';
 import { runQuery, getOne, getAll } from '../database/init.js';
+import { analyzeMedicalDocument } from '../services/aiAnalysis.js';
 import path from 'path';
 
 const router = express.Router();
@@ -30,17 +31,21 @@ router.post('/single', uploadSingle, async (req, res) => {
       fileType = 'pdf';
     }
     
+    // Create display name (original filename without extension)
+    const displayName = path.parse(req.file.originalname).name;
+    
     // Store file metadata in database
     const recordId = uuidv4();
     await runQuery(
       `INSERT INTO records (
-        id, user_id, original_name, filename, file_path, 
+        id, user_id, original_name, display_name, filename, file_path, 
         file_type, file_size, mime_type, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         recordId,
         userId,
         req.file.originalname,
+        displayName,
         req.file.filename,
         req.file.path,
         fileType,
@@ -53,13 +58,76 @@ router.post('/single', uploadSingle, async (req, res) => {
     // Build file URL
     const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${fileType}s/${req.file.filename}`;
     
-    // Simulate processing (in production, this would be async)
-    setTimeout(async () => {
-      await runQuery(
-        `UPDATE records SET status = ?, processed_at = ? WHERE id = ?`,
-        ['completed', new Date().toISOString(), recordId]
-      );
-    }, 3000);
+    // Trigger AI analysis for PDFs if enabled
+    if (fileType === 'pdf' && process.env.ENABLE_AI_ANALYSIS === 'true') {
+      // Run analysis asynchronously
+      setTimeout(async () => {
+        try {
+          console.log(`Starting AI analysis for record ${recordId}`);
+          
+          // Update status to processing
+          await runQuery(
+            `UPDATE records SET status = ?, analysis_status = ? WHERE id = ?`,
+            ['processing', 'processing', recordId]
+          );
+          
+          // Perform analysis
+          const analysisResult = await analyzeMedicalDocument(req.file.path, 'pdf');
+          
+          if (analysisResult.success) {
+            // Update with analysis results
+            await runQuery(
+              `UPDATE records SET 
+                status = ?,
+                processed_at = ?,
+                ai_analysis = ?,
+                analysis_status = ?,
+                analysis_confidence = ?,
+                document_type = ?,
+                analyzed_at = ?
+              WHERE id = ?`,
+              [
+                'completed',
+                new Date().toISOString(),
+                JSON.stringify(analysisResult.analysis),
+                'completed',
+                analysisResult.confidence || 0.8,
+                analysisResult.documentType || 'general',
+                new Date().toISOString(),
+                recordId
+              ]
+            );
+            console.log(`AI analysis completed for record ${recordId}`);
+          } else {
+            // Mark as completed but analysis failed
+            await runQuery(
+              `UPDATE records SET 
+                status = ?,
+                processed_at = ?,
+                analysis_status = ?
+              WHERE id = ?`,
+              ['completed', new Date().toISOString(), 'failed', recordId]
+            );
+            console.error(`AI analysis failed for record ${recordId}:`, analysisResult.error);
+          }
+        } catch (error) {
+          console.error(`Error during AI analysis for record ${recordId}:`, error);
+          // Mark as completed even if analysis fails
+          await runQuery(
+            `UPDATE records SET status = ?, processed_at = ?, analysis_status = ? WHERE id = ?`,
+            ['completed', new Date().toISOString(), 'failed', recordId]
+          );
+        }
+      }, 1000); // Start after 1 second
+    } else {
+      // For non-PDF files or if AI is disabled, just mark as completed
+      setTimeout(async () => {
+        await runQuery(
+          `UPDATE records SET status = ?, processed_at = ? WHERE id = ?`,
+          ['completed', new Date().toISOString(), recordId]
+        );
+      }, 3000);
+    }
     
     res.json({
       success: true,
@@ -67,6 +135,7 @@ router.post('/single', uploadSingle, async (req, res) => {
       file: {
         id: recordId,
         originalName: req.file.originalname,
+        displayName: displayName,
         filename: req.file.filename,
         url: fileUrl,
         size: req.file.size,
@@ -113,16 +182,20 @@ router.post('/multiple', uploadMultiple, async (req, res) => {
         fileType = 'pdf';
       }
       
+      // Create display name (original filename without extension)
+      const displayName = path.parse(file.originalname).name;
+      
       const recordId = uuidv4();
       await runQuery(
         `INSERT INTO records (
-          id, user_id, original_name, filename, file_path, 
+          id, user_id, original_name, display_name, filename, file_path, 
           file_type, file_size, mime_type, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           recordId,
           userId,
           file.originalname,
+          displayName,
           file.filename,
           file.path,
           fileType,
@@ -137,6 +210,7 @@ router.post('/multiple', uploadMultiple, async (req, res) => {
       uploadedFiles.push({
         id: recordId,
         originalName: file.originalname,
+        displayName: displayName,
         filename: file.filename,
         url: fileUrl,
         size: file.size,
@@ -144,6 +218,63 @@ router.post('/multiple', uploadMultiple, async (req, res) => {
         type: fileType,
         status: 'processing'
       });
+      
+      // Trigger AI analysis for PDFs
+      if (fileType === 'pdf' && process.env.ENABLE_AI_ANALYSIS === 'true') {
+        setTimeout(async () => {
+          try {
+            console.log(`Starting AI analysis for record ${recordId}`);
+            await runQuery(
+              `UPDATE records SET analysis_status = ? WHERE id = ?`,
+              ['processing', recordId]
+            );
+            
+            const analysisResult = await analyzeMedicalDocument(file.path, 'pdf');
+            
+            if (analysisResult.success) {
+              await runQuery(
+                `UPDATE records SET 
+                  status = ?,
+                  processed_at = ?,
+                  ai_analysis = ?,
+                  analysis_status = ?,
+                  analysis_confidence = ?,
+                  document_type = ?,
+                  analyzed_at = ?
+                WHERE id = ?`,
+                [
+                  'completed',
+                  new Date().toISOString(),
+                  JSON.stringify(analysisResult.analysis),
+                  'completed',
+                  analysisResult.confidence || 0.8,
+                  analysisResult.documentType || 'general',
+                  new Date().toISOString(),
+                  recordId
+                ]
+              );
+            } else {
+              await runQuery(
+                `UPDATE records SET status = ?, processed_at = ?, analysis_status = ? WHERE id = ?`,
+                ['completed', new Date().toISOString(), 'failed', recordId]
+              );
+            }
+          } catch (error) {
+            console.error(`Error during AI analysis for record ${recordId}:`, error);
+            await runQuery(
+              `UPDATE records SET status = ?, processed_at = ?, analysis_status = ? WHERE id = ?`,
+              ['completed', new Date().toISOString(), 'failed', recordId]
+            );
+          }
+        }, 1000);
+      } else {
+        setTimeout(async () => {
+          await runQuery(
+            `UPDATE records SET status = ?, processed_at = ? WHERE id = ?`,
+            ['completed', new Date().toISOString(), recordId]
+          );
+        }, 3000);
+      }
     }
     
     res.json({
@@ -216,7 +347,7 @@ router.get('/status/:id', async (req, res) => {
     const userId = req.headers['x-user-id'] || 'demo-user';
     
     const record = await getOne(
-      'SELECT id, original_name, status, uploaded_at, processed_at FROM records WHERE id = ? AND user_id = ?',
+      'SELECT * FROM records WHERE id = ? AND user_id = ?',
       [id, userId]
     );
     
@@ -224,10 +355,27 @@ router.get('/status/:id', async (req, res) => {
       return res.status(404).json({ error: 'Record not found' });
     }
     
+    // Determine file type category
+    let fileType = record.file_type;
+    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${fileType}s/${record.filename}`;
+    
     res.json({
       success: true,
       status: record.status,
-      record: record
+      record: {
+        id: record.id,
+        originalName: record.original_name,
+        displayName: record.display_name || path.parse(record.original_name).name,
+        filename: record.filename,
+        url: fileUrl,
+        size: record.file_size,
+        mimeType: record.mime_type,
+        type: record.file_type,
+        status: record.status,
+        hidden: record.hidden,
+        uploadedAt: record.uploaded_at,
+        processedAt: record.processed_at
+      }
     });
   } catch (error) {
     console.error('Status check error:', error);

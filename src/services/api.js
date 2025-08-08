@@ -220,6 +220,15 @@ class ApiService {
   }
 
   /**
+   * Analyze record with AI
+   */
+  async analyzeRecord(id) {
+    return this.request(`/analyze/${id}`, {
+      method: 'POST',
+    });
+  }
+
+  /**
    * Check if backend is available
    */
   async isBackendAvailable() {

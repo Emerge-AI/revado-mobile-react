@@ -21,6 +21,7 @@ export function HealthRecordsProvider({ children }) {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [processingQueue, setProcessingQueue] = useState([]);
   const [useBackend, setUseBackend] = useState(false);
+  const [analysisInProgress, setAnalysisInProgress] = useState({});
 
   useEffect(() => {
     // Check if backend is available
@@ -65,11 +66,13 @@ export function HealthRecordsProvider({ children }) {
         if (response.success) {
           const newRecord = {
             id: response.file.id,
-            name: response.file.originalName,
+            originalName: response.file.originalName,
+            displayName: response.file.displayName,
             filename: response.file.filename,
             type: response.file.type,
             url: response.file.url,
-            uploadedAt: new Date().toISOString(),
+            uploadedAt: response.file.uploadedAt || new Date().toISOString(),
+            processedAt: response.file.processedAt,
             status: response.file.status,
             size: response.file.size,
             mimeType: response.file.mimeType,
@@ -87,6 +90,9 @@ export function HealthRecordsProvider({ children }) {
                 clearInterval(checkStatus);
                 await loadRecordsFromBackend();
                 setProcessingQueue(prev => prev.filter(id => id !== newRecord.id));
+                
+                // Automatically trigger AI analysis after upload completes
+                await analyzeRecord(newRecord.id);
               }
             } catch (error) {
               console.error('[HealthRecords] Error checking status:', error);
@@ -113,8 +119,11 @@ export function HealthRecordsProvider({ children }) {
         
         const newRecord = {
           id: Date.now().toString(),
-          name: file.name,
+          originalName: file.name,
+          displayName: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
+          filename: file.name,
           type: file.type.includes('pdf') ? 'document' : 'image',
+          mimeType: file.type,
           uploadedAt: new Date().toISOString(),
           status: 'processing',
           size: file.size,
@@ -131,8 +140,10 @@ export function HealthRecordsProvider({ children }) {
         clearInterval(interval);
         setUploadProgress(100);
 
-        setTimeout(() => {
+        setTimeout(async () => {
           processRecord(newRecord.id);
+          // Automatically trigger AI analysis for local uploads
+          await analyzeRecord(newRecord.id);
         }, 3000);
 
         setLoading(false);
@@ -179,8 +190,11 @@ export function HealthRecordsProvider({ children }) {
     
     const newRecord = {
       id: Date.now().toString(),
-      name: `Records from ${providerEmail}`,
+      originalName: `Records from ${providerEmail}`,
+      displayName: `Records from ${providerEmail}`,
+      filename: `ccda_${Date.now()}.xml`,
       type: 'ccda',
+      mimeType: 'application/xml',
       uploadedAt: new Date().toISOString(),
       status: 'pending',
       providerEmail,
@@ -216,6 +230,93 @@ export function HealthRecordsProvider({ children }) {
     }
   };
 
+  const analyzeRecord = async (recordId) => {
+    console.log('[HealthRecords] Starting AI analysis for record:', recordId);
+    
+    // Set analysis in progress
+    setAnalysisInProgress(prev => ({ ...prev, [recordId]: true }));
+    
+    try {
+      if (useBackend) {
+        // Call backend AI analysis service
+        const response = await apiService.analyzeRecord(recordId);
+        
+        if (response.success) {
+          // Update record with analysis results
+          setRecords(prev => prev.map(record => {
+            if (record.id === recordId) {
+              return {
+                ...record,
+                aiAnalysis: response.analysis,
+                analyzedAt: new Date().toISOString()
+              };
+            }
+            return record;
+          }));
+          
+          console.log('[HealthRecords] AI analysis completed:', response.analysis);
+          return response.analysis;
+        }
+      } else {
+        // Simulate AI analysis for local mode
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        const mockAnalysis = {
+          summary: 'This document contains important health information including lab results and clinical notes.',
+          keyFindings: [
+            'Blood pressure within normal range',
+            'Cholesterol levels slightly elevated',
+            'No abnormalities detected in imaging'
+          ],
+          recommendations: [
+            'Continue current medication regimen',
+            'Schedule follow-up in 3 months',
+            'Consider dietary changes for cholesterol management'
+          ],
+          extractedData: {
+            patientInfo: {
+              name: 'John Doe',
+              dob: '1980-01-15',
+              mrn: 'MRN-123456'
+            },
+            visitDate: '2024-01-15',
+            provider: 'Dr. Smith',
+            facility: 'City Medical Center'
+          },
+          confidence: 0.92,
+          processingTime: 2.3
+        };
+        
+        setRecords(prev => {
+          const updated = prev.map(record => {
+            if (record.id === recordId) {
+              return {
+                ...record,
+                aiAnalysis: mockAnalysis,
+                analyzedAt: new Date().toISOString()
+              };
+            }
+            return record;
+          });
+          localStorage.setItem('healthRecords', JSON.stringify(updated));
+          return updated;
+        });
+        
+        return mockAnalysis;
+      }
+    } catch (error) {
+      console.error('[HealthRecords] AI analysis failed:', error);
+      throw error;
+    } finally {
+      // Clear analysis in progress
+      setAnalysisInProgress(prev => {
+        const updated = { ...prev };
+        delete updated[recordId];
+        return updated;
+      });
+    }
+  };
+
   const toggleRecordVisibility = async (recordId) => {
     try {
       if (useBackend) {
@@ -248,8 +349,10 @@ export function HealthRecordsProvider({ children }) {
     setLoading(true);
     
     try {
-      // Filter visible records
-      const visibleRecords = records.filter(r => !r.hidden && r.status === 'completed');
+      // Filter visible records or specific record if provided
+      const visibleRecords = options.recordId 
+        ? records.filter(r => r.id === options.recordId && !r.hidden)
+        : records.filter(r => !r.hidden && r.status === 'completed');
       
       if (visibleRecords.length === 0) {
         throw new Error('No records available to share');
@@ -358,12 +461,14 @@ export function HealthRecordsProvider({ children }) {
         id: Date.now().toString(),
         recipientEmail: dentistEmail,
         recordCount: visibleRecords.length,
+        recordIds: visibleRecords.map(r => r.id),
         sharedAt: new Date().toISOString(),
         status: emailResult.success ? 'sent' : 'failed',
         method: emailResult.fallback ? 'mailto' : 'emailjs',
         pdfSize: pdfResult.size,
         emailMessageId: emailResult.messageId || null,
-        error: emailResult.error || null
+        error: emailResult.error || null,
+        recipientName: options.recipientName || 'Healthcare Provider'
       };
 
       // Store share history
@@ -385,16 +490,32 @@ export function HealthRecordsProvider({ children }) {
     }
   };
 
+  const getShareHistory = () => {
+    return JSON.parse(localStorage.getItem('shareHistory') || '[]');
+  };
+
+  const getShareCountForRecord = (recordId) => {
+    const shareHistory = getShareHistory();
+    return shareHistory.filter(share => 
+      share.recordIds?.includes(recordId) ||
+      (share.sharedAt && new Date(share.sharedAt) > new Date(records.find(r => r.id === recordId)?.uploadedAt || 0))
+    ).length;
+  };
+
   const value = {
     records,
     loading,
     uploadProgress,
     processingQueue,
+    analysisInProgress,
     uploadFile,
     connectProvider,
     deleteRecord,
     toggleRecordVisibility,
+    analyzeRecord,
     generateSharePackage,
+    getShareHistory,
+    getShareCountForRecord,
   };
 
   return (

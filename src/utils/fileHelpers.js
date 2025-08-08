@@ -101,14 +101,17 @@ export async function prepareFileAttachments(records) {
       try {
         // Skip if file is too large (EmailJS has a 50KB limit per attachment)
         if (record.size && record.size > 50 * 1024) {
-          console.log(`Skipping large file: ${record.name} (${formatFileSize(record.size)})`);
+          const fileName = record.displayName || record.originalName || record.filename || 'Unknown file';
+          console.log(`Skipping large file: ${fileName} (${formatFileSize(record.size)})`);
           continue;
         }
         
         const base64 = await urlToBase64(record.url);
+        const fileName = record.originalName || record.displayName || record.filename || 'attachment';
+        
         attachments.push({
-          name: record.name || record.filename || 'attachment',
-          type: record.mimeType || getMimeType(record.name || ''),
+          name: fileName,
+          type: record.mimeType || getMimeType(fileName),
           base64: base64,
           size: record.size
         });
