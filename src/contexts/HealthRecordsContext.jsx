@@ -701,6 +701,102 @@ export function HealthRecordsProvider({ children }) {
       const storedMedications = localStorage.getItem('medications');
       if (storedMedications) {
         setMedications(JSON.parse(storedMedications));
+      } else {
+        // Initialize with dummy medication data
+        const dummyMedications = [
+          {
+            id: '1',
+            name: 'Lisinopril',
+            dosage: '10mg',
+            frequency: 'Once daily',
+            times: ['08:00'],
+            pillType: 'tablet',
+            color: '#ffffff',
+            shape: 'round',
+            status: 'active',
+            prescribedBy: 'Dr. Smith',
+            startDate: '2024-01-01',
+            nextDose: new Date(new Date().setHours(8, 0, 0, 0)).toISOString(),
+            instructions: 'Take with water, preferably in the morning'
+          },
+          {
+            id: '2', 
+            name: 'Metformin',
+            dosage: '500mg',
+            frequency: 'Twice daily',
+            times: ['08:00', '20:00'],
+            pillType: 'tablet',
+            color: '#ffffff',
+            shape: 'oval',
+            status: 'active',
+            prescribedBy: 'Dr. Johnson',
+            startDate: '2024-01-15',
+            nextDose: new Date(new Date().setHours(8, 0, 0, 0)).toISOString(),
+            instructions: 'Take with food to reduce stomach upset'
+          },
+          {
+            id: '3',
+            name: 'Atorvastatin', 
+            dosage: '20mg',
+            frequency: 'Once daily',
+            times: ['22:00'],
+            pillType: 'capsule',
+            color: '#ffffff',
+            shape: 'capsule',
+            status: 'active',
+            prescribedBy: 'Dr. Wilson',
+            startDate: '2024-02-01',
+            nextDose: new Date(new Date().setHours(22, 0, 0, 0)).toISOString(),
+            instructions: 'Take at bedtime'
+          },
+          {
+            id: '4',
+            name: 'Vitamin D3',
+            dosage: '1000IU',
+            frequency: 'Once daily',
+            times: ['08:00'],
+            pillType: 'capsule',
+            color: '#ffd700',
+            shape: 'capsule',
+            status: 'active',
+            prescribedBy: 'Dr. Smith',
+            startDate: '2024-02-15',
+            nextDose: new Date(new Date().setHours(8, 0, 0, 0)).toISOString(),
+            instructions: 'Take with fatty food for better absorption'
+          },
+          {
+            id: '5',
+            name: 'Aspirin',
+            dosage: '81mg',
+            frequency: 'Once daily',
+            times: ['08:00'],
+            pillType: 'tablet',
+            color: '#ffffff',
+            shape: 'round',
+            status: 'active',
+            prescribedBy: 'Dr. Johnson',
+            startDate: '2024-01-01',
+            nextDose: new Date(new Date().setHours(8, 0, 0, 0)).toISOString(),
+            instructions: 'Low-dose aspirin for heart health'
+          },
+          {
+            id: '6',
+            name: 'Prednisone',
+            dosage: '20mg',
+            frequency: 'Once daily',
+            times: ['08:00'],
+            pillType: 'tablet',
+            color: '#ffffff',
+            shape: 'round',
+            status: 'completed',
+            prescribedBy: 'Dr. Wilson',
+            startDate: '2024-01-01',
+            endDate: '2024-02-01',
+            instructions: 'Completed 30-day course for inflammation'
+          }
+        ];
+        setMedications(dummyMedications);
+        localStorage.setItem('medications', JSON.stringify(dummyMedications));
       }
       
       const storedEvents = localStorage.getItem('medicalEvents');

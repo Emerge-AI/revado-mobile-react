@@ -37,56 +37,54 @@ function AuthPage({ onAuthenticated }) {
   // Check for biometric setup on component mount
   const [showBiometric, setShowBiometric] = useState(false);
 
+  // Separate useEffect for biometric availability check
   useEffect(() => {
-    // Check for biometric setup
-    const checkBiometric = async () => {
-      // Use config storage keys
-      const storedEmail = localStorage.getItem(config.storage.userEmail) || localStorage.getItem('userEmail');
-      const biometricCredential = localStorage.getItem(config.storage.lastCredentialId);
-      const credentials = localStorage.getItem(config.storage.credentials);
-      
-      // Debug logging for mobile
-      console.log('Auth page biometric check:', {
-        storedEmail,
-        hasBiometricCredential: !!biometricCredential,
-        hasCredentials: !!credentials,
-        isAvailable,
-        userAgent: navigator.userAgent
-      });
-      
-      // Update biometric availability when it changes  
-      const shouldShowBiometric = !!(storedEmail && (biometricCredential || credentials) && isAvailable);
-      setShowBiometric(shouldShowBiometric);
-      
-      // Reset to initial state
-      setAuthMode('initial');
-      setEmail('');
-      setPassword('');
-      setError('');
-      
-      // Auto-trigger Face ID on mobile after a short delay
-      if (shouldShowBiometric && isAvailable) {
-        // Check if on mobile device
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        
-        if (isMobile) {
-          // Add a subtle animation to draw attention to the Face ID button
-          setTimeout(() => {
-            // Trigger a visual pulse on the Face ID button
-            const faceIdButton = document.getElementById('face-id-button');
-            if (faceIdButton) {
-              faceIdButton.classList.add('animate-pulse');
-              setTimeout(() => {
-                faceIdButton.classList.remove('animate-pulse');
-              }, 2000);
-            }
-          }, 500);
-        }
-      }
-    };
+    // Use config storage keys
+    const storedEmail = localStorage.getItem(config.storage.userEmail) || localStorage.getItem('userEmail');
+    const biometricCredential = localStorage.getItem(config.storage.lastCredentialId);
+    const credentials = localStorage.getItem(config.storage.credentials);
     
-    checkBiometric();
+    // Debug logging for mobile
+    console.log('Auth page biometric check:', {
+      storedEmail,
+      hasBiometricCredential: !!biometricCredential,
+      hasCredentials: !!credentials,
+      isAvailable,
+      userAgent: navigator.userAgent
+    });
+    
+    // Update biometric availability when it changes  
+    const shouldShowBiometric = !!(storedEmail && (biometricCredential || credentials) && isAvailable);
+    setShowBiometric(shouldShowBiometric);
+    
+    // Auto-trigger Face ID animation on mobile after a short delay
+    if (shouldShowBiometric && isAvailable) {
+      // Check if on mobile device
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      
+      if (isMobile) {
+        // Add a subtle animation to draw attention to the Face ID button
+        setTimeout(() => {
+          // Trigger a visual pulse on the Face ID button
+          const faceIdButton = document.getElementById('face-id-button');
+          if (faceIdButton) {
+            faceIdButton.classList.add('animate-pulse');
+            setTimeout(() => {
+              faceIdButton.classList.remove('animate-pulse');
+            }, 2000);
+          }
+        }, 500);
+      }
+    }
   }, [isAvailable]);
+
+  // Separate useEffect for initial state reset - only run on mount
+  useEffect(() => {
+    setAuthMode('initial');
+    setEmail('');
+    setPassword('');
+    setError('');
+  }, []);
 
   const handleEmailCheck = async (e) => {
     e.preventDefault();
@@ -345,6 +343,48 @@ function AuthPage({ onAuthenticated }) {
     setName('');
   };
 
+  const handleSkipSignIn = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      // Create dummy John Doe account
+      const dummyUser = {
+        id: 'demo-user-' + Date.now().toString(),
+        email: 'john.doe@demo.com',
+        password: 'demo123',
+        name: 'John Doe',
+        createdAt: new Date().toISOString(),
+      };
+
+      // Store in user database
+      const users = JSON.parse(localStorage.getItem('userDatabase') || '{}');
+      users[dummyUser.email] = dummyUser;
+      localStorage.setItem('userDatabase', JSON.stringify(users));
+
+      // Update registered users list
+      const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      if (!registeredUsers.includes(dummyUser.email)) {
+        registeredUsers.push(dummyUser.email);
+        localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+      }
+
+      // Use the existing signIn method to properly authenticate
+      const result = await signIn(dummyUser.email, dummyUser.password);
+      
+      if (result.success) {
+        onAuthenticated();
+      } else {
+        setError(result.message || 'Demo sign in failed');
+      }
+    } catch (err) {
+      console.error('Demo sign in error:', err);
+      setError('Failed to create demo account');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <div className="pt-safe-top px-4 pb-8 flex-1 flex flex-col">
@@ -452,6 +492,16 @@ function AuthPage({ onAuthenticated }) {
                 >
                   New user? Create account
                 </button>
+
+                <div className="pt-4 border-t border-gray-200">
+                  <button
+                    onClick={handleSkipSignIn}
+                    disabled={loading}
+                    className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 py-3 rounded-xl font-medium transition-colors disabled:opacity-50 text-sm"
+                  >
+                    {loading ? 'Creating demo...' : 'Skip Sign In (Demo as John Doe)'}
+                  </button>
+                </div>
               </motion.div>
             )}
 
@@ -496,6 +546,16 @@ function AuthPage({ onAuthenticated }) {
                   <UserPlusIcon className="w-5 h-5" />
                   Create Account
                 </button>
+
+                <div className="pt-4 border-t border-gray-200">
+                  <button
+                    onClick={handleSkipSignIn}
+                    disabled={loading}
+                    className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 py-3 rounded-xl font-medium transition-colors disabled:opacity-50 text-sm"
+                  >
+                    {loading ? 'Creating demo...' : 'Skip Sign In (Demo as John Doe)'}
+                  </button>
+                </div>
                 
                 {/* Face ID Diagnostic Tests - Always show */}
                 <div className="pt-4 border-t border-gray-100">

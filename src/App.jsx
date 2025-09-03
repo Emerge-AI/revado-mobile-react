@@ -6,6 +6,7 @@ import TransitionWrapper from './components/TransitionWrapper';
 import HomePage from './pages/HomePage';
 import UploadPage from './pages/UploadPage';
 import SharePage from './pages/SharePage';
+import MedicationsPage from './pages/MedicationsPage';
 import AuthPage from './pages/AuthPage';
 import TimelinePage from './pages/TimelinePage';
 import OnboardingPage from './pages/OnboardingPage';
@@ -87,6 +88,11 @@ function App() {
                     <Route path="/share" element={
                       <TransitionWrapper>
                         <SharePage />
+                      </TransitionWrapper>
+                    } />
+                    <Route path="/medications" element={
+                      <TransitionWrapper>
+                        <MedicationsPage />
                       </TransitionWrapper>
                     } />
                     <Route path="/connect" element={
