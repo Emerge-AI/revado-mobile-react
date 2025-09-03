@@ -13,6 +13,7 @@ import uploadRoutes from './routes/upload.js';
 import recordsRoutes from './routes/records.js';
 import healthRoutes from './routes/health.js';
 import analyzeRoutes from './routes/analyze.js';
+import imageAnalysisRoutes from './routes/imageAnalysis.js';
 
 // Import database
 import { initDatabase } from './database/init.js';
@@ -48,6 +49,8 @@ app.use(cors({
       'http://localhost:5174', 
       'https://localhost:5173',
       'https://192.168.1.233:5173',
+      'https://revado-mobile-react.vercel.app',
+      'https://revado-mobile-react-*.vercel.app', // Allow preview deployments
       process.env.FRONTEND_URL
     ].filter(Boolean);
     
@@ -58,10 +61,25 @@ app.use(cors({
       }
     }
     
+    // In production, allow Vercel deployments
+    if (process.env.NODE_ENV === 'production') {
+      if (origin.includes('vercel.app') && origin.includes('revado-mobile-react')) {
+        return callback(null, true);
+      }
+    }
+    
     // Check if origin is in allowed list
-    if (allowedOrigins.includes(origin)) {
+    if (allowedOrigins.some(allowed => {
+      if (allowed.includes('*')) {
+        // Handle wildcard patterns
+        const pattern = allowed.replace('*', '.*');
+        return new RegExp(pattern).test(origin);
+      }
+      return allowed === origin;
+    })) {
       callback(null, true);
     } else {
+      console.log('CORS blocked origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -119,6 +137,7 @@ app.use('/api/health', healthRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/records', recordsRoutes);
 app.use('/api/analyze', analyzeRoutes);
+app.use('/api/image-analysis', imageAnalysisRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

@@ -1,0 +1,13 @@
+<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Anthem logo -->
+  <g transform="translate(10, 15)">
+    <!-- Anthem arc logo -->
+    <path d="M0 30 Q25 5, 50 30" stroke="#e11d48" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <path d="M5 35 Q25 15, 45 35" stroke="#e11d48" stroke-width="4" fill="none" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Text -->
+  <g transform="translate(75, 35)">
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#e11d48">anthem</text>
+  </g>
+</svg>

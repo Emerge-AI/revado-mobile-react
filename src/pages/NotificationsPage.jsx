@@ -108,11 +108,11 @@ function NotificationsPage() {
         <div className="flex items-center justify-between py-4 mb-6">
           <button
             onClick={() => navigate('/settings')}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <ArrowLeftIcon className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+            <ArrowLeftIcon className="w-6 h-6 text-gray-700" />
           </button>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-xl font-bold text-gray-900">
             Notifications
           </h1>
           <div className="w-10" />
@@ -120,7 +120,7 @@ function NotificationsPage() {
 
         {/* Notification Channels */}
         <div className="mb-8">
-          <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
             Notification Channels
           </h2>
           <div className="space-y-3">
@@ -129,26 +129,26 @@ function NotificationsPage() {
                 key={channel.key}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
-                className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm"
+                className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded-lg ${
                       notifications[channel.key] 
-                        ? 'bg-blue-100 dark:bg-blue-900/30' 
-                        : 'bg-gray-100 dark:bg-gray-700'
+                        ? 'bg-blue-100' 
+                        : 'bg-gray-100'
                     }`}>
                       <channel.icon className={`w-5 h-5 ${
                         notifications[channel.key] 
-                          ? 'text-blue-600 dark:text-blue-400' 
-                          : 'text-gray-600 dark:text-gray-400'
+                          ? 'text-blue-600' 
+                          : 'text-gray-600'
                       }`} />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900 dark:text-white">
+                      <p className="font-semibold text-gray-900">
                         {channel.label}
                       </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                      <p className="text-xs text-gray-600">
                         {channel.description}
                       </p>
                     </div>
@@ -159,7 +159,7 @@ function NotificationsPage() {
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                       notifications[channel.key] 
                         ? 'bg-blue-600' 
-                        : 'bg-gray-300 dark:bg-gray-600'
+                        : 'bg-gray-300'
                     }`}
                   >
                     <span
@@ -176,7 +176,7 @@ function NotificationsPage() {
 
         {/* Notification Types */}
         <div className="mb-8">
-          <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
             Notification Types
           </h2>
           <div className="space-y-3">
@@ -185,26 +185,26 @@ function NotificationsPage() {
                 key={type.key}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
-                className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm"
+                className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded-lg ${
                       notifications[type.key] 
-                        ? 'bg-green-100 dark:bg-green-900/30' 
-                        : 'bg-gray-100 dark:bg-gray-700'
+                        ? 'bg-green-100' 
+                        : 'bg-gray-100'
                     }`}>
                       <type.icon className={`w-5 h-5 ${
                         notifications[type.key] 
-                          ? 'text-green-600 dark:text-green-400' 
-                          : 'text-gray-600 dark:text-gray-400'
+                          ? 'text-green-600' 
+                          : 'text-gray-600'
                       }`} />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900 dark:text-white">
+                      <p className="font-semibold text-gray-900">
                         {type.label}
                       </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                      <p className="text-xs text-gray-600">
                         {type.description}
                       </p>
                     </div>
@@ -216,7 +216,7 @@ function NotificationsPage() {
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                       notifications[type.key] 
                         ? 'bg-green-600' 
-                        : 'bg-gray-300 dark:bg-gray-600'
+                        : 'bg-gray-300'
                     } ${
                       !notifications.pushEnabled && !notifications.emailEnabled && !notifications.smsEnabled
                         ? 'opacity-50 cursor-not-allowed'
@@ -237,32 +237,32 @@ function NotificationsPage() {
 
         {/* Quiet Hours */}
         <div>
-          <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
             Quiet Hours
           </h2>
           <motion.div
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
-            className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm"
+            className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
                 <div className={`p-2 rounded-lg ${
                   notifications.quietHoursEnabled 
-                    ? 'bg-purple-100 dark:bg-purple-900/30' 
-                    : 'bg-gray-100 dark:bg-gray-700'
+                    ? 'bg-purple-100' 
+                    : 'bg-gray-100'
                 }`}>
                   <ClockIcon className={`w-5 h-5 ${
                     notifications.quietHoursEnabled 
-                      ? 'text-purple-600 dark:text-purple-400' 
-                      : 'text-gray-600 dark:text-gray-400'
+                      ? 'text-purple-600' 
+                      : 'text-gray-600'
                   }`} />
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900 dark:text-white">
+                  <p className="font-semibold text-gray-900">
                     Do Not Disturb
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                  <p className="text-xs text-gray-600">
                     Silence notifications during set hours
                   </p>
                 </div>
@@ -273,7 +273,7 @@ function NotificationsPage() {
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                   notifications.quietHoursEnabled 
                     ? 'bg-purple-600' 
-                    : 'bg-gray-300 dark:bg-gray-600'
+                    : 'bg-gray-300'
                 }`}
               >
                 <span
@@ -285,23 +285,23 @@ function NotificationsPage() {
             </div>
             
             {notifications.quietHoursEnabled && (
-              <div className="flex items-center space-x-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center space-x-4 pt-4 border-t border-gray-200">
                 <div className="flex-1">
-                  <label className="text-xs text-gray-500 dark:text-gray-400">From</label>
+                  <label className="text-xs text-gray-500">From</label>
                   <input
                     type="time"
                     value={notifications.quietHoursStart}
                     onChange={(e) => setNotifications(prev => ({ ...prev, quietHoursStart: e.target.value }))}
-                    className="w-full mt-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-900 dark:text-white"
+                    className="w-full mt-1 px-3 py-2 bg-gray-100 rounded-lg text-gray-900"
                   />
                 </div>
                 <div className="flex-1">
-                  <label className="text-xs text-gray-500 dark:text-gray-400">To</label>
+                  <label className="text-xs text-gray-500">To</label>
                   <input
                     type="time"
                     value={notifications.quietHoursEnd}
                     onChange={(e) => setNotifications(prev => ({ ...prev, quietHoursEnd: e.target.value }))}
-                    className="w-full mt-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-900 dark:text-white"
+                    className="w-full mt-1 px-3 py-2 bg-gray-100 rounded-lg text-gray-900"
                   />
                 </div>
               </div>

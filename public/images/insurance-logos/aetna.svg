@@ -1,0 +1,13 @@
+<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Aetna heart logo based on the provided image -->
+  <g transform="translate(10, 15)">
+    <!-- Heart shape -->
+    <path d="M20 45 C10 35, -5 25, 0 15 C5 5, 20 10, 20 20 C20 10, 35 5, 40 15 C45 25, 30 35, 20 45 Z" 
+          fill="#a855f7" stroke="none"/>
+  </g>
+  
+  <!-- Aetna text -->
+  <g transform="translate(70, 25)">
+    <text x="0" y="25" font-family="Arial, sans-serif" font-size="28" font-weight="normal" fill="#a855f7">aetna</text>
+  </g>
+</svg>

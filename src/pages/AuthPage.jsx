@@ -7,6 +7,7 @@ import authLogger from '../utils/authLogger';
 import FaceIDDebugPanel from '../components/FaceIDDebugPanel';
 import FaceIDTestButton from '../components/FaceIDTestButton';
 import FaceIDDebugger from '../components/FaceIDDebugger';
+import RevadoLogo from '../components/RevadoLogo';
 import { 
   EnvelopeIcon, 
   DevicePhoneMobileIcon, 
@@ -358,13 +359,10 @@ function AuthPage({ onAuthenticated }) {
             transition={{ type: "spring", stiffness: 200, delay: 0.3 }}
             className="mb-8 text-center"
           >
-            <div className="inline-flex p-4 rounded-2xl bg-gray-100 dark:bg-gray-800 mb-4">
-              <ShieldCheckIcon className="w-12 h-12 text-gray-700 dark:text-gray-300" />
+            <div className="flex justify-center mb-6">
+              <RevadoLogo size="large" animated={true} />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              Revado Health
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 font-medium">
+            <p className="text-gray-600 font-medium">
               Your health records, simplified
             </p>
           </motion.div>
@@ -383,17 +381,17 @@ function AuthPage({ onAuthenticated }) {
               >
                 <div className="text-center mb-6">
                   <motion.div 
-                    className="inline-flex p-6 rounded-3xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 mb-4"
+                    className="inline-flex p-6 rounded-3xl bg-gradient-to-br from-primary-50 to-primary-100 mb-4"
                     animate={{ scale: [1, 1.05, 1] }}
                     transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
                   >
-                    <FaceSmileIcon className="w-16 h-16 text-blue-600 dark:text-blue-400" />
+                    <FaceSmileIcon className="w-16 h-16 text-primary-600" />
                   </motion.div>
                   
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     Welcome Back!
                   </h2>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className="text-gray-600">
                     Tap below to sign in with Face ID
                   </p>
                 </div>
@@ -404,7 +402,7 @@ function AuthPage({ onAuthenticated }) {
                   disabled={loading}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-semibold text-lg disabled:opacity-50 transition-colors flex items-center justify-center gap-3 relative"
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white py-4 rounded-xl font-semibold text-lg disabled:opacity-50 transition-colors flex items-center justify-center gap-3 relative"
                 >
                   {loading ? (
                     <span className="flex items-center justify-center">
@@ -423,8 +421,8 @@ function AuthPage({ onAuthenticated }) {
                         animate={{ scale: [1, 1.2, 1] }}
                         transition={{ duration: 1, repeat: Infinity }}
                       >
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-primary-500"></span>
                       </motion.span>
                     </>
                   )}
@@ -432,10 +430,10 @@ function AuthPage({ onAuthenticated }) {
 
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300 dark:border-gray-600" />
+                    <div className="w-full border-t border-gray-300" />
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400">
+                    <span className="px-4 bg-white text-gray-500">
                       or
                     </span>
                   </div>
@@ -443,14 +441,14 @@ function AuthPage({ onAuthenticated }) {
 
                 <button
                   onClick={() => setAuthMode('email')}
-                  className="w-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white py-4 rounded-xl font-semibold text-lg transition-colors"
+                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-4 rounded-xl font-semibold text-lg transition-colors"
                 >
                   Sign in with Email
                 </button>
 
                 <button
                   onClick={() => setAuthMode('signup')}
-                  className="w-full text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 py-2 font-medium transition-colors"
+                  className="w-full text-primary-600 hover:text-primary-700 py-2 font-medium transition-colors"
                 >
                   New user? Create account
                 </button>
@@ -468,7 +466,7 @@ function AuthPage({ onAuthenticated }) {
               >
                 {/* Debug info for mobile - remove in production */}
                 {/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) && (
-                  <div className="text-xs text-gray-500 dark:text-gray-400 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <div className="text-xs text-gray-500 p-2 bg-gray-100 rounded-lg">
                     <p>Debug: Mobile detected</p>
                     <p>Face ID available: {isAvailable ? 'Yes' : 'No'}</p>
                     <p>Has stored email: {localStorage.getItem(config.storage.userEmail) ? 'Yes' : 'No'}</p>
@@ -482,7 +480,7 @@ function AuthPage({ onAuthenticated }) {
                     setAuthMode('signin');
                     authLogger.startTracking('signin');
                   }}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-semibold text-lg transition-colors flex items-center justify-center gap-3"
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white py-4 rounded-xl font-semibold text-lg transition-colors flex items-center justify-center gap-3"
                 >
                   <ArrowLeftIcon className="w-5 h-5 rotate-180" />
                   Sign In
@@ -493,14 +491,14 @@ function AuthPage({ onAuthenticated }) {
                     setAuthMode('signup');
                     authLogger.startTracking('signup');
                   }}
-                  className="w-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white py-4 rounded-xl font-semibold text-lg transition-colors flex items-center justify-center gap-3"
+                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-4 rounded-xl font-semibold text-lg transition-colors flex items-center justify-center gap-3"
                 >
                   <UserPlusIcon className="w-5 h-5" />
                   Create Account
                 </button>
                 
                 {/* Face ID Diagnostic Tests - Always show */}
-                <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="pt-4 border-t border-gray-100">
                   <FaceIDTestButton />
                 </div>
                 
@@ -509,7 +507,7 @@ function AuthPage({ onAuthenticated }) {
                   <>
                     <button
                       onClick={() => setAuthMode('signin')}
-                      className="w-full text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 py-2 font-medium transition-colors text-sm"
+                      className="w-full text-primary-600 hover:text-primary-700 py-2 font-medium transition-colors text-sm"
                     >
                       Have Face ID set up? Sign in to enable it
                     </button>
@@ -531,7 +529,7 @@ function AuthPage({ onAuthenticated }) {
                           }
                         }
                       }}
-                      className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold text-sm transition-colors"
+                      className="w-full bg-success-600 hover:bg-success-700 text-white py-3 rounded-xl font-semibold text-sm transition-colors"
                     >
                       🔧 Test: Setup Face ID Manually
                     </button>
@@ -558,14 +556,14 @@ function AuthPage({ onAuthenticated }) {
                 <button
                   type="button"
                   onClick={resetToInitial}
-                  className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors mb-4"
+                  className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors mb-4"
                 >
                   <ArrowLeftIcon className="w-4 h-4" />
                   Back
                 </button>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Email Address
                   </label>
                   <div className="relative">
@@ -576,7 +574,7 @@ function AuthPage({ onAuthenticated }) {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
                       required
-                      className="w-full pl-12 pr-4 py-4 bg-white dark:bg-gray-800 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200 dark:border-gray-700"
+                      className="w-full pl-12 pr-4 py-4 bg-white rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 border border-gray-100"
                     />
                   </div>
                 </div>
@@ -586,7 +584,7 @@ function AuthPage({ onAuthenticated }) {
                   disabled={loading}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-semibold text-lg disabled:opacity-50 transition-colors"
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white py-4 rounded-xl font-semibold text-lg disabled:opacity-50 transition-colors"
                 >
                   {loading ? 'Checking...' : 'Continue'}
                 </motion.button>
@@ -606,18 +604,18 @@ function AuthPage({ onAuthenticated }) {
                 <button
                   type="button"
                   onClick={resetToInitial}
-                  className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors mb-4"
+                  className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors mb-4"
                 >
                   <ArrowLeftIcon className="w-4 h-4" />
                   Back
                 </button>
 
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h2 className="text-2xl font-bold text-gray-900">
                   Welcome back!
                 </h2>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Email Address
                   </label>
                   <div className="relative">
@@ -628,13 +626,13 @@ function AuthPage({ onAuthenticated }) {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
                       required
-                      className="w-full pl-12 pr-4 py-4 bg-white dark:bg-gray-800 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200 dark:border-gray-700"
+                      className="w-full pl-12 pr-4 py-4 bg-white rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 border border-gray-100"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Password
                   </label>
                   <div className="relative">
@@ -645,7 +643,7 @@ function AuthPage({ onAuthenticated }) {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
                       required
-                      className="w-full pl-12 pr-4 py-4 bg-white dark:bg-gray-800 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200 dark:border-gray-700"
+                      className="w-full pl-12 pr-4 py-4 bg-white rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 border border-gray-100"
                     />
                   </div>
                 </div>
@@ -654,7 +652,7 @@ function AuthPage({ onAuthenticated }) {
                   <motion.p
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-red-500 text-sm font-medium bg-red-50 dark:bg-red-900/20 p-3 rounded-xl"
+                    className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-xl"
                   >
                     {error}
                   </motion.p>
@@ -665,7 +663,7 @@ function AuthPage({ onAuthenticated }) {
                   disabled={loading}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-semibold text-lg disabled:opacity-50 transition-colors"
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white py-4 rounded-xl font-semibold text-lg disabled:opacity-50 transition-colors"
                 >
                   {loading ? (
                     <span className="flex items-center justify-center">
@@ -682,7 +680,7 @@ function AuthPage({ onAuthenticated }) {
 
                 <button
                   type="button"
-                  className="w-full text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 py-2 font-medium transition-colors"
+                  className="w-full text-primary-600 hover:text-primary-700 py-2 font-medium transition-colors"
                 >
                   Forgot password?
                 </button>
@@ -702,18 +700,18 @@ function AuthPage({ onAuthenticated }) {
                 <button
                   type="button"
                   onClick={resetToInitial}
-                  className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors mb-4"
+                  className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors mb-4"
                 >
                   <ArrowLeftIcon className="w-4 h-4" />
                   Back
                 </button>
 
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h2 className="text-2xl font-bold text-gray-900">
                   Create your account
                 </h2>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Full Name
                   </label>
                   <input
@@ -722,12 +720,12 @@ function AuthPage({ onAuthenticated }) {
                     onChange={(e) => setName(e.target.value)}
                     placeholder="John Doe"
                     required
-                    className="w-full px-4 py-4 bg-white dark:bg-gray-800 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200 dark:border-gray-700"
+                    className="w-full px-4 py-4 bg-white rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 border border-gray-100"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Email Address
                   </label>
                   <div className="relative">
@@ -738,13 +736,13 @@ function AuthPage({ onAuthenticated }) {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
                       required
-                      className="w-full pl-12 pr-4 py-4 bg-white dark:bg-gray-800 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200 dark:border-gray-700"
+                      className="w-full pl-12 pr-4 py-4 bg-white rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 border border-gray-100"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Password
                   </label>
                   <div className="relative">
@@ -756,10 +754,10 @@ function AuthPage({ onAuthenticated }) {
                       placeholder="••••••••"
                       required
                       minLength={8}
-                      className="w-full pl-12 pr-4 py-4 bg-white dark:bg-gray-800 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200 dark:border-gray-700"
+                      className="w-full pl-12 pr-4 py-4 bg-white rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 border border-gray-100"
                     />
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <p className="text-xs text-gray-500 mt-1">
                     At least 8 characters
                   </p>
                 </div>
@@ -768,7 +766,7 @@ function AuthPage({ onAuthenticated }) {
                   <motion.p
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-red-500 text-sm font-medium bg-red-50 dark:bg-red-900/20 p-3 rounded-xl"
+                    className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-xl"
                   >
                     {error}
                   </motion.p>
@@ -779,7 +777,7 @@ function AuthPage({ onAuthenticated }) {
                   disabled={loading}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-semibold text-lg disabled:opacity-50 transition-colors"
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white py-4 rounded-xl font-semibold text-lg disabled:opacity-50 transition-colors"
                 >
                   {loading ? (
                     <span className="flex items-center justify-center">
@@ -794,7 +792,7 @@ function AuthPage({ onAuthenticated }) {
                   )}
                 </motion.button>
 
-                <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-center text-gray-500">
                   By signing up, you agree to our Terms of Service and Privacy Policy
                 </p>
               </motion.form>
@@ -810,15 +808,15 @@ function AuthPage({ onAuthenticated }) {
                 onSubmit={handlePhoneSubmit}
                 className="space-y-5"
               >
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h2 className="text-2xl font-bold text-gray-900">
                   Verify your phone
                 </h2>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600">
                   We'll send you a code to verify your identity
                 </p>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Phone Number
                   </label>
                   <div className="relative">
@@ -829,7 +827,7 @@ function AuthPage({ onAuthenticated }) {
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="+1 (555) 123-4567"
                       required
-                      className="w-full pl-12 pr-4 py-4 bg-white dark:bg-gray-800 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200 dark:border-gray-700"
+                      className="w-full pl-12 pr-4 py-4 bg-white rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 border border-gray-100"
                     />
                   </div>
                 </div>
@@ -839,7 +837,7 @@ function AuthPage({ onAuthenticated }) {
                   disabled={loading}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-semibold text-lg disabled:opacity-50 transition-colors"
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white py-4 rounded-xl font-semibold text-lg disabled:opacity-50 transition-colors"
                 >
                   {loading ? 'Sending...' : 'Send Code'}
                 </motion.button>
@@ -856,10 +854,10 @@ function AuthPage({ onAuthenticated }) {
                 onSubmit={handleSMSSubmit}
                 className="space-y-5"
               >
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h2 className="text-2xl font-bold text-gray-900">
                   Enter verification code
                 </h2>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600">
                   We sent a code to {phone}
                 </p>
 
@@ -871,11 +869,11 @@ function AuthPage({ onAuthenticated }) {
                     placeholder="123456"
                     required
                     maxLength={6}
-                    className="w-full px-4 py-4 bg-white dark:bg-gray-800 rounded-xl text-gray-900 dark:text-white text-center text-2xl tracking-widest placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200 dark:border-gray-700"
+                    className="w-full px-4 py-4 bg-white rounded-xl text-gray-900 text-center text-2xl tracking-widest placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 border border-gray-100"
                   />
                 </div>
 
-                <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-center text-gray-500">
                   Demo: Use code 123456
                 </p>
 
@@ -883,7 +881,7 @@ function AuthPage({ onAuthenticated }) {
                   <motion.p
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-red-500 text-sm font-medium bg-red-50 dark:bg-red-900/20 p-3 rounded-xl"
+                    className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-xl"
                   >
                     {error}
                   </motion.p>
@@ -894,7 +892,7 @@ function AuthPage({ onAuthenticated }) {
                   disabled={loading}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-semibold text-lg disabled:opacity-50 transition-colors"
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white py-4 rounded-xl font-semibold text-lg disabled:opacity-50 transition-colors"
                 >
                   {loading ? 'Verifying...' : 'Verify'}
                 </motion.button>
@@ -908,7 +906,7 @@ function AuthPage({ onAuthenticated }) {
             <motion.p
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-red-500 text-sm font-medium bg-red-50 dark:bg-red-900/20 p-3 rounded-xl text-center mt-4"
+              className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-xl text-center mt-4"
             >
               {error}
             </motion.p>

@@ -1,0 +1,14 @@
+<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Medicaid logo -->
+  <g transform="translate(10, 15)">
+    <!-- Medicaid badge -->
+    <rect x="5" y="5" width="40" height="40" fill="#009639" rx="5" stroke="none"/>
+    <rect x="10" y="10" width="30" height="30" fill="white" rx="3" stroke="none"/>
+    <path d="M15 18 L20 28 L25 18 L30 28 L35 18" stroke="#009639" stroke-width="2" fill="none"/>
+  </g>
+  
+  <!-- Text -->
+  <g transform="translate(65, 35)">
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#009639">Medicaid</text>
+  </g>
+</svg>

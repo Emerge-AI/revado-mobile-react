@@ -10,18 +10,38 @@ const router = express.Router();
  * Trigger AI analysis for a specific record
  */
 router.post('/:recordId', async (req, res) => {
+  console.log('[Backend/Analyze] POST /analyze/:recordId endpoint hit');
+  console.log('[Backend/Analyze] Record ID:', req.params.recordId);
+  console.log('[Backend/Analyze] Headers:', req.headers);
+  
   try {
     const { recordId } = req.params;
     const userId = req.headers['x-user-id'] || 'demo-user';
     const { reanalyze = false, customPrompt = null } = req.body || {};
     
+    console.log('[Backend/Analyze] User ID:', userId);
+    console.log('[Backend/Analyze] Reanalyze:', reanalyze);
+    console.log('[Backend/Analyze] Custom prompt:', customPrompt);
+    
     // Get record from database
+    console.log('[Backend/Analyze] Fetching record from database...');
     const record = await getOne(
       'SELECT * FROM records WHERE id = ? AND user_id = ?',
       [recordId, userId]
     );
     
+    console.log('[Backend/Analyze] Database query result:', record ? 'Record found' : 'Record NOT found');
+    if (record) {
+      console.log('[Backend/Analyze] Record details:', {
+        id: record.id,
+        file_type: record.file_type,
+        file_path: record.file_path,
+        analysis_status: record.analysis_status
+      });
+    }
+    
     if (!record) {
+      console.log('[Backend/Analyze] Returning 404 - record not found');
       return res.status(404).json({ 
         error: 'Record not found' 
       });
@@ -66,14 +86,28 @@ router.post('/:recordId', async (req, res) => {
     }
     
     // Perform analysis
+    console.log('[Backend/Analyze] Starting AI analysis...');
+    console.log('[Backend/Analyze] File path:', record.file_path);
+    console.log('[Backend/Analyze] Analysis file type:', analysisFileType);
+    
     let result;
     if (customPrompt) {
+      console.log('[Backend/Analyze] Using custom prompt for reanalysis');
       result = await reanalyzeWithCustomPrompt(record.file_path, customPrompt, analysisFileType);
     } else {
+      console.log('[Backend/Analyze] Using standard medical document analysis');
       result = await analyzeMedicalDocument(record.file_path, analysisFileType);
     }
     
+    console.log('[Backend/Analyze] Analysis service returned:', {
+      success: result.success,
+      documentType: result.documentType,
+      isSimulated: result.isSimulated,
+      hasAnalysis: !!result.analysis
+    });
+    
     if (result.success) {
+      console.log('[Backend/Analyze] Analysis successful, updating database...');
       // Update database with analysis results
       await runQuery(
         `UPDATE records SET 
@@ -93,7 +127,7 @@ router.post('/:recordId', async (req, res) => {
         ]
       );
       
-      res.json({
+      const response = {
         success: true,
         message: 'Analysis completed successfully',
         recordId: recordId,
@@ -101,26 +135,44 @@ router.post('/:recordId', async (req, res) => {
         analysis: result.analysis,
         confidence: result.confidence,
         metadata: result.metadata
+      };
+      
+      console.log('[Backend/Analyze] Sending successful response:', {
+        success: true,
+        recordId: recordId,
+        documentType: result.documentType,
+        isSimulated: result.isSimulated
       });
+      
+      res.json(response);
     } else {
+      console.log('[Backend/Analyze] Analysis failed:', result.error);
       // Update status to failed
       await runQuery(
         'UPDATE records SET analysis_status = ? WHERE id = ?',
         ['failed', recordId]
       );
       
-      res.status(500).json({
+      const errorResponse = {
         error: 'Analysis failed',
         message: result.error,
         details: result.details
-      });
+      };
+      
+      console.log('[Backend/Analyze] Sending error response:', errorResponse);
+      res.status(500).json(errorResponse);
     }
   } catch (error) {
-    console.error('Analysis endpoint error:', error);
-    res.status(500).json({
+    console.error('[Backend/Analyze] Analysis endpoint error:', error);
+    console.error('[Backend/Analyze] Error stack:', error.stack);
+    
+    const errorResponse = {
       error: 'Internal server error',
       message: error.message
-    });
+    };
+    
+    console.log('[Backend/Analyze] Sending 500 error response:', errorResponse);
+    res.status(500).json(errorResponse);
   }
 });
 

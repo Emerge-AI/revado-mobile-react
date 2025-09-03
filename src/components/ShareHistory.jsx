@@ -49,13 +49,13 @@ function ShareHistory({ isOpen, onClose }) {
   const getStatusColor = (status) => {
     switch (status) {
       case 'sent':
-        return 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300';
+        return 'bg-green-50 text-green-700';
       case 'pending':
-        return 'bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300';
+        return 'bg-orange-50 text-orange-700';
       case 'failed':
-        return 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300';
+        return 'bg-red-50 text-red-700';
       default:
-        return 'bg-gray-50 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
+        return 'bg-gray-50 text-gray-700';
     }
   };
 
@@ -122,7 +122,7 @@ function ShareHistory({ isOpen, onClose }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            className="fixed inset-0 bg-white/50 backdrop-blur-sm z-40"
             onClick={onClose}
           />
 
@@ -147,19 +147,19 @@ function ShareHistory({ isOpen, onClose }) {
             }}
             className="fixed bottom-0 left-0 right-0 z-50"
           >
-            <div className="bg-white dark:bg-gray-900 rounded-t-3xl max-h-[85vh] flex flex-col">
+            <div className="bg-white rounded-t-3xl max-h-[85vh] flex flex-col">
               {/* Handle - Make it draggable */}
               <div className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing">
-                <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
+                <div className="w-10 h-1 bg-gray-300 rounded-full" />
               </div>
 
               {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                  <h2 className="text-xl font-bold text-gray-900">
                     Share History
                   </h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-500">
                     {shareHistory.length} total shares
                   </p>
                 </div>
@@ -167,9 +167,9 @@ function ShareHistory({ isOpen, onClose }) {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={onClose}
-                  className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  className="p-2 rounded-full bg-gray-100 hover:bg-gray-200:bg-gray-700 transition-colors"
                 >
-                  <XMarkIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <XMarkIcon className="w-5 h-5 text-gray-600" />
                 </motion.button>
               </div>
 
@@ -181,11 +181,11 @@ function ShareHistory({ isOpen, onClose }) {
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center py-12 px-6"
                   >
-                    <ShareIcon className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                    <ShareIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
                       No Shares Yet
                     </h3>
-                    <p className="text-gray-500 dark:text-gray-400">
+                    <p className="text-gray-500">
                       Your share history will appear here after you send records to healthcare providers.
                     </p>
                   </motion.div>
@@ -200,26 +200,26 @@ function ShareHistory({ isOpen, onClose }) {
                         className="group"
                       >
                         <div 
-                          className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-4 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 cursor-pointer"
+                          className="bg-gray-50 rounded-2xl p-4 hover:bg-gray-100:bg-gray-50 transition-all duration-200 cursor-pointer"
                           onClick={() => setSelectedShare(
                             selectedShare === share.id ? null : share.id
                           )}
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex items-start space-x-3 flex-1">
-                              <div className="p-2 bg-white dark:bg-gray-700 rounded-xl shadow-sm">
+                              <div className="p-2 bg-white rounded-xl shadow-sm">
                                 {getStatusIcon(share.status)}
                               </div>
                               
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center space-x-2 mb-1">
-                                  <h3 className="font-semibold text-gray-900 dark:text-white truncate">
+                                  <h3 className="font-semibold text-gray-900 truncate">
                                     {share.recipientEmail}
                                   </h3>
                                   {getMethodIcon(share.method)}
                                 </div>
                                 
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                                <p className="text-sm text-gray-500 mb-2">
                                   {formatDate(share.sharedAt)}
                                 </p>
                                 
@@ -228,7 +228,7 @@ function ShareHistory({ isOpen, onClose }) {
                                     {share.status}
                                   </span>
                                   
-                                  <span className="text-xs px-2 py-1 rounded-full font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                  <span className="text-xs px-2 py-1 rounded-full font-medium bg-blue-50 text-blue-700">
                                     {share.recordCount} {share.recordCount === 1 ? 'record' : 'records'}
                                   </span>
                                 </div>
@@ -256,19 +256,19 @@ function ShareHistory({ isOpen, onClose }) {
                                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                 className="overflow-hidden"
                               >
-                                <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
+                                <div className="pt-4 mt-4 border-t border-gray-200 space-y-3">
                                   <div className="grid grid-cols-2 gap-4 text-sm">
                                     <div>
-                                      <span className="text-gray-500 dark:text-gray-400">Method:</span>
-                                      <p className="text-gray-900 dark:text-white font-medium capitalize">
+                                      <span className="text-gray-500">Method:</span>
+                                      <p className="text-gray-900 font-medium capitalize">
                                         {share.method === 'emailjs' ? 'Direct Email' : 'Mail Client'}
                                       </p>
                                     </div>
                                     
                                     {share.pdfSize && (
                                       <div>
-                                        <span className="text-gray-500 dark:text-gray-400">PDF Size:</span>
-                                        <p className="text-gray-900 dark:text-white font-medium">
+                                        <span className="text-gray-500">PDF Size:</span>
+                                        <p className="text-gray-900 font-medium">
                                           {formatFileSize(share.pdfSize)}
                                         </p>
                                       </div>
@@ -276,8 +276,8 @@ function ShareHistory({ isOpen, onClose }) {
                                     
                                     {share.emailMessageId && (
                                       <div className="col-span-2">
-                                        <span className="text-gray-500 dark:text-gray-400">Message ID:</span>
-                                        <p className="text-gray-900 dark:text-white font-mono text-xs break-all">
+                                        <span className="text-gray-500">Message ID:</span>
+                                        <p className="text-gray-900 font-mono text-xs break-all">
                                           {share.emailMessageId}
                                         </p>
                                       </div>
@@ -285,12 +285,12 @@ function ShareHistory({ isOpen, onClose }) {
                                   </div>
 
                                   {share.error && (
-                                    <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-xl">
+                                    <div className="p-3 bg-red-50 rounded-xl">
                                       <div className="flex items-start space-x-2">
                                         <ExclamationTriangleIcon className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
                                         <div>
-                                          <p className="text-sm font-medium text-red-700 dark:text-red-300">Error</p>
-                                          <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                                          <p className="text-sm font-medium text-red-700">Error</p>
+                                          <p className="text-xs text-red-600 mt-1">
                                             {share.error}
                                           </p>
                                         </div>

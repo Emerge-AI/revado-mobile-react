@@ -61,19 +61,19 @@ function TermsPage() {
         <div className="flex items-center justify-between py-4 mb-6">
           <button
             onClick={() => navigate('/settings')}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <ArrowLeftIcon className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+            <ArrowLeftIcon className="w-6 h-6 text-gray-700" />
           </button>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-xl font-bold text-gray-900">
             Terms & Conditions
           </h1>
           <div className="w-10" />
         </div>
 
         {/* Last Updated */}
-        <div className="mb-6 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-          <p className="text-sm text-blue-700 dark:text-blue-300">
+        <div className="mb-6 p-3 bg-blue-50 rounded-xl">
+          <p className="text-sm text-blue-700">
             Last updated: January 8, 2025
           </p>
         </div>
@@ -86,13 +86,13 @@ function TermsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm"
+              className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm"
             >
               <div className="flex items-start space-x-3 mb-4">
-                <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700">
-                  <section.icon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                <div className="p-2 rounded-lg bg-gray-100">
+                  <section.icon className="w-5 h-5 text-gray-600" />
                 </div>
-                <h2 className="font-bold text-lg text-gray-900 dark:text-white">
+                <h2 className="font-bold text-lg text-gray-900">
                   {section.title}
                 </h2>
               </div>
@@ -100,8 +100,8 @@ function TermsPage() {
               <ul className="space-y-2">
                 {section.content.map((item, idx) => (
                   <li key={idx} className="flex items-start space-x-2">
-                    <span className="text-gray-400 dark:text-gray-500 mt-1">•</span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                    <span className="text-gray-400 mt-1">•</span>
+                    <span className="text-sm text-gray-600 leading-relaxed">
                       {item}
                     </span>
                   </li>
@@ -116,24 +116,24 @@ function TermsPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="mt-8 p-5 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-200 dark:border-blue-800"
+          className="mt-8 p-5 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl border border-blue-200"
         >
-          <h3 className="font-bold text-gray-900 dark:text-white mb-2">
+          <h3 className="font-bold text-gray-900 mb-2">
             Questions or Concerns?
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          <p className="text-sm text-gray-600 mb-4">
             If you have any questions about these terms, please contact us.
           </p>
           <div className="space-y-2">
             <a
               href="mailto:legal@revadohealth.com"
-              className="block text-sm text-blue-600 dark:text-blue-400 hover:underline"
+              className="block text-sm text-blue-600 hover:underline"
             >
               legal@revadohealth.com
             </a>
             <a
               href="tel:1-800-REVADO"
-              className="block text-sm text-blue-600 dark:text-blue-400 hover:underline"
+              className="block text-sm text-blue-600 hover:underline"
             >
               1-800-REVADO
             </a>
@@ -141,8 +141,8 @@ function TermsPage() {
         </motion.div>
 
         {/* Agreement Notice */}
-        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
-          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+        <div className="mt-6 p-4 bg-gray-50 rounded-xl">
+          <p className="text-xs text-gray-500 text-center">
             By using Revado Health, you acknowledge that you have read, understood, 
             and agree to be bound by these Terms & Conditions and Privacy Policy.
           </p>

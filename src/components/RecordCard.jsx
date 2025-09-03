@@ -84,7 +84,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
     
     return (
       <motion.div 
-        className="relative overflow-hidden rounded-2xl aspect-video bg-gray-100 dark:bg-gray-800"
+        className="relative overflow-hidden rounded-2xl aspect-video bg-gray-100"
         whileHover={{ scale: 1.02 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
@@ -99,7 +99,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
         
         {/* Share badge */}
         {getShareCount() > 0 && (
-          <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm rounded-full px-2 py-1 flex items-center space-x-1">
+          <div className="absolute top-2 right-2 bg-white/50 backdrop-blur-sm rounded-full px-2 py-1 flex items-center space-x-1">
             <ShareIconSolid className="w-3 h-3 text-white" />
             <span className="text-xs text-white font-medium">{getShareCount()}</span>
           </div>
@@ -113,21 +113,21 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
     
     return (
       <motion.div 
-        className="relative overflow-hidden rounded-2xl aspect-video bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 flex items-center justify-center"
+        className="relative overflow-hidden rounded-2xl aspect-video bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center"
         whileHover={{ scale: 1.02 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
         <div className="text-center">
           <DocumentIcon className="w-12 h-12 text-red-500 mx-auto mb-2" />
-          <p className="text-sm font-medium text-red-700 dark:text-red-300">PDF Document</p>
-          <p className="text-xs text-red-600 dark:text-red-400">
+          <p className="text-sm font-medium text-red-700">PDF Document</p>
+          <p className="text-xs text-red-600">
             {record.size ? `${Math.round(record.size / 1024)} KB` : 'Click to view'}
           </p>
         </div>
         
         {/* Share badge */}
         {getShareCount() > 0 && (
-          <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm rounded-full px-2 py-1 flex items-center space-x-1">
+          <div className="absolute top-2 right-2 bg-white/50 backdrop-blur-sm rounded-full px-2 py-1 flex items-center space-x-1">
             <ShareIconSolid className="w-3 h-3 text-white" />
             <span className="text-xs text-white font-medium">{getShareCount()}</span>
           </div>
@@ -145,7 +145,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           className={`relative group ${record.hidden ? 'opacity-60' : ''}`}
         >
-          <div className="bg-white dark:bg-gray-900 rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300">
+          <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300">
             {/* Image/PDF Preview */}
             <div className="p-3">
               {record.mimeType?.includes('image') ? renderImagePreview() : renderPDFPreview()}
@@ -156,14 +156,14 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center space-x-2 min-w-0 flex-1">
                   {getFileTypeIcon(record)}
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                  <h3 className="text-sm font-semibold text-gray-900 truncate">
                     {record.displayName || record.originalName || 'Unnamed Record'}
                   </h3>
                 </div>
                 {getStatusIcon(record.status)}
               </div>
               
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+              <p className="text-xs text-gray-500 mb-2">
                 {formatDate(record.uploadedAt)}
               </p>
               
@@ -171,16 +171,16 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
               <div className="flex items-center justify-between">
                 <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                   record.status === 'completed' 
-                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                    ? 'bg-green-100 text-green-700'
                     : record.status === 'processing'
-                    ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'
-                    : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                    ? 'bg-orange-100 text-orange-700'
+                    : 'bg-gray-100 text-gray-700'
                 }`}>
                   {record.status}
                 </span>
                 
                 {record.hidden && (
-                  <div className="p-1 bg-gray-100 dark:bg-gray-800 rounded-full">
+                  <div className="p-1 bg-gray-100 rounded-full">
                     <EyeSlashIcon className="w-3 h-3 text-gray-500" />
                   </div>
                 )}
@@ -189,7 +189,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
           </div>
           
           {/* Quick Actions Overlay */}
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center space-x-3">
+          <div className="absolute inset-0 bg-white/50 backdrop-blur-sm rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center space-x-3">
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
@@ -239,7 +239,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 bg-white/90 z-50 flex items-center justify-center p-4"
               onClick={() => setIsImageZoomed(false)}
             >
               <motion.img
@@ -266,7 +266,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
       animate={{ opacity: 1, x: 0 }}
       className={`relative ${record.hidden ? 'opacity-60' : ''}`}
     >
-      <div className="bg-white dark:bg-gray-900 rounded-3xl p-4 shadow-sm hover:shadow-md transition-all duration-300">
+      <div className="bg-white rounded-3xl p-4 shadow-sm hover:shadow-md transition-all duration-300">
         <motion.div
           className="flex items-start justify-between cursor-pointer"
           onClick={() => onToggle(record.id)}
@@ -274,57 +274,57 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
         >
           <div className="flex items-start space-x-3 flex-1">
-            <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded-2xl">
+            <div className="p-2 bg-gray-50 rounded-2xl">
               {getFileTypeIcon(record)}
             </div>
             
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-2 mb-1">
-                <h3 className="font-semibold text-gray-900 dark:text-white truncate">
+                <h3 className="font-semibold text-gray-900 truncate">
                   {record.displayName || record.originalName || 'Unnamed Record'}
                 </h3>
                 {getStatusIcon(record.status)}
                 {getShareCount() > 0 && (
-                  <div className="flex items-center space-x-1 px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 rounded-full">
+                  <div className="flex items-center space-x-1 px-2 py-0.5 bg-blue-50 rounded-full">
                     <ShareIconSolid className="w-3 h-3 text-blue-500" />
-                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                    <span className="text-xs text-blue-600 font-medium">
                       {getShareCount()}
                     </span>
                   </div>
                 )}
                 {record.aiAnalysis && (
-                  <div className="flex items-center space-x-1 px-2 py-0.5 bg-purple-50 dark:bg-purple-900/30 rounded-full">
+                  <div className="flex items-center space-x-1 px-2 py-0.5 bg-purple-50 rounded-full">
                     <SparklesIcon className="w-3 h-3 text-purple-500" />
-                    <span className="text-xs text-purple-600 dark:text-purple-400 font-medium">
+                    <span className="text-xs text-purple-600 font-medium">
                       AI
                     </span>
                   </div>
                 )}
               </div>
               
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+              <p className="text-sm text-gray-500 mb-2">
                 {formatDate(record.uploadedAt)}
               </p>
               
               <div className="flex items-center space-x-2">
                 <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                   record.status === 'completed' 
-                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                    ? 'bg-green-100 text-green-700'
                     : record.status === 'processing'
-                    ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'
-                    : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                    ? 'bg-orange-100 text-orange-700'
+                    : 'bg-gray-100 text-gray-700'
                 }`}>
                   {record.status}
                 </span>
                 
                 {record.hidden && (
-                  <span className="text-xs px-2 py-1 rounded-full font-medium bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                  <span className="text-xs px-2 py-1 rounded-full font-medium bg-gray-100 text-gray-600">
                     Hidden
                   </span>
                 )}
                 
                 {record.aiAnalysis && (
-                  <span className="text-xs px-2 py-1 rounded-full font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                  <span className="text-xs px-2 py-1 rounded-full font-medium bg-purple-100 text-purple-700">
                     AI Analyzed
                   </span>
                 )}
@@ -351,7 +351,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               className="overflow-hidden"
             >
-              <div className="pt-4 mt-4 border-t border-gray-100 dark:border-gray-800">
+              <div className="pt-4 mt-4 border-t border-gray-100">
                 {/* Image/PDF Preview in expanded view */}
                 {(record.mimeType?.includes('image') || record.mimeType?.includes('pdf')) && (
                   <div className="mb-4">
@@ -361,28 +361,28 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
 
                 {/* Extracted Data */}
                 {record.extractedData && (
-                  <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-2xl space-y-2">
+                  <div className="mb-4 p-3 bg-gray-50 rounded-2xl space-y-2">
                     <div className="flex justify-between items-start">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">Patient:</span>
-                      <span className="text-sm text-gray-900 dark:text-white font-medium text-right">
+                      <span className="text-sm text-gray-500">Patient:</span>
+                      <span className="text-sm text-gray-900 font-medium text-right">
                         {record.extractedData.patientName}
                       </span>
                     </div>
                     <div className="flex justify-between items-start">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">Provider:</span>
-                      <span className="text-sm text-gray-900 dark:text-white font-medium text-right">
+                      <span className="text-sm text-gray-500">Provider:</span>
+                      <span className="text-sm text-gray-900 font-medium text-right">
                         {record.extractedData.provider}
                       </span>
                     </div>
                     <div className="flex justify-between items-start">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">Type:</span>
-                      <span className="text-sm text-gray-900 dark:text-white font-medium text-right">
+                      <span className="text-sm text-gray-500">Type:</span>
+                      <span className="text-sm text-gray-900 font-medium text-right">
                         {record.extractedData.type}
                       </span>
                     </div>
-                    <div className="col-span-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Summary:</p>
-                      <p className="text-sm text-gray-900 dark:text-white">
+                    <div className="col-span-2 pt-2 border-t border-gray-200">
+                      <p className="text-sm text-gray-500 mb-1">Summary:</p>
+                      <p className="text-sm text-gray-900">
                         {record.extractedData.summary}
                       </p>
                     </div>
@@ -398,7 +398,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
                       e.stopPropagation();
                       onToggleVisibility(record.id);
                     }}
-                    className="bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 py-3 rounded-2xl font-medium text-sm flex items-center justify-center space-x-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    className="bg-gray-50 text-gray-700 py-3 rounded-2xl font-medium text-sm flex items-center justify-center space-x-2 hover:bg-gray-100:bg-gray-700 transition-colors"
                   >
                     {record.hidden ? (
                       <>
@@ -420,7 +420,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
                       e.stopPropagation();
                       onShare(record.id);
                     }}
-                    className="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 py-3 rounded-2xl font-medium text-sm flex items-center justify-center space-x-2 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                    className="bg-blue-50 text-blue-600 py-3 rounded-2xl font-medium text-sm flex items-center justify-center space-x-2 hover:bg-blue-100:bg-blue-900/50 transition-colors"
                   >
                     <ShareIcon className="w-4 h-4" />
                     <span>Share</span>
@@ -433,7 +433,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
                       e.stopPropagation();
                       onDelete(record.id);
                     }}
-                    className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 py-3 rounded-2xl font-medium text-sm flex items-center justify-center space-x-2 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
+                    className="bg-red-50 text-red-600 py-3 rounded-2xl font-medium text-sm flex items-center justify-center space-x-2 hover:bg-red-100:bg-red-900/50 transition-colors"
                   >
                     <TrashIcon className="w-4 h-4" />
                     <span>Delete</span>

@@ -1,0 +1,15 @@
+<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cigna logo -->
+  <g transform="translate(10, 25)">
+    <!-- Cigna tree/leaf symbol -->
+    <g>
+      <ellipse cx="25" cy="15" rx="20" ry="12" fill="#00a651" transform="rotate(-15 25 15)"/>
+      <ellipse cx="25" cy="15" rx="15" ry="8" fill="white" transform="rotate(-15 25 15)"/>
+    </g>
+  </g>
+  
+  <!-- Text -->
+  <g transform="translate(70, 35)">
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="#00a651">Cigna</text>
+  </g>
+</svg>

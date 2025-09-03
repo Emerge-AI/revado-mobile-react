@@ -13,20 +13,20 @@ function TimelineConnector({
       case 'share':
         return {
           dot: isActive ? 'bg-purple-500' : 'bg-purple-300',
-          dotRing: 'ring-purple-200 dark:ring-purple-800',
-          line: 'bg-purple-200 dark:bg-purple-800'
+          dotRing: 'ring-purple-200',
+          line: 'bg-purple-200'
         };
       case 'upload':
         return {
           dot: isActive ? 'bg-blue-500' : 'bg-blue-300',
-          dotRing: 'ring-blue-200 dark:ring-blue-800',
-          line: 'bg-blue-200 dark:bg-blue-800'
+          dotRing: 'ring-blue-200',
+          line: 'bg-blue-200'
         };
       default:
         return {
           dot: isActive ? 'bg-gray-500' : 'bg-gray-300',
-          dotRing: 'ring-gray-200 dark:ring-gray-700',
-          line: 'bg-gray-200 dark:bg-gray-700'
+          dotRing: 'ring-gray-200',
+          line: 'bg-gray-200'
         };
     }
   };

@@ -1,0 +1,15 @@
+<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- UnitedHealth Group logo -->
+  <g transform="translate(10, 15)">
+    <!-- United icon -->
+    <circle cx="25" cy="25" r="20" fill="#0073e6" stroke="none"/>
+    <circle cx="25" cy="25" r="12" fill="white" stroke="none"/>
+    <circle cx="25" cy="25" r="6" fill="#0073e6" stroke="none"/>
+  </g>
+  
+  <!-- Text -->
+  <g transform="translate(65, 25)">
+    <text x="0" y="15" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#0073e6">United</text>
+    <text x="0" y="32" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#0073e6">Health</text>
+  </g>
+</svg>

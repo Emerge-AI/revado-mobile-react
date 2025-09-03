@@ -16,6 +16,11 @@ import TermsPage from './pages/TermsPage';
 import LogsPage from './pages/LogsPage';
 import { AuthProvider } from './contexts/AuthContext';
 import { HealthRecordsProvider } from './contexts/HealthRecordsContext';
+import { ConnectionsProvider } from './contexts/ConnectionsContext';
+import ConnectPage from './pages/ConnectPage';
+import InsuranceProvidersPage from './pages/InsuranceProvidersPage';
+import HealthcareProvidersPage from './pages/HealthcareProvidersPage';
+import ConnectedAccountsPage from './pages/ConnectedAccountsPage';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
 import HTTPSWarning from './components/HTTPSWarning';
 
@@ -35,11 +40,12 @@ function App() {
   return (
     <AuthProvider>
       <HealthRecordsProvider>
-        <Router>
+        <ConnectionsProvider>
+          <Router>
           <div className="min-h-screen max-w-[600px] mx-auto relative">
             {/* Subtle gradient background */}
-            <div className="fixed inset-0 bg-gray-50 dark:bg-gray-900">
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800" />
+            <div className="fixed inset-0 bg-gray-50">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-gray-50" />
             </div>
             
             <div className="relative z-10">
@@ -83,6 +89,26 @@ function App() {
                         <SharePage />
                       </TransitionWrapper>
                     } />
+                    <Route path="/connect" element={
+                      <TransitionWrapper>
+                        <ConnectPage />
+                      </TransitionWrapper>
+                    } />
+                    <Route path="/connect/insurance" element={
+                      <TransitionWrapper>
+                        <InsuranceProvidersPage />
+                      </TransitionWrapper>
+                    } />
+                    <Route path="/connect/healthcare" element={
+                      <TransitionWrapper>
+                        <HealthcareProvidersPage />
+                      </TransitionWrapper>
+                    } />
+                    <Route path="/connect/accounts" element={
+                      <TransitionWrapper>
+                        <ConnectedAccountsPage />
+                      </TransitionWrapper>
+                    } />
                     <Route path="/timeline" element={
                       <TransitionWrapper>
                         <TimelinePage />
@@ -124,7 +150,8 @@ function App() {
             <HTTPSWarning />
             </div>
           </div>
-        </Router>
+          </Router>
+        </ConnectionsProvider>
       </HealthRecordsProvider>
     </AuthProvider>
   );

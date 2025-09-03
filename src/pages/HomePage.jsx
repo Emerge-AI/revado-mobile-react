@@ -5,6 +5,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useHealthRecords } from '../contexts/HealthRecordsContext';
 import useBiometricAuth from '../hooks/useBiometricAuth';
 import FaceIDSetup from '../components/FaceIDSetup';
+import HealthOracle from '../components/HealthOracle';
+import RevadoLogo from '../components/RevadoLogo';
 import { 
   DocumentTextIcon, 
   ArrowUpTrayIcon, 
@@ -13,42 +15,114 @@ import {
   CheckCircleIcon,
   SparklesIcon,
   Cog6ToothIcon,
-  FaceSmileIcon 
+  FaceSmileIcon,
+  PhotoIcon,
+  DocumentIcon,
+  BeakerIcon,
+  BuildingOfficeIcon,
+  CalendarIcon,
+  ArrowPathIcon,
+  EyeIcon,
+  PaperAirplaneIcon
 } from '@heroicons/react/24/outline';
 
 function HomePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { records } = useHealthRecords();
+  const { records, getShareCountForRecord } = useHealthRecords();
   const { isAvailable, isRegistered } = useBiometricAuth();
   const [showFaceIDSetup, setShowFaceIDSetup] = useState(false);
 
   const completedRecords = records.filter(r => r.status === 'completed');
   const processingRecords = records.filter(r => r.status === 'processing');
 
+  // Helper function to get icon based on record type
+  const getRecordIcon = (record) => {
+    if (record.type === 'image' || record.mimeType?.includes('image')) {
+      return PhotoIcon;
+    }
+    if (record.type === 'document' || record.mimeType?.includes('pdf')) {
+      return DocumentIcon;
+    }
+    if (record.extractedData?.type === 'Lab Results' || record.displayName?.toLowerCase().includes('lab')) {
+      return BeakerIcon;
+    }
+    if (record.providerEmail) {
+      return BuildingOfficeIcon;
+    }
+    return DocumentTextIcon;
+  };
+
+  // Helper function to get activity description
+  const getActivityDescription = (record) => {
+    if (record.status === 'processing') {
+      return 'Analyzing with AI...';
+    }
+    if (record.aiAnalysis) {
+      return record.aiAnalysis.summary?.substring(0, 50) + '...' || 'AI analysis complete';
+    }
+    if (record.extractedData?.summary) {
+      return record.extractedData.summary;
+    }
+    if (record.extractedData?.type) {
+      return record.extractedData.type;
+    }
+    if (record.providerEmail) {
+      return `From ${record.providerEmail}`;
+    }
+    return 'Health record uploaded';
+  };
+
+  // Helper function to format file size
+  const formatFileSize = (bytes) => {
+    if (!bytes) return '';
+    const kb = bytes / 1024;
+    const mb = kb / 1024;
+    if (mb >= 1) {
+      return `${mb.toFixed(1)} MB`;
+    }
+    return `${Math.round(kb)} KB`;
+  };
+
+  // Helper function to get time ago
+  const getTimeAgo = (date) => {
+    const now = new Date();
+    const then = new Date(date);
+    const seconds = Math.floor((now - then) / 1000);
+    
+    if (seconds < 60) return 'just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+    return then.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
   const quickActions = [
     {
       icon: ArrowUpTrayIcon,
       label: 'Upload Records',
       description: 'Add PDFs or photos',
-      iconBg: 'bg-blue-50 dark:bg-blue-950/30',
-      iconColor: 'text-blue-600 dark:text-blue-400',
+      iconBg: 'bg-primary-100',
+      iconColor: 'text-primary-600',
       path: '/upload',
     },
     {
       icon: ShareIcon,
       label: 'Share with Dentist',
       description: 'Send secure email',
-      iconBg: 'bg-emerald-50 dark:bg-emerald-950/30',
-      iconColor: 'text-emerald-600 dark:text-emerald-400',
+      iconBg: 'bg-success-100',
+      iconColor: 'text-success-600',
       path: '/share',
     },
     {
       icon: DocumentTextIcon,
       label: 'View Timeline',
       description: `${completedRecords.length} records`,
-      iconBg: 'bg-purple-50 dark:bg-purple-950/30',
-      iconColor: 'text-purple-600 dark:text-purple-400',
+      iconBg: 'bg-secondary-100',
+      iconColor: 'text-secondary-600',
       path: '/timeline',
     },
   ];
@@ -64,45 +138,52 @@ function HomePage() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/settings')}
-              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              className="p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
             >
-              <Cog6ToothIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+              <Cog6ToothIcon className="w-6 h-6 text-gray-600" />
             </motion.button>
           </div>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
-            <SparklesIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+          <div className="mb-6">
+            <RevadoLogo size="default" showText={true} animated={true} />
+          </div>
+
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-50 mb-4">
+            <SparklesIcon className="w-4 h-4 text-primary-600" />
+            <span className="text-xs font-medium text-gray-700">
               Quick & Secure
             </span>
           </div>
           
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
             Welcome back
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 font-medium">
+          <p className="text-gray-600 font-medium">
             {user?.email}
           </p>
         </div>
 
+        {/* Health Oracle - Adaptive Insight Card */}
+        <HealthOracle />
+        
         {/* Status Cards */}
         <div className="grid grid-cols-2 gap-4 mb-8">
           <motion.div
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow"
+            className="bg-white rounded-2xl p-5 border border-gray-100 shadow-lg hover:shadow-xl transition-shadow"
           >
             <div className="flex items-center justify-between mb-3">
-              <div className="p-2 rounded-xl bg-green-100 dark:bg-green-900/30">
-                <CheckCircleIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
+              <div className="p-2 rounded-xl bg-success-100">
+                <CheckCircleIcon className="w-5 h-5 text-success-600" />
               </div>
-              <span className="text-xs font-medium text-green-700 dark:text-green-300">
+              <span className="text-xs font-medium text-success-800">
                 Ready
               </span>
             </div>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white">
+            <p className="text-3xl font-bold text-gray-900">
               {completedRecords.length}
             </p>
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 font-medium">
+            <p className="text-xs text-gray-600 mt-1 font-medium">
               Completed records
             </p>
           </motion.div>
@@ -110,20 +191,20 @@ function HomePage() {
           <motion.div
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow"
+            className="bg-white rounded-2xl p-5 border border-gray-100 shadow-lg hover:shadow-xl transition-shadow"
           >
             <div className="flex items-center justify-between mb-3">
-              <div className="p-2 rounded-xl bg-amber-100 dark:bg-amber-900/30">
-                <ClockIcon className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              <div className="p-2 rounded-xl bg-yellow-100">
+                <ClockIcon className="w-5 h-5 text-yellow-600" />
               </div>
-              <span className="text-xs font-medium text-amber-700 dark:text-amber-300">
+              <span className="text-xs font-medium text-yellow-700">
                 Processing
               </span>
             </div>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white">
+            <p className="text-3xl font-bold text-gray-900">
               {processingRecords.length}
             </p>
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 font-medium">
+            <p className="text-xs text-gray-600 mt-1 font-medium">
               Processing now
             </p>
           </motion.div>
@@ -140,7 +221,7 @@ function HomePage() {
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
               onClick={() => setShowFaceIDSetup(true)}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-5 flex items-center space-x-4 shadow-lg hover:shadow-xl transition-shadow"
+              className="w-full bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl p-5 flex items-center space-x-4 shadow-lg hover:shadow-xl transition-shadow"
             >
               <div className="bg-white/20 backdrop-blur rounded-xl p-3">
                 <FaceSmileIcon className="w-6 h-6 text-white" />
@@ -149,7 +230,7 @@ function HomePage() {
                 <h3 className="font-bold text-white text-lg">
                   Set Up Face ID
                 </h3>
-                <p className="text-sm text-blue-100 font-medium">
+                <p className="text-sm text-primary-50 font-medium">
                   Quick and secure access to your records
                 </p>
               </div>
@@ -162,9 +243,9 @@ function HomePage() {
 
         {/* Quick Actions */}
         <div>
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-5 flex items-center gap-2">
+          <h2 className="text-lg font-bold text-gray-900 mb-5 flex items-center gap-2">
             Quick Actions
-            <span className="text-xs font-normal text-gray-500 dark:text-gray-400">
+            <span className="text-xs font-normal text-gray-500">
               Tap to continue
             </span>
           </h2>
@@ -176,21 +257,21 @@ function HomePage() {
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
                 onClick={() => navigate(action.path)}
-                className="w-full bg-white dark:bg-gray-800 rounded-2xl p-5 flex items-center space-x-4 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow"
+                className="w-full bg-white rounded-2xl p-5 flex items-center space-x-4 border border-gray-100 shadow-lg hover:shadow-xl transition-shadow"
               >
                 <div className={`${action.iconBg} rounded-xl p-3`}>
                   <action.icon className={`w-6 h-6 ${action.iconColor}`} />
                 </div>
                 <div className="flex-1 text-left">
-                  <h3 className="font-bold text-gray-900 dark:text-white text-lg">
+                  <h3 className="font-bold text-gray-900 text-lg">
                     {action.label}
                   </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                  <p className="text-sm text-gray-600 font-medium">
                     {action.description}
                   </p>
                 </div>
                 <svg
-                  className="w-5 h-5 text-gray-400 dark:text-gray-500"
+                  className="w-5 h-5 text-gray-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -210,43 +291,148 @@ function HomePage() {
         {/* Recent Activity */}
         {records.length > 0 && (
           <div className="mt-10">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-5">
-              Recent Activity
-            </h2>
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-lg font-bold text-gray-900">
+                Recent Activity
+              </h2>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/timeline')}
+                className="text-sm font-medium text-primary-600 hover:text-primary-700"
+              >
+                View all
+              </motion.button>
+            </div>
             
             <div className="space-y-3">
-              {records.slice(0, 3).map((record) => (
-                <motion.div
-                  key={record.id}
-                  whileHover={{ scale: 1.01 }}
-                  className="bg-white dark:bg-gray-800 rounded-xl p-4 flex items-center justify-between border border-gray-200 dark:border-gray-700 shadow-sm"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700">
-                      <DocumentTextIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              {records.slice(0, 3).map((record) => {
+                const Icon = getRecordIcon(record);
+                const shareCount = getShareCountForRecord(record.id);
+                const isProcessing = record.status === 'processing';
+                
+                return (
+                  <motion.button
+                    key={record.id}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    onClick={() => navigate('/timeline')}
+                    className="w-full bg-white rounded-2xl p-4 border border-gray-100 shadow-lg hover:shadow-xl transition-all text-left"
+                  >
+                    <div className="flex items-start space-x-3">
+                      {/* Icon with background */}
+                      <div className={`p-2.5 rounded-xl flex-shrink-0 ${
+                        isProcessing 
+                          ? 'bg-yellow-100'
+                          : record.aiAnalysis
+                          ? 'bg-secondary-100'
+                          : 'bg-gray-50'
+                      }`}>
+                        {isProcessing ? (
+                          <ArrowPathIcon className="w-5 h-5 text-yellow-600 animate-spin" />
+                        ) : (
+                          <Icon className={`w-5 h-5 ${
+                            record.aiAnalysis
+                              ? 'text-secondary-600'
+                              : 'text-gray-600'
+                          }`} />
+                        )}
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        {/* Title and time */}
+                        <div className="flex items-start justify-between mb-1">
+                          <p className="text-sm font-semibold text-gray-900 truncate pr-2">
+                            {record.displayName || record.originalName || 'Health Record'}
+                          </p>
+                          <span className="text-xs text-gray-500 flex-shrink-0">
+                            {getTimeAgo(record.uploadedAt)}
+                          </span>
+                        </div>
+                        
+                        {/* Description */}
+                        <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                          {getActivityDescription(record)}
+                        </p>
+                        
+                        {/* Metadata badges */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {/* Status badge */}
+                          <span className={`inline-flex items-center text-xs px-2 py-0.5 rounded-full font-medium ${
+                            record.status === 'completed' 
+                              ? 'bg-success-100 text-success-800'
+                              : record.status === 'processing'
+                              ? 'bg-yellow-100 text-yellow-700'
+                              : 'bg-gray-100 text-gray-700'
+                          }`}>
+                            {isProcessing ? (
+                              <>
+                                <ArrowPathIcon className="w-3 h-3 mr-1 animate-spin" />
+                                Processing
+                              </>
+                            ) : record.status === 'completed' ? (
+                              <>
+                                <CheckCircleIcon className="w-3 h-3 mr-1" />
+                                Ready
+                              </>
+                            ) : (
+                              record.status
+                            )}
+                          </span>
+                          
+                          {/* AI Analysis badge */}
+                          {record.aiAnalysis && (
+                            <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full bg-secondary-100 text-secondary-700 font-medium">
+                              <SparklesIcon className="w-3 h-3 mr-1" />
+                              AI Analyzed
+                            </span>
+                          )}
+                          
+                          {/* Share count */}
+                          {shareCount > 0 && (
+                            <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full bg-info-100 text-info-800 font-medium">
+                              <PaperAirplaneIcon className="w-3 h-3 mr-1" />
+                              Shared {shareCount}x
+                            </span>
+                          )}
+                          
+                          {/* File size */}
+                          {record.size && (
+                            <span className="text-xs text-gray-500">
+                              {formatFileSize(record.size)}
+                            </span>
+                          )}
+                          
+                          {/* Provider info */}
+                          {record.extractedData?.provider && (
+                            <span className="inline-flex items-center text-xs text-gray-600">
+                              <BuildingOfficeIcon className="w-3 h-3 mr-1" />
+                              {record.extractedData.provider}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                        {record.name}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {new Date(record.uploadedAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                    record.status === 'completed' 
-                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
-                      : record.status === 'processing'
-                      ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
-                      : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-                  }`}>
-                    {record.status}
-                  </span>
-                </motion.div>
-              ))}
+                  </motion.button>
+                );
+              })}
             </div>
+            
+            {/* Quick tip */}
+            {records.length > 3 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="mt-4 p-3 bg-primary-50 rounded-xl border border-primary-100"
+              >
+                <p className="text-xs text-primary-700 flex items-center">
+                  <SparklesIcon className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span>
+                    You have {records.length - 3} more records. Tap "View all" to see your complete timeline.
+                  </span>
+                </p>
+              </motion.div>
+            )}
           </div>
         )}
       </div>
@@ -257,7 +443,7 @@ function HomePage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-white/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           onClick={() => setShowFaceIDSetup(false)}
         >
           <motion.div

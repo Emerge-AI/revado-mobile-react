@@ -4,12 +4,32 @@ import config from '../config/webauthn.config';
 
 function FaceIDDebugger() {
   const [expanded, setExpanded] = useState(false);
+  const [isHidden, setIsHidden] = useState(() => {
+    return localStorage.getItem('hideDebugPanel') === 'true';
+  });
   const [storageData, setStorageData] = useState({});
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     loadStorageData();
   }, [refreshKey]);
+
+  useEffect(() => {
+    // Add keyboard shortcut to toggle debug panel (Ctrl/Cmd + Shift + D)
+    const handleKeyPress = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'D') {
+        e.preventDefault();
+        setIsHidden(prev => {
+          const newValue = !prev;
+          localStorage.setItem('hideDebugPanel', newValue.toString());
+          return newValue;
+        });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
 
   const loadStorageData = () => {
     const data = {};
@@ -99,8 +119,11 @@ function FaceIDDebugger() {
     setRefreshKey(prev => prev + 1);
   };
 
+  // Don't render anything if hidden
+  if (isHidden) return null;
+
   return (
-    <div className="fixed bottom-20 left-4 right-4 z-50 bg-black/90 text-white rounded-lg p-3 text-xs font-mono max-w-md mx-auto">
+    <div className="fixed bottom-20 left-4 right-4 z-50 bg-gray-800/90 text-white rounded-lg p-3 text-xs font-mono max-w-md mx-auto">
       <button
         onClick={() => setExpanded(!expanded)}
         className="flex items-center justify-between w-full mb-2"
@@ -152,6 +175,15 @@ function FaceIDDebugger() {
             >
               Reset Face ID
             </button>
+            <button
+              onClick={() => {
+                setIsHidden(true);
+                localStorage.setItem('hideDebugPanel', 'true');
+              }}
+              className="px-2 py-1 bg-gray-600 rounded text-[10px]"
+            >
+              Hide Panel
+            </button>
           </div>
           
           <div className="mt-2 pt-2 border-t border-gray-700 text-[10px] text-gray-400">
@@ -159,6 +191,7 @@ function FaceIDDebugger() {
             <div>• {config.storage.credentials}</div>
             <div>• {config.storage.lastCredentialId}</div>
             <div>• {config.storage.biometricEnabled}</div>
+            <div className="mt-2 text-yellow-400">Press Ctrl+Shift+D to toggle panel</div>
           </div>
         </>
       )}

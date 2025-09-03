@@ -1,0 +1,14 @@
+<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Delta Dental logo -->
+  <g transform="translate(10, 15)">
+    <!-- Delta triangle -->
+    <path d="M25 10 L45 40 L5 40 Z" fill="#1e40af" stroke="none"/>
+    <path d="M25 18 L38 35 L12 35 Z" fill="white" stroke="none"/>
+  </g>
+  
+  <!-- Text -->
+  <g transform="translate(65, 25)">
+    <text x="0" y="10" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#1e40af">DELTA</text>
+    <text x="0" y="28" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#1e40af">DENTAL</text>
+  </g>
+</svg>

@@ -21,6 +21,9 @@ class ApiService {
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
     
+    console.log('[API Service] Making request to:', url);
+    console.log('[API Service] Request method:', options.method || 'GET');
+    
     const config = {
       ...options,
       headers: {
@@ -29,23 +32,48 @@ class ApiService {
       },
     };
     
+    console.log('[API Service] Request headers:', config.headers);
+    
     // Add content-type for JSON requests
     if (options.body && !(options.body instanceof FormData)) {
       config.headers['Content-Type'] = 'application/json';
       config.body = JSON.stringify(options.body);
+      console.log('[API Service] Request body:', options.body);
     }
     
     try {
+      console.log('[API Service] Sending fetch request...');
       const response = await fetch(url, config);
       
+      console.log('[API Service] Response status:', response.status);
+      console.log('[API Service] Response statusText:', response.statusText);
+      
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || `HTTP ${response.status}: ${response.statusText}`);
+        const errorText = await response.text();
+        console.error('[API Service] Error response body:', errorText);
+        
+        let error;
+        try {
+          const errorJson = JSON.parse(errorText);
+          error = new Error(errorJson.message || `HTTP ${response.status}: ${response.statusText}`);
+        } catch {
+          error = new Error(`${response.status} ${errorText}`);
+        }
+        
+        throw error;
       }
       
-      return await response.json();
+      const responseData = await response.json();
+      console.log('[API Service] Response data:', responseData);
+      return responseData;
     } catch (error) {
-      console.error('API request failed:', error);
+      console.error('[API Service] Request failed:', error);
+      console.error('[API Service] Error details:', {
+        message: error.message,
+        stack: error.stack,
+        url: url,
+        method: options.method || 'GET'
+      });
       throw error;
     }
   }
@@ -223,9 +251,12 @@ class ApiService {
    * Analyze record with AI
    */
   async analyzeRecord(id) {
-    return this.request(`/analyze/${id}`, {
+    console.log('[API Service] analyzeRecord called with ID:', id);
+    const result = await this.request(`/analyze/${id}`, {
       method: 'POST',
     });
+    console.log('[API Service] analyzeRecord result:', result);
+    return result;
   }
 
   /**
@@ -239,6 +270,57 @@ class ApiService {
       console.error('Backend not available:', error);
       return false;
     }
+  }
+
+  /**
+   * Analyze medical image
+   */
+  async analyzeImage(formData) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response);
+          } catch (error) {
+            reject(new Error('Invalid response format'));
+          }
+        } else {
+          reject(new Error(`Analysis failed: ${xhr.statusText}`));
+        }
+      });
+      
+      xhr.addEventListener('error', () => {
+        reject(new Error('Network error during analysis'));
+      });
+      
+      xhr.open('POST', `${this.baseURL}/image-analysis/analyze`);
+      xhr.setRequestHeader('X-User-Id', getUserId());
+      xhr.send(formData);
+    });
+  }
+
+  /**
+   * Get image analysis by ID
+   */
+  async getImageAnalysis(id) {
+    return this.request(`/image-analysis/${id}`);
+  }
+
+  /**
+   * Get image analyses for a record
+   */
+  async getRecordImageAnalyses(recordId) {
+    return this.request(`/image-analysis/record/${recordId}`);
+  }
+
+  /**
+   * Get image analysis statistics
+   */
+  async getImageAnalysisStats() {
+    return this.request('/image-analysis/stats/summary');
   }
 }
 

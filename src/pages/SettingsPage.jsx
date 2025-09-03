@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import useBiometricAuth from '../hooks/useBiometricAuth';
 import FaceIDSetup from '../components/FaceIDSetup';
+import RevadoLogo from '../components/RevadoLogo';
 import { 
   FaceSmileIcon, 
   ArrowLeftIcon,
@@ -14,7 +15,8 @@ import {
   DevicePhoneMobileIcon,
   ComputerDesktopIcon,
   TrashIcon,
-  ClipboardDocumentListIcon
+  ClipboardDocumentListIcon,
+  BugAntIcon
 } from '@heroicons/react/24/outline';
 
 function SettingsPage() {
@@ -34,6 +36,9 @@ function SettingsPage() {
   const [registeredDevices, setRegisteredDevices] = useState([]);
   const [showDevices, setShowDevices] = useState(false);
   const [showFaceIDSetup, setShowFaceIDSetup] = useState(false);
+  const [debugPanelHidden, setDebugPanelHidden] = useState(() => {
+    return localStorage.getItem('hideDebugPanel') === 'true';
+  });
 
   useEffect(() => {
     if (biometricEnabled) {
@@ -115,6 +120,21 @@ function SettingsPage() {
       path: '/settings/logs',
     },
     {
+      icon: BugAntIcon,
+      label: 'Debug Panel',
+      description: debugPanelHidden ? 'Hidden - Press Ctrl+Shift+D to show' : 'Visible - Press to hide',
+      action: 'custom',
+      enabled: !debugPanelHidden,
+      available: true,
+      onPress: () => {
+        const newValue = !debugPanelHidden;
+        setDebugPanelHidden(newValue);
+        localStorage.setItem('hideDebugPanel', newValue.toString());
+        setMessage(newValue ? 'Debug panel hidden' : 'Debug panel visible');
+        setTimeout(() => setMessage(''), 3000);
+      },
+    },
+    {
       icon: DocumentTextIcon,
       label: 'Terms & Conditions',
       description: 'Legal information',
@@ -130,29 +150,25 @@ function SettingsPage() {
         <div className="flex items-center justify-between py-4 mb-4">
           <button
             onClick={() => navigate(-1)}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <ArrowLeftIcon className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+            <ArrowLeftIcon className="w-6 h-6 text-gray-700" />
           </button>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-xl font-bold text-gray-900">
             Settings
           </h1>
           <div className="w-10" /> {/* Spacer for center alignment */}
         </div>
 
         {/* User Info */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 mb-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+        <div className="bg-white rounded-2xl p-5 mb-6 border border-gray-200 shadow-sm">
           <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-              <span className="text-2xl font-bold text-white">
-                {user?.email?.charAt(0).toUpperCase()}
-              </span>
-            </div>
+            <RevadoLogo size="default" showText={false} />
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-lg font-semibold text-gray-900">
                 {user?.email?.split('@')[0]}
               </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600">
                 {user?.email}
               </p>
             </div>
@@ -167,8 +183,8 @@ function SettingsPage() {
             exit={{ opacity: 0, y: -10 }}
             className={`p-3 rounded-xl mb-4 text-sm font-medium ${
               message.includes('Error') || message.includes('Failed')
-                ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
-                : 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400'
+                ? 'bg-red-50 text-red-600'
+                : 'bg-green-50 text-green-600'
             }`}
           >
             {message}
@@ -183,7 +199,7 @@ function SettingsPage() {
               className="w-full text-left"
             >
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
                   Registered Devices ({registeredDevices.length})
                 </h3>
                 <svg
@@ -214,22 +230,22 @@ function SettingsPage() {
                 {registeredDevices.map((device, index) => (
                   <div
                     key={index}
-                    className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700"
+                    className="bg-gray-50 rounded-lg p-3 border border-gray-200"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <div className="p-2 rounded-lg bg-white dark:bg-gray-700">
+                        <div className="p-2 rounded-lg bg-white">
                           {device.deviceName?.includes('iPhone') || device.deviceName?.includes('iPad') ? (
-                            <DevicePhoneMobileIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                            <DevicePhoneMobileIcon className="w-4 h-4 text-gray-600" />
                           ) : (
-                            <ComputerDesktopIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                            <ComputerDesktopIcon className="w-4 h-4 text-gray-600" />
                           )}
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          <p className="text-sm font-medium text-gray-900">
                             {device.deviceName || 'Unknown Device'}
                           </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                          <p className="text-xs text-gray-500">
                             Added {new Date(device.createdAt).toLocaleDateString()}
                           </p>
                         </div>
@@ -249,7 +265,7 @@ function SettingsPage() {
               key={item.label}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
-              className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm"
+              className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm"
             >
               {item.action === 'custom' ? (
                 <button
@@ -259,27 +275,27 @@ function SettingsPage() {
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded-lg ${
                       item.enabled 
-                        ? 'bg-blue-100 dark:bg-blue-900/30' 
-                        : 'bg-gray-100 dark:bg-gray-700'
+                        ? 'bg-blue-100' 
+                        : 'bg-gray-100'
                     }`}>
                       <item.icon className={`w-5 h-5 ${
                         item.enabled 
-                          ? 'text-blue-600 dark:text-blue-400' 
-                          : 'text-gray-600 dark:text-gray-400'
+                          ? 'text-blue-600' 
+                          : 'text-gray-600'
                       }`} />
                     </div>
                     <div className="text-left">
-                      <p className="font-semibold text-gray-900 dark:text-white">
+                      <p className="font-semibold text-gray-900">
                         {item.label}
                       </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                      <p className="text-xs text-gray-600">
                         {item.available ? item.description : 'Not available on this device'}
                       </p>
                     </div>
                   </div>
                   
                   {item.enabled && (
-                    <span className="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full font-medium">
+                    <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full font-medium">
                       Active
                     </span>
                   )}
@@ -289,20 +305,20 @@ function SettingsPage() {
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded-lg ${
                       item.enabled 
-                        ? 'bg-blue-100 dark:bg-blue-900/30' 
-                        : 'bg-gray-100 dark:bg-gray-700'
+                        ? 'bg-blue-100' 
+                        : 'bg-gray-100'
                     }`}>
                       <item.icon className={`w-5 h-5 ${
                         item.enabled 
-                          ? 'text-blue-600 dark:text-blue-400' 
-                          : 'text-gray-600 dark:text-gray-400'
+                          ? 'text-blue-600' 
+                          : 'text-gray-600'
                       }`} />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900 dark:text-white">
+                      <p className="font-semibold text-gray-900">
                         {item.label}
                       </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                      <p className="text-xs text-gray-600">
                         {item.available ? item.description : 'Not available on this device'}
                       </p>
                     </div>
@@ -314,7 +330,7 @@ function SettingsPage() {
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                       item.enabled 
                         ? 'bg-blue-600' 
-                        : 'bg-gray-300 dark:bg-gray-600'
+                        : 'bg-gray-300'
                     } ${!item.available ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <span
@@ -330,21 +346,21 @@ function SettingsPage() {
                   className="w-full flex items-center justify-between"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700">
-                      <item.icon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    <div className="p-2 rounded-lg bg-gray-100">
+                      <item.icon className="w-5 h-5 text-gray-600" />
                     </div>
                     <div className="text-left">
-                      <p className="font-semibold text-gray-900 dark:text-white">
+                      <p className="font-semibold text-gray-900">
                         {item.label}
                       </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                      <p className="text-xs text-gray-600">
                         {item.description}
                       </p>
                     </div>
                   </div>
                   
                   <svg
-                    className="w-5 h-5 text-gray-400 dark:text-gray-500"
+                    className="w-5 h-5 text-gray-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -367,7 +383,7 @@ function SettingsPage() {
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
           onClick={handleSignOut}
-          className="w-full mt-8 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 py-4 rounded-xl font-semibold flex items-center justify-center gap-3 border border-red-200 dark:border-red-800"
+          className="w-full mt-8 bg-red-50 text-red-600 py-4 rounded-xl font-semibold flex items-center justify-center gap-3 border border-red-200"
         >
           <ArrowRightOnRectangleIcon className="w-5 h-5" />
           Sign Out
@@ -380,7 +396,7 @@ function SettingsPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-white/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           onClick={() => setShowFaceIDSetup(false)}
         >
           <motion.div

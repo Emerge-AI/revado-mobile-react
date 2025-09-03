@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { sendHealthRecordsEmail, createMailtoLink, isEmailServiceConfigured } from '../services/emailService';
 import { generateHealthRecordsPDF, generateTextSummary } from '../utils/pdfGenerator';
 import { prepareFileAttachments } from '../utils/fileHelpers';
+import { syncToGoogleCalendar, createCalendarEvent, generateMedicationSchedule } from '../services/calendarIntegration';
 import apiService from '../services/api';
 
 const HealthRecordsContext = createContext();
@@ -22,6 +23,9 @@ export function HealthRecordsProvider({ children }) {
   const [processingQueue, setProcessingQueue] = useState([]);
   const [useBackend, setUseBackend] = useState(false);
   const [analysisInProgress, setAnalysisInProgress] = useState({});
+  const [medications, setMedications] = useState([]);
+  const [medicalEvents, setMedicalEvents] = useState([]);
+  const [reminders, setReminders] = useState([]);
 
   useEffect(() => {
     // Check if backend is available
@@ -39,7 +43,65 @@ export function HealthRecordsProvider({ children }) {
         }
       }
     });
+    
+    // Load medications and events on mount
+    loadMedicationsAndEvents();
   }, []);
+  
+  // Sync extracted events to calendar
+  const syncEventsToCalendar = async (recordId, extractedEvents) => {
+    try {
+      console.log('[HealthRecords] Syncing events to calendar for record:', recordId);
+      
+      const calendarEvents = [];
+      
+      // Convert medical events to calendar events
+      if (extractedEvents.events) {
+        extractedEvents.events.forEach(event => {
+          calendarEvents.push(createCalendarEvent(event));
+        });
+      }
+      
+      // Generate medication reminders
+      if (extractedEvents.medications) {
+        extractedEvents.medications.forEach(medication => {
+          if (medication.action === 'start' && medication.frequency) {
+            const startDate = new Date(medication.startDate || new Date());
+            const endDate = medication.endDate ? new Date(medication.endDate) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+            const medicationEvents = generateMedicationSchedule(medication, startDate, endDate);
+            calendarEvents.push(...medicationEvents);
+          }
+        });
+      }
+      
+      if (calendarEvents.length > 0) {
+        const syncResult = await syncToGoogleCalendar(calendarEvents);
+        console.log('[HealthRecords] Calendar sync completed:', syncResult);
+        
+        // Update record with sync information
+        setRecords(prev => {
+          const updated = prev.map(record => {
+            if (record.id === recordId) {
+              return {
+                ...record,
+                calendarSyncResult: syncResult,
+                calendarSyncedAt: new Date().toISOString()
+              };
+            }
+            return record;
+          });
+          localStorage.setItem('healthRecords', JSON.stringify(updated));
+          return updated;
+        });
+        
+        return syncResult;
+      }
+      
+    } catch (error) {
+      console.error('[HealthRecords] Calendar sync failed:', error);
+      throw error;
+    }
+  };
 
   const loadRecordsFromBackend = async () => {
     try {
@@ -117,17 +179,24 @@ export function HealthRecordsProvider({ children }) {
 
         await new Promise(resolve => setTimeout(resolve, 2000));
         
+        // Handle voice recordings differently
+        const isVoiceRecord = file.voiceData;
+        
         const newRecord = {
           id: Date.now().toString(),
           originalName: file.name,
-          displayName: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
+          displayName: isVoiceRecord ? 'Voice Conversation' : file.name.replace(/\.[^/.]+$/, ''), // Remove extension
           filename: file.name,
-          type: file.type.includes('pdf') ? 'document' : 'image',
+          type: isVoiceRecord ? 'voice_conversation' : (file.type.includes('pdf') ? 'document' : 'image'),
           mimeType: file.type,
           uploadedAt: new Date().toISOString(),
           status: 'processing',
           size: file.size,
           extractedData: null,
+          // Voice-specific data
+          voiceData: isVoiceRecord ? file.voiceData : null,
+          // Calendar sync data
+          syncWithCalendar: file.saveWithSync || false,
         };
 
         setProcessingQueue(prev => [...prev, newRecord.id]);
@@ -144,6 +213,11 @@ export function HealthRecordsProvider({ children }) {
           processRecord(newRecord.id);
           // Automatically trigger AI analysis for local uploads
           await analyzeRecord(newRecord.id);
+          
+          // If sync is enabled, sync to calendar
+          if (newRecord.syncWithCalendar && isVoiceRecord && file.voiceData.extractedEvents) {
+            await syncEventsToCalendar(newRecord.id, file.voiceData.extractedEvents);
+          }
         }, 3000);
 
         setLoading(false);
@@ -161,17 +235,40 @@ export function HealthRecordsProvider({ children }) {
     setRecords(prev => {
       const updated = prev.map(record => {
         if (record.id === recordId) {
-          return {
-            ...record,
-            status: 'completed',
-            extractedData: {
-              patientName: 'John Doe',
-              date: '2024-01-15',
-              provider: 'City Medical Center',
-              type: 'Lab Results',
-              summary: 'Routine blood work - all values within normal range',
-            },
-          };
+          // Handle voice conversations differently
+          if (record.type === 'voice_conversation' && record.voiceData) {
+            return {
+              ...record,
+              status: 'completed',
+              extractedData: {
+                patientName: 'User',
+                date: new Date().toISOString().split('T')[0],
+                provider: 'AI Assistant',
+                type: 'Voice Conversation',
+                summary: record.voiceData.analysis?.summary || 'Voice conversation recorded',
+                keyTopics: record.voiceData.analysis?.keyTopics || [],
+                duration: record.voiceData.duration || 0,
+                transcription: record.voiceData.transcription || '',
+                urgencyLevel: record.voiceData.analysis?.urgencyLevel || 'low',
+              },
+              aiAnalysis: record.voiceData.analysis || null,
+              extractedEvents: record.voiceData.extractedEvents || null,
+              syncWithCalendar: record.syncWithCalendar || false,
+            };
+          } else {
+            // Default processing for files
+            return {
+              ...record,
+              status: 'completed',
+              extractedData: {
+                patientName: 'John Doe',
+                date: '2024-01-15',
+                provider: 'City Medical Center',
+                type: 'Lab Results',
+                summary: 'Routine blood work - all values within normal range',
+              },
+            };
+          }
         }
         return record;
       });
@@ -232,16 +329,22 @@ export function HealthRecordsProvider({ children }) {
 
   const analyzeRecord = async (recordId) => {
     console.log('[HealthRecords] Starting AI analysis for record:', recordId);
+    console.log('[HealthRecords] Backend mode:', useBackend ? 'ENABLED' : 'DISABLED');
     
     // Set analysis in progress
     setAnalysisInProgress(prev => ({ ...prev, [recordId]: true }));
     
     try {
       if (useBackend) {
+        console.log('[HealthRecords] Calling backend API service...');
+        console.log('[HealthRecords] API endpoint:', `/api/analyze/${recordId}`);
+        
         // Call backend AI analysis service
         const response = await apiService.analyzeRecord(recordId);
+        console.log('[HealthRecords] Raw backend response:', response);
         
         if (response.success) {
+          console.log('[HealthRecords] Backend returned success, updating record...');
           // Update record with analysis results
           setRecords(prev => prev.map(record => {
             if (record.id === recordId) {
@@ -256,8 +359,11 @@ export function HealthRecordsProvider({ children }) {
           
           console.log('[HealthRecords] AI analysis completed:', response.analysis);
           return response.analysis;
+        } else {
+          console.log('[HealthRecords] Backend returned failure:', response);
         }
       } else {
+        console.log('[HealthRecords] Using local simulation mode for AI analysis');
         // Simulate AI analysis for local mode
         await new Promise(resolve => setTimeout(resolve, 2000));
         
@@ -501,6 +607,115 @@ export function HealthRecordsProvider({ children }) {
       (share.sharedAt && new Date(share.sharedAt) > new Date(records.find(r => r.id === recordId)?.uploadedAt || 0))
     ).length;
   };
+  
+  // Medication management functions
+  const addMedication = (medication) => {
+    const newMedication = {
+      ...medication,
+      id: medication.id || Date.now().toString(),
+      addedAt: new Date().toISOString()
+    };
+    
+    setMedications(prev => {
+      const updated = [...prev, newMedication];
+      localStorage.setItem('medications', JSON.stringify(updated));
+      return updated;
+    });
+    
+    return newMedication;
+  };
+  
+  const updateMedication = (medicationId, updates) => {
+    setMedications(prev => {
+      const updated = prev.map(med => 
+        med.id === medicationId ? { ...med, ...updates, updatedAt: new Date().toISOString() } : med
+      );
+      localStorage.setItem('medications', JSON.stringify(updated));
+      return updated;
+    });
+  };
+  
+  const removeMedication = (medicationId) => {
+    setMedications(prev => {
+      const updated = prev.filter(med => med.id !== medicationId);
+      localStorage.setItem('medications', JSON.stringify(updated));
+      return updated;
+    });
+  };
+  
+  const getActiveMedications = () => {
+    return medications.filter(med => 
+      med.action !== 'stop' && 
+      (!med.endDate || new Date(med.endDate) > new Date())
+    );
+  };
+  
+  // Medical events management
+  const addMedicalEvent = (event) => {
+    const newEvent = {
+      ...event,
+      id: event.id || Date.now().toString(),
+      addedAt: new Date().toISOString()
+    };
+    
+    setMedicalEvents(prev => {
+      const updated = [...prev, newEvent];
+      localStorage.setItem('medicalEvents', JSON.stringify(updated));
+      return updated;
+    });
+    
+    return newEvent;
+  };
+  
+  const updateMedicalEvent = (eventId, updates) => {
+    setMedicalEvents(prev => {
+      const updated = prev.map(event => 
+        event.id === eventId ? { ...event, ...updates, updatedAt: new Date().toISOString() } : event
+      );
+      localStorage.setItem('medicalEvents', JSON.stringify(updated));
+      return updated;
+    });
+  };
+  
+  const removeMedicalEvent = (eventId) => {
+    setMedicalEvents(prev => {
+      const updated = prev.filter(event => event.id !== eventId);
+      localStorage.setItem('medicalEvents', JSON.stringify(updated));
+      return updated;
+    });
+  };
+  
+  const getUpcomingEvents = (days = 30) => {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() + days);
+    
+    return medicalEvents.filter(event => {
+      const eventDate = new Date(event.date);
+      return eventDate >= new Date() && eventDate <= cutoffDate;
+    }).sort((a, b) => new Date(a.date) - new Date(b.date));
+  };
+  
+  // Load medications and events from localStorage
+  const loadMedicationsAndEvents = () => {
+    try {
+      const storedMedications = localStorage.getItem('medications');
+      if (storedMedications) {
+        setMedications(JSON.parse(storedMedications));
+      }
+      
+      const storedEvents = localStorage.getItem('medicalEvents');
+      if (storedEvents) {
+        setMedicalEvents(JSON.parse(storedEvents));
+      }
+      
+      const storedReminders = localStorage.getItem('reminders');
+      if (storedReminders) {
+        setReminders(JSON.parse(storedReminders));
+      }
+    } catch (error) {
+      console.error('[HealthRecords] Error loading medications and events:', error);
+    }
+  };
 
   const value = {
     records,
@@ -516,6 +731,23 @@ export function HealthRecordsProvider({ children }) {
     generateSharePackage,
     getShareHistory,
     getShareCountForRecord,
+    // Medication management
+    medications,
+    addMedication,
+    updateMedication,
+    removeMedication,
+    getActiveMedications,
+    // Medical events management
+    medicalEvents,
+    addMedicalEvent,
+    updateMedicalEvent,
+    removeMedicalEvent,
+    getUpcomingEvents,
+    // Reminders
+    reminders,
+    setReminders,
+    // Calendar sync
+    syncEventsToCalendar,
   };
 
   return (

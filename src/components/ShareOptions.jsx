@@ -103,7 +103,7 @@ function ShareOptions({ isOpen, onClose, recordData, recipientEmail }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            className="fixed inset-0 bg-white/50 backdrop-blur-sm z-40"
             onClick={onClose}
           />
 
@@ -127,19 +127,19 @@ function ShareOptions({ isOpen, onClose, recordData, recipientEmail }) {
             }}
             className="fixed bottom-0 left-0 right-0 z-50"
           >
-            <div className="bg-white dark:bg-gray-900 rounded-t-3xl pb-safe-bottom">
+            <div className="bg-white rounded-t-3xl pb-safe-bottom">
               {/* Handle */}
               <div className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing">
-                <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
+                <div className="w-10 h-1 bg-gray-300 rounded-full" />
               </div>
 
               {/* Header */}
               <div className="px-6 py-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white text-center">
+                <h3 className="text-lg font-semibold text-gray-900 text-center">
                   Share Health Records
                 </h3>
                 {recipientEmail && (
-                  <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-1">
+                  <p className="text-sm text-gray-500 text-center mt-1">
                     To: {recipientEmail}
                   </p>
                 )}
@@ -159,7 +159,7 @@ function ShareOptions({ isOpen, onClose, recordData, recipientEmail }) {
                       <div className={`${option.color} rounded-2xl p-4 shadow-lg`}>
                         <option.icon className="w-8 h-8 text-white" />
                       </div>
-                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                      <span className="text-xs font-medium text-gray-700">
                         {option.name}
                       </span>
                     </motion.button>
@@ -173,10 +173,10 @@ function ShareOptions({ isOpen, onClose, recordData, recipientEmail }) {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
-                      className="mt-4 bg-green-50 dark:bg-green-900/20 rounded-xl p-3 flex items-center justify-center space-x-2"
+                      className="mt-4 bg-green-50 rounded-xl p-3 flex items-center justify-center space-x-2"
                     >
-                      <CheckIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
-                      <span className="text-sm font-medium text-green-600 dark:text-green-400">
+                      <CheckIcon className="w-5 h-5 text-green-600" />
+                      <span className="text-sm font-medium text-green-600">
                         Copied to clipboard!
                       </span>
                     </motion.div>
@@ -184,10 +184,10 @@ function ShareOptions({ isOpen, onClose, recordData, recipientEmail }) {
                 </AnimatePresence>
 
                 {/* Additional Options */}
-                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-800">
+                <div className="mt-6 pt-6 border-t border-gray-200">
                   <button
                     onClick={onClose}
-                    className="w-full py-3 bg-gray-100 dark:bg-gray-800 rounded-xl font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                    className="w-full py-3 bg-gray-100 rounded-xl font-medium text-gray-700 hover:bg-gray-200:bg-gray-700 transition-colors"
                   >
                     Cancel
                   </button>

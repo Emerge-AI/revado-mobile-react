@@ -2,10 +2,13 @@ import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useHealthRecords } from '../contexts/HealthRecordsContext';
 import apiService from '../services/api';
+import VoiceRecorder from '../components/VoiceRecording/VoiceRecorder';
+import SyncNotification from '../components/VoiceRecording/SyncNotification';
 import { 
   DocumentPlusIcon,
   CameraIcon,
   EnvelopeIcon,
+  MicrophoneIcon,
   CloudArrowUpIcon,
   CheckCircleIcon,
   ServerIcon,
@@ -18,6 +21,8 @@ function UploadPage() {
   const [providerEmail, setProviderEmail] = useState('');
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [backendStatus, setBackendStatus] = useState('checking');
+  const [syncNotification, setSyncNotification] = useState(null);
+  const [showSyncNotification, setShowSyncNotification] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -68,42 +73,118 @@ function UploadPage() {
     }
   };
 
+  const handleVoiceComplete = async (voiceRecord) => {
+    try {
+      // Create a dummy file for the voice record to integrate with existing system
+      const dummyFile = new File(['voice-recording'], `voice-${Date.now()}.webm`, {
+        type: 'audio/webm'
+      });
+      
+      // Add voice-specific metadata including sync preferences
+      dummyFile.voiceData = voiceRecord;
+      dummyFile.saveWithSync = voiceRecord.saveWithSync || false;
+      
+      await uploadFile(dummyFile);
+      
+      // Show sync notification if calendar sync was enabled
+      if (voiceRecord.saveWithSync && voiceRecord.extractedEvents) {
+        // Wait a bit for the sync to complete
+        setTimeout(() => {
+          const mockSyncResult = {
+            success: true,
+            eventsCreated: (voiceRecord.extractedEvents.events?.length || 0) + 
+                          (voiceRecord.extractedEvents.medications?.length || 0),
+            results: [
+              ...(voiceRecord.extractedEvents.events || []).map(event => ({
+                summary: event.title,
+                start: { dateTime: event.date }
+              })),
+              ...(voiceRecord.extractedEvents.medications || []).map(med => ({
+                summary: `Take ${med.name}`,
+                start: { dateTime: new Date().toISOString() }
+              }))
+            ],
+            syncedAt: new Date().toISOString()
+          };
+          
+          setSyncNotification(mockSyncResult);
+          setShowSyncNotification(true);
+          
+          // Auto-dismiss after 8 seconds
+          setTimeout(() => {
+            setShowSyncNotification(false);
+          }, 8000);
+        }, 3000);
+      }
+      
+      setUploadSuccess(true);
+      setTimeout(() => {
+        setUploadSuccess(false);
+        setUploadMethod(null);
+      }, 3000);
+    } catch (error) {
+      console.error('Voice upload failed:', error);
+    }
+  };
+
+  const handleVoiceCancel = () => {
+    setUploadMethod(null);
+  };
+
   const uploadMethods = [
     {
       id: 'file',
       icon: DocumentPlusIcon,
       title: 'Upload PDF/Image',
       description: 'Lab results, notes, records',
-      color: 'bg-blue-500',
+      iconBg: 'bg-blue-100',
+      iconColor: 'text-blue-600',
     },
     {
       id: 'camera',
       icon: CameraIcon,
       title: 'Take Photo',
       description: 'Capture document with camera',
-      color: 'bg-purple-500',
+      iconBg: 'bg-purple-100',
+      iconColor: 'text-purple-600',
     },
     {
       id: 'provider',
       icon: EnvelopeIcon,
       title: 'Connect Provider',
       description: 'Request records via email',
-      color: 'bg-green-500',
+      iconBg: 'bg-green-100',
+      iconColor: 'text-green-600',
+    },
+    {
+      id: 'voice',
+      icon: MicrophoneIcon,
+      title: 'Talk to AI Assistant',
+      description: 'Ask questions or describe symptoms',
+      iconBg: 'bg-orange-100',
+      iconColor: 'text-orange-600',
     },
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black pb-20">
+    <div className="min-h-screen bg-white pb-20">
+      {/* Sync Notification */}
+      <SyncNotification
+        syncResult={syncNotification}
+        isVisible={showSyncNotification}
+        onDismiss={() => setShowSyncNotification(false)}
+      />
+      
       <div className="pt-safe-top px-4">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="py-6"
         >
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-2xl font-bold text-gray-900">
             Add Health Records
           </h1>
-          <p className="text-ios-gray-600 dark:text-ios-gray-400 mt-1">
+          <p className="text-gray-600 mt-1">
             Choose how to import your records
           </p>
         </motion.div>
@@ -114,25 +195,25 @@ function UploadPage() {
           animate={{ opacity: 1, scale: 1 }}
           className={`mb-4 px-3 py-2 rounded-lg flex items-center space-x-2 ${
             backendStatus === 'connected' 
-              ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' 
+              ? 'bg-green-50 border border-green-200' 
               : backendStatus === 'offline'
-              ? 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800'
-              : 'bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800'
+              ? 'bg-yellow-50 border border-yellow-200'
+              : 'bg-gray-50 border border-gray-100'
           }`}
         >
           <ServerIcon className={`w-4 h-4 ${
             backendStatus === 'connected' 
-              ? 'text-green-600 dark:text-green-400' 
+              ? 'text-green-600' 
               : backendStatus === 'offline'
-              ? 'text-yellow-600 dark:text-yellow-400'
-              : 'text-gray-600 dark:text-gray-400'
+              ? 'text-yellow-600'
+              : 'text-gray-600'
           }`} />
           <span className={`text-xs font-medium ${
             backendStatus === 'connected' 
-              ? 'text-green-700 dark:text-green-300' 
+              ? 'text-green-700' 
               : backendStatus === 'offline'
-              ? 'text-yellow-700 dark:text-yellow-300'
-              : 'text-gray-700 dark:text-gray-300'
+              ? 'text-yellow-700'
+              : 'text-gray-700'
           }`}>
             {backendStatus === 'connected' 
               ? 'Server Connected - Files stored securely' 
@@ -164,21 +245,21 @@ function UploadPage() {
                     input.click();
                   }
                 }}
-                className="w-full bg-ios-gray-100 dark:bg-ios-gray-900 rounded-2xl p-4 flex items-center space-x-4 hover:bg-ios-gray-200 dark:hover:bg-ios-gray-800 transition-colors"
+                className="w-full bg-white rounded-2xl p-4 flex items-center space-x-4 hover:shadow-xl transition-all border border-gray-100 shadow-lg"
               >
-                <div className={`${method.color} rounded-xl p-3`}>
-                  <method.icon className="w-6 h-6 text-white" />
+                <div className={`${method.iconBg} rounded-xl p-3`}>
+                  <method.icon className={`w-6 h-6 ${method.iconColor}`} />
                 </div>
                 <div className="flex-1 text-left">
-                  <h3 className="font-semibold text-gray-900 dark:text-white">
+                  <h3 className="font-semibold text-gray-900">
                     {method.title}
                   </h3>
-                  <p className="text-sm text-ios-gray-600 dark:text-ios-gray-400">
+                  <p className="text-sm text-gray-600">
                     {method.description}
                   </p>
                 </div>
                 <svg
-                  className="w-5 h-5 text-ios-gray-400"
+                  className="w-5 h-5 text-gray-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -213,7 +294,7 @@ function UploadPage() {
             className="space-y-4"
           >
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-ios-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Provider Email Address
               </label>
               <input
@@ -222,9 +303,9 @@ function UploadPage() {
                 onChange={(e) => setProviderEmail(e.target.value)}
                 placeholder="provider@hospital.com"
                 required
-                className="w-full px-4 py-3 bg-ios-gray-100 dark:bg-ios-gray-900 rounded-xl text-gray-900 dark:text-white placeholder-ios-gray-500 focus:outline-none focus:ring-2 focus:ring-ios-blue"
+                className="w-full px-4 py-3 bg-gray-100 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 border border-gray-100"
               />
-              <p className="text-xs text-ios-gray-500 mt-2">
+              <p className="text-xs text-gray-500 mt-2">
                 We'll send a secure request to this email address
               </p>
             </div>
@@ -233,14 +314,14 @@ function UploadPage() {
               <button
                 type="button"
                 onClick={() => setUploadMethod(null)}
-                className="flex-1 bg-ios-gray-100 dark:bg-ios-gray-800 text-gray-900 dark:text-white py-3 rounded-xl font-medium hover:bg-ios-gray-200 dark:hover:bg-ios-gray-700 transition-colors"
+                className="flex-1 bg-gray-100 text-gray-900 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-ios-blue text-white py-3 rounded-xl font-semibold disabled:opacity-50 hover:bg-blue-600 transition-colors"
+                className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-semibold disabled:opacity-50 hover:bg-blue-700 transition-colors"
               >
                 {loading ? 'Connecting...' : 'Send Request'}
               </button>
@@ -248,31 +329,39 @@ function UploadPage() {
           </motion.form>
         )}
 
+        {/* Voice Recording Interface */}
+        {uploadMethod === 'voice' && !uploadSuccess && (
+          <VoiceRecorder 
+            onComplete={handleVoiceComplete}
+            onCancel={handleVoiceCancel}
+          />
+        )}
+
         {/* Upload Progress */}
         {loading && uploadProgress > 0 && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="mt-8 bg-ios-gray-100 dark:bg-ios-gray-900 rounded-2xl p-6"
+            className="mt-8 bg-gray-100 rounded-2xl p-6 shadow-lg"
           >
             <div className="flex items-center justify-center mb-4">
-              <CloudArrowUpIcon className="w-16 h-16 text-ios-blue animate-pulse" />
+              <CloudArrowUpIcon className="w-16 h-16 text-blue-600 animate-pulse" />
             </div>
             
-            <p className="text-center font-medium text-gray-900 dark:text-white mb-2">
+            <p className="text-center font-medium text-gray-900 mb-2">
               Uploading...
             </p>
             
-            <div className="w-full bg-ios-gray-200 dark:bg-ios-gray-800 rounded-full h-2 overflow-hidden">
+            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
               <motion.div
-                className="h-full bg-ios-blue"
+                className="h-full bg-blue-600"
                 initial={{ width: 0 }}
                 animate={{ width: `${uploadProgress}%` }}
                 transition={{ duration: 0.3 }}
               />
             </div>
             
-            <p className="text-center text-sm text-ios-gray-500 mt-2">
+            <p className="text-center text-sm text-gray-500 mt-2">
               {uploadProgress}% complete
             </p>
           </motion.div>
@@ -283,14 +372,14 @@ function UploadPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="mt-8 bg-green-50 dark:bg-green-900/20 rounded-2xl p-6"
+            className="mt-8 bg-green-50 rounded-2xl p-6 shadow-lg"
           >
             <div className="flex flex-col items-center">
-              <CheckCircleIcon className="w-16 h-16 text-green-500 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <CheckCircleIcon className="w-16 h-16 text-green-600 mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 Upload Successful!
               </h3>
-              <p className="text-sm text-ios-gray-600 dark:text-ios-gray-400 text-center">
+              <p className="text-sm text-gray-600 text-center">
                 Your record is being processed and will be ready soon
               </p>
             </div>
@@ -302,10 +391,10 @@ function UploadPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="mt-8 bg-ios-blue/10 dark:bg-ios-blue/20 rounded-2xl p-4"
+          className="mt-8 bg-blue-50 rounded-2xl p-4 shadow-lg"
         >
-          <h3 className="font-medium text-ios-blue mb-2">Quick Tips</h3>
-          <ul className="space-y-1 text-sm text-ios-gray-600 dark:text-ios-gray-400">
+          <h3 className="font-medium text-blue-600 mb-2">Quick Tips</h3>
+          <ul className="space-y-1 text-sm text-gray-600">
             <li>• PDFs are processed automatically with AI</li>
             <li>• Photos are enhanced and text is extracted</li>
             <li>• Provider connections update nightly</li>

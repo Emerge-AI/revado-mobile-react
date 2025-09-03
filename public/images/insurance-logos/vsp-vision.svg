@@ -1,0 +1,15 @@
+<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- VSP Vision logo -->
+  <g transform="translate(10, 15)">
+    <!-- Eye/vision symbol -->
+    <ellipse cx="25" cy="25" rx="20" ry="12" fill="#0073e6" stroke="none"/>
+    <ellipse cx="25" cy="25" rx="12" ry="8" fill="white" stroke="none"/>
+    <circle cx="25" cy="25" r="5" fill="#0073e6" stroke="none"/>
+    <circle cx="27" cy="23" r="2" fill="white" stroke="none"/>
+  </g>
+  
+  <!-- Text -->
+  <g transform="translate(65, 35)">
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#0073e6">VSP Vision</text>
+  </g>
+</svg>

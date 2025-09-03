@@ -39,14 +39,8 @@ router.get('/', async (req, res) => {
       if (db) {
         healthCheck.database.status = 'connected';
         
-        // Get some stats
-        const result = await new Promise((resolve, reject) => {
-          db.get('SELECT COUNT(*) as count FROM records', (err, row) => {
-            if (err) reject(err);
-            else resolve(row);
-          });
-        });
-        
+        // Get some stats - better-sqlite3 uses synchronous API
+        const result = db.prepare('SELECT COUNT(*) as count FROM health_records').get();
         healthCheck.database.recordCount = result.count;
       }
     } catch (dbError) {

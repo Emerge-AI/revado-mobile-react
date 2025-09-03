@@ -156,20 +156,20 @@ function TimelinePage() {
   const stats = getStats();
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black pb-20">
+    <div className="min-h-screen bg-gray-50 pb-20">
       <div className="pt-safe-top">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="px-4 py-6 bg-white dark:bg-gray-900 shadow-sm"
+          className="px-4 py-6 bg-white shadow-sm"
         >
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-2xl font-bold text-gray-900">
                 Health Timeline
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-gray-600 mt-1">
                 {timelineEvents.length} events • {records.length} records
               </p>
             </div>
@@ -179,18 +179,18 @@ function TimelinePage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowShareHistory(true)}
-                className="p-2 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
+                className="p-2 bg-purple-50 text-purple-600 rounded-xl hover:bg-purple-100:bg-purple-900/50 transition-colors"
               >
                 <ShareIcon className="w-5 h-5" />
               </motion.button>
               
-              <div className="flex bg-white dark:bg-gray-800 rounded-xl p-1 shadow-sm">
+              <div className="flex bg-white rounded-xl p-1 shadow-sm">
                 <button
                   onClick={() => setViewMode('list')}
                   className={`p-2 rounded-lg transition-all duration-200 ${
                     viewMode === 'list'
                       ? 'bg-blue-500 text-white shadow-sm'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      : 'text-gray-600 hover:bg-gray-100:bg-gray-700'
                   }`}
                 >
                   {viewMode === 'list' ? (
@@ -204,7 +204,7 @@ function TimelinePage() {
                   className={`p-2 rounded-lg transition-all duration-200 ${
                     viewMode === 'grid'
                       ? 'bg-blue-500 text-white shadow-sm'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      : 'text-gray-600 hover:bg-gray-100:bg-gray-700'
                   }`}
                 >
                   {viewMode === 'grid' ? (
@@ -226,7 +226,7 @@ function TimelinePage() {
               className={`flex-1 py-2 px-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
                 filterType === 'all'
                   ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                  : 'bg-gray-100 text-gray-600'
               }`}
             >
               <ClockIcon className="w-4 h-4" />
@@ -240,7 +240,7 @@ function TimelinePage() {
               className={`flex-1 py-2 px-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
                 filterType === 'uploads'
                   ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                  : 'bg-gray-100 text-gray-600'
               }`}
             >
               <ArrowUpTrayIcon className="w-4 h-4" />
@@ -254,7 +254,7 @@ function TimelinePage() {
               className={`flex-1 py-2 px-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
                 filterType === 'shares'
                   ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                  : 'bg-gray-100 text-gray-600'
               }`}
             >
               <PaperAirplaneIcon className="w-4 h-4" />
@@ -264,21 +264,21 @@ function TimelinePage() {
           
           {/* Stats */}
           <div className="grid grid-cols-4 gap-3 mt-4">
-            <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 text-center">
-              <p className="text-lg font-bold text-green-600 dark:text-green-400">{stats.completed}</p>
-              <p className="text-xs text-green-600 dark:text-green-400">Completed</p>
+            <div className="bg-green-50 rounded-xl p-3 text-center">
+              <p className="text-lg font-bold text-green-600">{stats.completed}</p>
+              <p className="text-xs text-green-600">Completed</p>
             </div>
-            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-3 text-center">
-              <p className="text-lg font-bold text-orange-600 dark:text-orange-400">{stats.processing}</p>
-              <p className="text-xs text-orange-600 dark:text-orange-400">Processing</p>
+            <div className="bg-orange-50 rounded-xl p-3 text-center">
+              <p className="text-lg font-bold text-orange-600">{stats.processing}</p>
+              <p className="text-xs text-orange-600">Processing</p>
             </div>
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 text-center">
-              <p className="text-lg font-bold text-gray-600 dark:text-gray-400">{stats.hidden}</p>
-              <p className="text-xs text-gray-600 dark:text-gray-400">Hidden</p>
+            <div className="bg-gray-50 rounded-xl p-3 text-center">
+              <p className="text-lg font-bold text-gray-600">{stats.hidden}</p>
+              <p className="text-xs text-gray-600">Hidden</p>
             </div>
-            <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 text-center">
-              <p className="text-lg font-bold text-purple-600 dark:text-purple-400">{stats.totalShares}</p>
-              <p className="text-xs text-purple-600 dark:text-purple-400">Shares</p>
+            <div className="bg-purple-50 rounded-xl p-3 text-center">
+              <p className="text-lg font-bold text-purple-600">{stats.totalShares}</p>
+              <p className="text-xs text-purple-600">Shares</p>
             </div>
           </div>
         </motion.div>
@@ -292,10 +292,10 @@ function TimelinePage() {
               className="text-center py-12"
             >
               <DocumentTextIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
                 No Events Yet
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-gray-600">
                 {filterType === 'shares' ? 
                   'Share your first record to see it here' : 
                   'Upload your first health record to get started'}
@@ -344,8 +344,8 @@ function TimelinePage() {
                     transition={{ delay: groupIndex * 0.1 }}
                   >
                     {/* Sticky Section Header */}
-                    <div className="sticky top-0 z-10 bg-gray-50/95 dark:bg-black/95 backdrop-blur-xl px-4 py-3 mb-6 -mx-4">
-                      <h3 className="font-semibold text-gray-600 dark:text-gray-400 text-sm">
+                    <div className="sticky top-0 z-10 bg-gray-50/95 backdrop-blur-xl px-4 py-3 mb-6 -mx-4">
+                      <h3 className="font-semibold text-gray-600 text-sm">
                         {formatSectionDate(dateGroup.date)}
                       </h3>
                     </div>
@@ -398,19 +398,19 @@ function TimelinePage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+            className="fixed inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-50 px-4"
             onClick={() => setShareRecord(null)}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-white dark:bg-gray-900 rounded-3xl p-6 max-w-sm w-full"
+              className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-lg"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
                 Share Record
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+              <p className="text-sm text-gray-600 mb-6">
                 Enter the healthcare provider's email address to share this record.
               </p>
               
@@ -419,13 +419,13 @@ function TimelinePage() {
                 placeholder="provider@example.com"
                 value={shareEmail}
                 onChange={(e) => setShareEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-0 rounded-2xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-700 transition-all mb-6"
+                className="w-full px-4 py-3 bg-gray-50 border-0 rounded-2xl text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:bg-white:bg-gray-700 transition-all mb-6"
               />
               
               <div className="flex space-x-3">
                 <button
                   onClick={() => setShareRecord(null)}
-                  className="flex-1 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  className="flex-1 bg-gray-100 text-gray-900 py-3 rounded-2xl font-medium hover:bg-gray-200 transition-colors"
                 >
                   Cancel
                 </button>
@@ -456,24 +456,24 @@ function TimelinePage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+            className="fixed inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-50 px-4"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-white dark:bg-gray-900 rounded-3xl p-6 max-w-sm w-full"
+              className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-lg"
             >
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 Delete Record?
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+              <p className="text-sm text-gray-600 mb-6">
                 This action cannot be undone. The record will be permanently removed.
               </p>
               
               <div className="flex space-x-3">
                 <button
                   onClick={() => setDeleteConfirm(null)}
-                  className="flex-1 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white py-3 rounded-2xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  className="flex-1 bg-gray-100 text-gray-900 py-3 rounded-2xl font-medium hover:bg-gray-200 transition-colors"
                 >
                   Cancel
                 </button>

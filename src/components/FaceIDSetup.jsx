@@ -96,19 +96,19 @@ function FaceIDSetup({ onClose, onSuccess }) {
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-sm mx-auto"
+        className="bg-white rounded-2xl p-6 max-w-sm mx-auto"
       >
         <div className="text-center">
           <ExclamationTriangleIcon className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
             Face ID Not Available
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+          <p className="text-sm text-gray-600 mb-6">
             Face ID is not available on this device or browser. Please ensure you're using Safari on iOS or a compatible browser.
           </p>
           <button
             onClick={onClose}
-            className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl font-medium"
+            className="px-6 py-3 bg-gray-200 text-gray-900 rounded-xl font-medium"
           >
             Close
           </button>
@@ -126,7 +126,7 @@ function FaceIDSetup({ onClose, onSuccess }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-sm mx-auto"
+          className="bg-white rounded-2xl p-6 max-w-sm mx-auto"
         >
           <div className="text-center">
             <motion.div
@@ -144,11 +144,11 @@ function FaceIDSetup({ onClose, onSuccess }) {
               <FaceSmileSolid className="w-20 h-20 text-blue-500 mx-auto mb-6" />
             </motion.div>
             
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">
               {isRegistered ? 'Face ID Settings' : 'Set Up Face ID'}
             </h2>
             
-            <p className="text-gray-600 dark:text-gray-400 mb-8">
+            <p className="text-gray-600 mb-8">
               {isRegistered 
                 ? 'Face ID is enabled for quick and secure access to your health records'
                 : 'Use Face ID for quick and secure access to your health records'
@@ -159,19 +159,19 @@ function FaceIDSetup({ onClose, onSuccess }) {
             <div className="space-y-3 mb-8">
               <div className="flex items-center gap-3 text-left">
                 <ShieldCheckIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
+                <span className="text-sm text-gray-700">
                   Enhanced security with biometric authentication
                 </span>
               </div>
               <div className="flex items-center gap-3 text-left">
                 <DevicePhoneMobileIcon className="w-5 h-5 text-blue-500 flex-shrink-0" />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
+                <span className="text-sm text-gray-700">
                   Quick access without passwords
                 </span>
               </div>
               <div className="flex items-center gap-3 text-left">
                 <LockClosedIcon className="w-5 h-5 text-purple-500 flex-shrink-0" />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
+                <span className="text-sm text-gray-700">
                   Your biometric data stays on your device
                 </span>
               </div>
@@ -192,7 +192,7 @@ function FaceIDSetup({ onClose, onSuccess }) {
                 </motion.button>
                 <button
                   onClick={handleDisableFaceID}
-                  className="w-full px-6 py-3 text-red-600 dark:text-red-400 font-medium"
+                  className="w-full px-6 py-3 text-red-600 font-medium"
                 >
                   Disable Face ID
                 </button>
@@ -212,7 +212,7 @@ function FaceIDSetup({ onClose, onSuccess }) {
 
             <button
               onClick={onClose}
-              className="mt-4 text-gray-500 dark:text-gray-400 text-sm"
+              className="mt-4 text-gray-500 text-sm"
             >
               Maybe Later
             </button>
@@ -227,7 +227,7 @@ function FaceIDSetup({ onClose, onSuccess }) {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 1.1 }}
-          className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-sm mx-auto"
+          className="bg-white rounded-2xl p-6 max-w-sm mx-auto"
         >
           <div className="text-center">
             <motion.div
@@ -244,10 +244,10 @@ function FaceIDSetup({ onClose, onSuccess }) {
               <FaceSmileIcon className="w-20 h-20 text-blue-500 mx-auto mb-6" />
             </motion.div>
             
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
               Setting Up Face ID
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600">
               Follow the prompts on your device...
             </p>
             
@@ -269,7 +269,7 @@ function FaceIDSetup({ onClose, onSuccess }) {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
-          className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-sm mx-auto"
+          className="bg-white rounded-2xl p-6 max-w-sm mx-auto"
         >
           <div className="text-center">
             <motion.div
@@ -284,10 +284,10 @@ function FaceIDSetup({ onClose, onSuccess }) {
               <CheckCircleIcon className="w-20 h-20 text-green-500 mx-auto mb-6" />
             </motion.div>
             
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
               Face ID Enabled!
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-sm text-gray-600 mb-6">
               You can now use Face ID to quickly access your health records
             </p>
             
@@ -310,7 +310,7 @@ function FaceIDSetup({ onClose, onSuccess }) {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
-          className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-sm mx-auto"
+          className="bg-white rounded-2xl p-6 max-w-sm mx-auto"
         >
           <div className="text-center">
             <motion.div
@@ -325,10 +325,10 @@ function FaceIDSetup({ onClose, onSuccess }) {
               <CheckCircleIcon className="w-20 h-20 text-green-500 mx-auto mb-6" />
             </motion.div>
             
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
               Face ID Works!
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600">
               Authentication successful
             </p>
           </div>
@@ -342,7 +342,7 @@ function FaceIDSetup({ onClose, onSuccess }) {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
-          className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-sm mx-auto"
+          className="bg-white rounded-2xl p-6 max-w-sm mx-auto"
         >
           <div className="text-center">
             <motion.div
@@ -357,13 +357,13 @@ function FaceIDSetup({ onClose, onSuccess }) {
               <XCircleIcon className="w-20 h-20 text-red-500 mx-auto mb-6" />
             </motion.div>
             
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
               Setup Failed
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            <p className="text-sm text-gray-600 mb-2">
               {error || 'Failed to set up Face ID'}
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">
+            <p className="text-xs text-gray-500 mb-6">
               Please try again or contact support
             </p>
             
@@ -378,7 +378,7 @@ function FaceIDSetup({ onClose, onSuccess }) {
               </motion.button>
               <button
                 onClick={onClose}
-                className="w-full px-6 py-3 text-gray-600 dark:text-gray-400"
+                className="w-full px-6 py-3 text-gray-600"
               >
                 Cancel
               </button>

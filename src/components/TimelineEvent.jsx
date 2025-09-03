@@ -10,7 +10,9 @@ import {
   ClockIcon,
   UserIcon,
   ChevronRightIcon,
-  SparklesIcon
+  SparklesIcon,
+  MicrophoneIcon,
+  CloudArrowUpIcon
 } from '@heroicons/react/24/outline';
 
 function TimelineEvent({ 
@@ -29,19 +31,28 @@ function TimelineEvent({
   const getEventStyles = () => {
     if (isShare) {
       return {
-        bgColor: 'bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20',
-        borderColor: 'border-purple-200 dark:border-purple-800',
+        bgColor: 'bg-gradient-to-br from-purple-50 to-pink-50',
+        borderColor: 'border-purple-200',
         iconBg: 'bg-gradient-to-br from-purple-500 to-pink-500',
-        textColor: 'text-purple-700 dark:text-purple-300',
-        badge: 'bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300'
+        textColor: 'text-purple-700',
+        badge: 'bg-purple-100 text-purple-700'
+      };
+    }
+    if (event.type === 'voice_conversation') {
+      return {
+        bgColor: 'bg-gradient-to-br from-orange-50 to-yellow-50',
+        borderColor: 'border-orange-200',
+        iconBg: 'bg-gradient-to-br from-orange-500 to-yellow-500',
+        textColor: 'text-orange-700',
+        badge: 'bg-orange-100 text-orange-700'
       };
     }
     return {
-      bgColor: 'bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20',
-      borderColor: 'border-blue-200 dark:border-blue-800',
+      bgColor: 'bg-gradient-to-br from-blue-50 to-cyan-50',
+      borderColor: 'border-blue-200',
       iconBg: 'bg-gradient-to-br from-blue-500 to-cyan-500',
-      textColor: 'text-blue-700 dark:text-blue-300',
-      badge: 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300'
+      textColor: 'text-blue-700',
+      badge: 'bg-blue-100 text-blue-700'
     };
   };
 
@@ -51,6 +62,9 @@ function TimelineEvent({
   const getIcon = () => {
     if (isShare) {
       return <PaperAirplaneIcon className="w-5 h-5 text-white" />;
+    }
+    if (event.type === 'voice_conversation') {
+      return <MicrophoneIcon className="w-5 h-5 text-white" />;
     }
     if (event.mimeType?.startsWith('image/')) {
       return <PhotoIcon className="w-5 h-5 text-white" />;
@@ -186,7 +200,7 @@ function TimelineEvent({
 
           {/* Content */}
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <h3 className="font-semibold text-gray-900 flex items-center gap-2">
               {isShare ? (
                 <>
                   <span className="flex items-center gap-1">
@@ -215,7 +229,7 @@ function TimelineEvent({
               </motion.span>
 
               {/* Timestamp */}
-              <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1">
+              <span className="text-gray-500 flex items-center gap-1">
                 <ClockIcon className="w-3 h-3" />
                 {formatTime(event.timestamp || event.uploadedAt || event.sharedAt)}
               </span>
@@ -223,11 +237,11 @@ function TimelineEvent({
               {/* Additional Info */}
               {isShare ? (
                 <>
-                  <span className="text-gray-500 dark:text-gray-400">
+                  <span className="text-gray-500">
                     • {event.recordCount || 1} record{(event.recordCount || 1) > 1 ? 's' : ''}
                   </span>
                   {event.method && (
-                    <span className="text-gray-500 dark:text-gray-400">
+                    <span className="text-gray-500">
                       • via {event.method}
                     </span>
                   )}
@@ -235,12 +249,12 @@ function TimelineEvent({
               ) : (
                 <>
                   {event.extractedData?.type && (
-                    <span className="text-gray-500 dark:text-gray-400">
+                    <span className="text-gray-500">
                       • {event.extractedData.type}
                     </span>
                   )}
                   {event.size && (
-                    <span className="text-gray-500 dark:text-gray-400">
+                    <span className="text-gray-500">
                       • {(event.size / 1024).toFixed(1)} KB
                     </span>
                   )}
@@ -250,7 +264,7 @@ function TimelineEvent({
 
             {/* Recipient Email for Shares */}
             {isShare && event.recipientEmail && (
-              <div className="mt-2 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
                 <UserIcon className="w-4 h-4" />
                 <span>{event.recipientEmail}</span>
               </div>
@@ -258,14 +272,29 @@ function TimelineEvent({
 
             {/* AI Summary Preview for Uploads */}
             {isUpload && event.extractedData?.summary && (
-              <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                <p className="text-xs text-gray-600 dark:text-gray-400 overflow-hidden" style={{
+              <div className="mt-2 p-3 bg-gray-50 rounded-xl">
+                <p className="text-xs text-gray-600 overflow-hidden" style={{
                   display: '-webkit-box',
                   WebkitLineClamp: 2,
                   WebkitBoxOrient: 'vertical'
                 }}>
                   {event.extractedData.summary}
                 </p>
+              </div>
+            )}
+            
+            {/* Calendar Sync Status for Voice Records */}
+            {event.type === 'voice_conversation' && event.calendarSyncResult && (
+              <div className="mt-2 p-2 bg-green-50 rounded-lg border border-green-200">
+                <div className="flex items-center gap-2">
+                  <CloudArrowUpIcon className="w-4 h-4 text-green-600" />
+                  <span className="text-xs font-medium text-green-800">
+                    Synced {event.calendarSyncResult.eventsCreated} events to calendar
+                  </span>
+                  <span className="text-xs text-green-600">
+                    {new Date(event.calendarSyncedAt).toLocaleDateString()}
+                  </span>
+                </div>
               </div>
             )}
 
@@ -275,9 +304,9 @@ function TimelineEvent({
                 <motion.span 
                   whileHover={{ scale: 1.05 }}
                   className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
-                    ${event.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300' :
-                      event.status === 'processing' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300' :
-                      'bg-gray-100 text-gray-700 dark:bg-gray-900/50 dark:text-gray-300'}`}
+                    ${event.status === 'completed' ? 'bg-green-100 text-green-700' :
+                      event.status === 'processing' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-gray-100 text-gray-700'}`}
                 >
                   {event.status}
                 </motion.span>
@@ -298,7 +327,7 @@ function TimelineEvent({
               <img 
                 src={event.url}
                 alt={event.displayName}
-                className="w-16 h-16 rounded-xl object-cover border-2 border-white dark:border-gray-800 shadow-md"
+                className="w-16 h-16 rounded-xl object-cover border-2 border-white shadow-md"
               />
             </motion.div>
           )}
@@ -308,7 +337,7 @@ function TimelineEvent({
             whileHover={{ x: 4 }}
             className="opacity-60 group-hover:opacity-100 transition-opacity"
           >
-            <ChevronRightIcon className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+            <ChevronRightIcon className="w-5 h-5 text-gray-400" />
           </motion.div>
         </div>
       </div>

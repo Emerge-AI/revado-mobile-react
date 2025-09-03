@@ -100,11 +100,11 @@ function PrivacySecurityPage() {
         <div className="flex items-center justify-between py-4 mb-6">
           <button
             onClick={() => navigate('/settings')}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <ArrowLeftIcon className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+            <ArrowLeftIcon className="w-6 h-6 text-gray-700" />
           </button>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-xl font-bold text-gray-900">
             Privacy & Security
           </h1>
           <div className="w-10" />
@@ -112,7 +112,7 @@ function PrivacySecurityPage() {
 
         {/* Security Settings */}
         <div className="mb-8">
-          <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
             Security
           </h2>
           <div className="space-y-3">
@@ -121,26 +121,26 @@ function PrivacySecurityPage() {
                 key={setting.key}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
-                className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm"
+                className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded-lg ${
                       security[setting.key] 
-                        ? 'bg-blue-100 dark:bg-blue-900/30' 
-                        : 'bg-gray-100 dark:bg-gray-700'
+                        ? 'bg-blue-100' 
+                        : 'bg-gray-100'
                     }`}>
                       <setting.icon className={`w-5 h-5 ${
                         security[setting.key] 
-                          ? 'text-blue-600 dark:text-blue-400' 
-                          : 'text-gray-600 dark:text-gray-400'
+                          ? 'text-blue-600' 
+                          : 'text-gray-600'
                       }`} />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900 dark:text-white">
+                      <p className="font-semibold text-gray-900">
                         {setting.label}
                       </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                      <p className="text-xs text-gray-600">
                         {setting.description}
                       </p>
                     </div>
@@ -151,7 +151,7 @@ function PrivacySecurityPage() {
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                       security[setting.key] 
                         ? 'bg-blue-600' 
-                        : 'bg-gray-300 dark:bg-gray-600'
+                        : 'bg-gray-300'
                     }`}
                   >
                     <span
@@ -164,12 +164,12 @@ function PrivacySecurityPage() {
                 
                 {/* Auto-lock timeout selector */}
                 {setting.key === 'autoLockEnabled' && security.autoLockEnabled && (
-                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <label className="text-xs text-gray-500 dark:text-gray-400">Lock after</label>
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <label className="text-xs text-gray-500">Lock after</label>
                     <select
                       value={security.autoLockTimeout}
                       onChange={(e) => setSecurity(prev => ({ ...prev, autoLockTimeout: e.target.value }))}
-                      className="w-full mt-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-900 dark:text-white"
+                      className="w-full mt-1 px-3 py-2 bg-gray-100 rounded-lg text-gray-900"
                     >
                       <option value="1">1 minute</option>
                       <option value="5">5 minutes</option>
@@ -186,7 +186,7 @@ function PrivacySecurityPage() {
 
         {/* Privacy Settings */}
         <div className="mb-8">
-          <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
             Privacy
           </h2>
           <div className="space-y-3">
@@ -195,26 +195,26 @@ function PrivacySecurityPage() {
                 key={setting.key}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
-                className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm"
+                className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded-lg ${
                       security[setting.key] 
-                        ? 'bg-green-100 dark:bg-green-900/30' 
-                        : 'bg-gray-100 dark:bg-gray-700'
+                        ? 'bg-green-100' 
+                        : 'bg-gray-100'
                     }`}>
                       <setting.icon className={`w-5 h-5 ${
                         security[setting.key] 
-                          ? 'text-green-600 dark:text-green-400' 
-                          : 'text-gray-600 dark:text-gray-400'
+                          ? 'text-green-600' 
+                          : 'text-gray-600'
                       }`} />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900 dark:text-white">
+                      <p className="font-semibold text-gray-900">
                         {setting.label}
                       </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                      <p className="text-xs text-gray-600">
                         {setting.description}
                       </p>
                     </div>
@@ -225,7 +225,7 @@ function PrivacySecurityPage() {
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                       security[setting.key] 
                         ? 'bg-green-600' 
-                        : 'bg-gray-300 dark:bg-gray-600'
+                        : 'bg-gray-300'
                     }`}
                   >
                     <span
@@ -242,32 +242,32 @@ function PrivacySecurityPage() {
 
         {/* Data Management */}
         <div>
-          <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
             Data Management
           </h2>
           
           <motion.button
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
-            className="w-full bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm mb-3"
+            className="w-full bg-white rounded-xl p-4 border border-gray-200 shadow-sm mb-3"
             onClick={() => navigate('/settings/export-data')}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                  <CloudArrowUpIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <div className="p-2 rounded-lg bg-blue-100">
+                  <CloudArrowUpIcon className="w-5 h-5 text-blue-600" />
                 </div>
                 <div className="text-left">
-                  <p className="font-semibold text-gray-900 dark:text-white">
+                  <p className="font-semibold text-gray-900">
                     Export Your Data
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                  <p className="text-xs text-gray-600">
                     Download all your health records
                   </p>
                 </div>
               </div>
               <svg
-                className="w-5 h-5 text-gray-400 dark:text-gray-500"
+                className="w-5 h-5 text-gray-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -288,28 +288,28 @@ function PrivacySecurityPage() {
             onClick={handleDeleteAllData}
             className={`w-full rounded-xl p-4 border shadow-sm transition-colors ${
               showDeleteConfirm 
-                ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-800'
-                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                ? 'bg-red-50 border-red-300'
+                : 'bg-white border-gray-200'
             }`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className={`p-2 rounded-lg ${
                   showDeleteConfirm 
-                    ? 'bg-red-100 dark:bg-red-900/30'
-                    : 'bg-red-50 dark:bg-red-900/20'
+                    ? 'bg-red-100'
+                    : 'bg-red-50'
                 }`}>
                   {showDeleteConfirm ? (
-                    <ExclamationTriangleIcon className="w-5 h-5 text-red-600 dark:text-red-400" />
+                    <ExclamationTriangleIcon className="w-5 h-5 text-red-600" />
                   ) : (
-                    <TrashIcon className="w-5 h-5 text-red-600 dark:text-red-400" />
+                    <TrashIcon className="w-5 h-5 text-red-600" />
                   )}
                 </div>
                 <div className="text-left">
-                  <p className="font-semibold text-red-600 dark:text-red-400">
+                  <p className="font-semibold text-red-600">
                     {showDeleteConfirm ? 'Tap again to confirm' : 'Delete All Data'}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                  <p className="text-xs text-gray-600">
                     {showDeleteConfirm 
                       ? 'This action cannot be undone'
                       : 'Permanently remove all your data'}
@@ -321,14 +321,14 @@ function PrivacySecurityPage() {
         </div>
 
         {/* Privacy Notice */}
-        <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+        <div className="mt-8 p-4 bg-gray-50 rounded-xl">
           <div className="flex items-start space-x-3">
-            <ShieldCheckIcon className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+            <ShieldCheckIcon className="w-5 h-5 text-blue-600 mt-0.5" />
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
+              <h3 className="font-semibold text-gray-900 text-sm">
                 Your Privacy Matters
               </h3>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-600 mt-1">
                 We use industry-standard encryption to protect your health data. 
                 Your records are never shared without your explicit consent.
               </p>

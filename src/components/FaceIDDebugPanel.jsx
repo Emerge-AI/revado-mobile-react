@@ -11,8 +11,28 @@ import {
 function FaceIDDebugPanel() {
   const { isSupported, isAvailable, isRegistered, getRegisteredDevices } = useBiometricAuth();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isHidden, setIsHidden] = useState(() => {
+    return localStorage.getItem('hideDebugPanel') === 'true';
+  });
   const [debugInfo, setDebugInfo] = useState({});
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    // Add keyboard shortcut to toggle debug panel (Ctrl/Cmd + Shift + D)
+    const handleKeyPress = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'D') {
+        e.preventDefault();
+        setIsHidden(prev => {
+          const newValue = !prev;
+          localStorage.setItem('hideDebugPanel', newValue.toString());
+          return newValue;
+        });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
 
   useEffect(() => {
     // Gather debug information
@@ -91,16 +111,19 @@ function FaceIDDebugPanel() {
 
   if (!shouldShow) return null;
 
+  // Don't render anything if hidden
+  if (isHidden) return null;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="fixed bottom-20 left-4 right-4 z-40 max-w-lg mx-auto"
     >
-      <div className="bg-gray-900 text-white rounded-xl shadow-xl overflow-hidden">
+      <div className="bg-gray-800 text-white rounded-xl shadow-xl overflow-hidden">
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-800 transition-colors"
+          className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
         >
           <div className="flex items-center gap-2">
             <BugAntIcon className="w-5 h-5 text-yellow-400" />
@@ -181,7 +204,7 @@ function FaceIDDebugPanel() {
             {/* Copy Button */}
             <button
               onClick={copyDebugInfo}
-              className="w-full mt-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg flex items-center justify-center gap-2 transition-colors"
+              className="w-full mt-2 px-3 py-2 bg-gray-50 hover:bg-gray-700 rounded-lg flex items-center justify-center gap-2 transition-colors"
             >
               <ClipboardIcon className="w-4 h-4" />
               <span>{copied ? 'Copied!' : 'Copy Debug Info'}</span>

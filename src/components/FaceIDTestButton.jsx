@@ -247,7 +247,7 @@ function FaceIDTestButton() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gray-100 dark:bg-gray-800 rounded-xl p-4 space-y-3"
+          className="bg-gray-100 rounded-xl p-4 space-y-3"
         >
           {/* Auto-copied notification */}
           {autoCopied && (
@@ -255,7 +255,7 @@ function FaceIDTestButton() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 p-3 rounded-lg text-sm font-medium text-center mb-3"
+              className="bg-green-100 text-green-800 p-3 rounded-lg text-sm font-medium text-center mb-3"
             >
               📋 Results automatically copied to clipboard!
             </motion.div>
@@ -263,22 +263,22 @@ function FaceIDTestButton() {
 
           {/* Summary */}
           {testResults.summary && (
-            <div className="pb-3 border-b border-gray-300 dark:border-gray-700">
+            <div className="pb-3 border-b border-gray-300">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold text-gray-900 dark:text-white">
+                <h3 className="font-semibold text-gray-900">
                   Test Results
                 </h3>
                 <span className={`px-2 py-1 rounded text-xs font-medium ${
                   testResults.summary.passRate === 100 
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300'
+                    ? 'bg-green-100 text-green-800'
                     : testResults.summary.passRate >= 50
-                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300'
-                    : 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300'
+                    ? 'bg-yellow-100 text-yellow-800'
+                    : 'bg-red-100 text-red-800'
                 }`}>
                   {testResults.summary.passRate}% Passed
                 </span>
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="text-sm text-gray-600">
                 {testResults.summary.passed} passed, {testResults.summary.failed} failed
               </div>
             </div>
@@ -289,7 +289,7 @@ function FaceIDTestButton() {
             {testResults.tests.map((test, index) => (
               <div
                 key={index}
-                className="flex items-start gap-3 p-2 rounded-lg bg-white dark:bg-gray-700"
+                className="flex items-start gap-3 p-2 rounded-lg bg-white"
               >
                 <div className="flex-shrink-0 mt-0.5">
                   {test.passed ? (
@@ -299,14 +299,14 @@ function FaceIDTestButton() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm text-gray-900 dark:text-white">
+                  <div className="font-medium text-sm text-gray-900">
                     {test.name}
                   </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
+                  <div className="text-xs text-gray-600">
                     {test.description}
                   </div>
                   {test.error && (
-                    <div className="text-xs text-red-600 dark:text-red-400 mt-1">
+                    <div className="text-xs text-red-600 mt-1">
                       Error: {test.error.message}
                     </div>
                   )}
@@ -316,7 +316,7 @@ function FaceIDTestButton() {
           </div>
 
           {/* Actions */}
-          <div className="pt-3 border-t border-gray-300 dark:border-gray-700 flex gap-2">
+          <div className="pt-3 border-t border-gray-300 flex gap-2">
             <button
               onClick={copyResults}
               className="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg font-medium transition-colors"
@@ -332,7 +332,7 @@ function FaceIDTestButton() {
           </div>
 
           {/* Instructions */}
-          <div className="text-xs text-gray-500 dark:text-gray-400 pt-2">
+          <div className="text-xs text-gray-500 pt-2">
             <p>📱 Share these results when reporting Face ID issues</p>
             <p>🔍 Check console for detailed logs</p>
           </div>
