@@ -72,7 +72,7 @@ function VoiceRecordCard({ record, onClick, isDetailView = false }) {
     e.stopPropagation();
     // Simulate audio playback
     setIsPlaying(!isPlaying);
-    
+
     if (!isPlaying) {
       // Start "playback" simulation
       const interval = setInterval(() => {
@@ -118,7 +118,7 @@ function VoiceRecordCard({ record, onClick, isDetailView = false }) {
               </p>
             </div>
           </div>
-          
+
           <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${urgencyConfig.bg}`}>
             <UrgencyIcon className={`w-3 h-3 ${urgencyConfig.color}`} />
             <span className={`text-xs font-medium ${urgencyConfig.color}`}>
@@ -135,8 +135,8 @@ function VoiceRecordCard({ record, onClick, isDetailView = false }) {
               whileTap={{ scale: 0.9 }}
               onClick={handlePlayPause}
               className={`p-3 rounded-full transition-colors ${
-                isPlaying 
-                  ? 'bg-orange-600 hover:bg-orange-700' 
+                isPlaying
+                  ? 'bg-orange-600 hover:bg-orange-700'
                   : 'bg-orange-600 hover:bg-orange-700'
               }`}
             >
@@ -146,7 +146,7 @@ function VoiceRecordCard({ record, onClick, isDetailView = false }) {
                 <PlayIcon className="w-5 h-5 text-white ml-0.5" />
               )}
             </motion.button>
-            
+
             <div className="flex-1">
               <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
                 <span>{formatDuration(audioCurrentTime)}</span>
@@ -157,14 +157,14 @@ function VoiceRecordCard({ record, onClick, isDetailView = false }) {
                 <motion.div
                   className="bg-orange-600 h-2 rounded-full"
                   initial={{ width: 0 }}
-                  animate={{ 
-                    width: duration > 0 ? `${(audioCurrentTime / duration) * 100}%` : '0%' 
+                  animate={{
+                    width: duration > 0 ? `${(audioCurrentTime / duration) * 100}%` : '0%'
                   }}
                   transition={{ duration: 0.1 }}
                 />
               </div>
             </div>
-            
+
             <SpeakerWaveIcon className="w-5 h-5 text-gray-500" />
           </div>
         </div>
@@ -223,7 +223,7 @@ function VoiceRecordCard({ record, onClick, isDetailView = false }) {
                 <EyeIcon className="w-4 h-4 text-gray-500 ml-auto" />
               )}
             </motion.button>
-            
+
             {showTranscript && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
@@ -265,7 +265,7 @@ function VoiceRecordCard({ record, onClick, isDetailView = false }) {
             />
           )}
         </div>
-        
+
         {/* Content */}
         <div className="flex-1 min-w-0">
           {/* Title and time */}
@@ -278,12 +278,12 @@ function VoiceRecordCard({ record, onClick, isDetailView = false }) {
               <span>{formatDuration(duration)}</span>
             </div>
           </div>
-          
+
           {/* Summary */}
           <p className="text-sm text-gray-600 mb-2 line-clamp-2">
             {extractedData.summary || 'Voice conversation with AI assistant'}
           </p>
-          
+
           {/* Metadata badges */}
           <div className="flex items-center gap-2 flex-wrap">
             {/* AI Analysis badge */}
@@ -291,7 +291,7 @@ function VoiceRecordCard({ record, onClick, isDetailView = false }) {
               <SparklesIcon className="w-3 h-3 mr-1" />
               AI Analyzed
             </span>
-            
+
             {/* Calendar Sync badge */}
             {isSynced && (
               <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
@@ -299,13 +299,13 @@ function VoiceRecordCard({ record, onClick, isDetailView = false }) {
                 Synced to Calendar
               </span>
             )}
-            
+
             {/* Urgency badge */}
             <span className={`inline-flex items-center text-xs px-2 py-0.5 rounded-full font-medium ${urgencyConfig.bg} ${urgencyConfig.color}`}>
               <UrgencyIcon className="w-3 h-3 mr-1" />
               {urgencyConfig.label}
             </span>
-            
+
             {/* Topics count */}
             {keyTopics.length > 0 && (
               <span className="text-xs text-gray-500">

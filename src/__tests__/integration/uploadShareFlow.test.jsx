@@ -22,8 +22,8 @@ describe('Upload to Share Integration Flow', () => {
 
     const handleUpload = async () => {
       try {
-        const file = new File(['medical report content'], 'Medical_Report_2024.pdf', { 
-          type: 'application/pdf' 
+        const file = new File(['medical report content'], 'Medical_Report_2024.pdf', {
+          type: 'application/pdf'
         });
         const result = await uploadFile(file);
         setUploadResult(result);
@@ -34,7 +34,7 @@ describe('Upload to Share Integration Flow', () => {
 
     const handleShare = async () => {
       try {
-        const result = await generateSharePackage('dentist@example.com', {
+        const result = await generateSharePackage('doctor@example.com', {
           patientName: 'John Doe',
           patientEmail: 'john.doe@email.com',
           recipientName: 'Dr. Smith'
@@ -50,11 +50,11 @@ describe('Upload to Share Integration Flow', () => {
         <div data-testid="loading">{loading.toString()}</div>
         <div data-testid="upload-progress">{uploadProgress}</div>
         <div data-testid="records-count">{records.length}</div>
-        
+
         <button data-testid="upload-btn" onClick={handleUpload}>
           Upload File
         </button>
-        
+
         <button data-testid="share-btn" onClick={handleShare}>
           Generate Share Package
         </button>
@@ -123,7 +123,7 @@ describe('Upload to Share Integration Flow', () => {
 
     jest.doMock('../../services/emailService', () => ({
       sendHealthRecordsEmail: mockEmailSend,
-      createMailtoLink: jest.fn(() => 'mailto:dentist@example.com'),
+      createMailtoLink: jest.fn(() => 'mailto:doctor@example.com'),
       isEmailServiceConfigured: jest.fn(() => true)
     }));
 
@@ -145,9 +145,9 @@ describe('Upload to Share Integration Flow', () => {
     mockFetch
       .mockImplementationOnce(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ status: 'ok' }) }))
       // Get records (initially empty)
-      .mockImplementationOnce(() => Promise.resolve({ 
-        ok: true, 
-        json: () => Promise.resolve({ success: true, records: [] }) 
+      .mockImplementationOnce(() => Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ success: true, records: [] })
       }))
       // File upload
       .mockImplementationOnce(() => Promise.resolve({
@@ -245,7 +245,7 @@ describe('Upload to Share Integration Flow', () => {
   describe('Complete Upload to Share Flow', () => {
     it('should successfully complete the entire upload → process → share flow', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <HealthRecordsProvider>
           <IntegrationTestApp />
@@ -312,7 +312,7 @@ describe('Upload to Share Integration Flow', () => {
 
       // Verify share result
       await waitFor(() => {
-        expect(screen.getByTestId('share-recipient')).toHaveTextContent('dentist@example.com');
+        expect(screen.getByTestId('share-recipient')).toHaveTextContent('doctor@example.com');
         expect(screen.getByTestId('share-status')).toHaveTextContent('sent');
         expect(screen.getByTestId('share-method')).toHaveTextContent('emailjs');
         expect(screen.getByTestId('share-record-count')).toHaveTextContent('1');
@@ -345,7 +345,7 @@ describe('Upload to Share Integration Flow', () => {
       ]);
 
       expect(mockEmailSend).toHaveBeenCalledWith({
-        recipientEmail: 'dentist@example.com',
+        recipientEmail: 'doctor@example.com',
         recipientName: 'Dr. Smith',
         patientName: 'John Doe',
         patientEmail: 'john.doe@email.com',
@@ -367,7 +367,7 @@ describe('Upload to Share Integration Flow', () => {
 
     it('should handle upload errors gracefully', async () => {
       const user = userEvent.setup();
-      
+
       // Mock upload failure
       mockFetch
         .mockImplementationOnce(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ status: 'ok' }) }))
@@ -395,7 +395,7 @@ describe('Upload to Share Integration Flow', () => {
 
     it('should handle share generation errors gracefully', async () => {
       const user = userEvent.setup();
-      
+
       // Setup successful upload but failed share
       mockPdfGenerate.mockRejectedValue(new Error('PDF generation failed'));
 
@@ -426,7 +426,7 @@ describe('Upload to Share Integration Flow', () => {
 
     it('should work with multiple files in share package', async () => {
       const user = userEvent.setup();
-      
+
       // Mock multiple file upload responses
       mockFetch
         .mockImplementationOnce(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ status: 'ok' }) }))
@@ -601,7 +601,7 @@ describe('Upload to Share Integration Flow', () => {
 
     it('should exclude hidden records from share package', async () => {
       const user = userEvent.setup();
-      
+
       // Mock response with one visible and one hidden record
       mockFetch
         .mockImplementationOnce(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ status: 'ok' }) }))
@@ -688,7 +688,7 @@ describe('Upload to Share Integration Flow', () => {
 
     it('should complete upload to share flow using local storage', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <HealthRecordsProvider>
           <IntegrationTestApp />

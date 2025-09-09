@@ -4,7 +4,11 @@ import { useHealthRecords } from '../contexts/HealthRecordsContext';
 import apiService from '../services/api';
 import VoiceRecorder from '../components/VoiceRecording/VoiceRecorder';
 import SyncNotification from '../components/VoiceRecording/SyncNotification';
-import { 
+import UploadBottomSheet from '../components/UploadBottomSheet';
+import UploadSuccessAnimation from '../components/UploadSuccessAnimation';
+import CameraCapture from '../components/CameraCapture/CameraCapture';
+import DocumentExtractionSummary from '../components/CameraCapture/DocumentExtractionSummary';
+import {
   DocumentPlusIcon,
   CameraIcon,
   EnvelopeIcon,
@@ -23,6 +27,11 @@ function UploadPage() {
   const [backendStatus, setBackendStatus] = useState('checking');
   const [syncNotification, setSyncNotification] = useState(null);
   const [showSyncNotification, setShowSyncNotification] = useState(false);
+  const [showBottomSheet, setShowBottomSheet] = useState(false);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
+  const [capturedImage, setCapturedImage] = useState(null);
+  const [showSummary, setShowSummary] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -35,7 +44,7 @@ function UploadPage() {
         setBackendStatus('offline');
       }
     };
-    
+
     checkBackend();
     // Check again every 30 seconds
     const interval = setInterval(checkBackend, 30000);
@@ -79,20 +88,20 @@ function UploadPage() {
       const dummyFile = new File(['voice-recording'], `voice-${Date.now()}.webm`, {
         type: 'audio/webm'
       });
-      
+
       // Add voice-specific metadata including sync preferences
       dummyFile.voiceData = voiceRecord;
       dummyFile.saveWithSync = voiceRecord.saveWithSync || false;
-      
+
       await uploadFile(dummyFile);
-      
+
       // Show sync notification if calendar sync was enabled
       if (voiceRecord.saveWithSync && voiceRecord.extractedEvents) {
         // Wait a bit for the sync to complete
         setTimeout(() => {
           const mockSyncResult = {
             success: true,
-            eventsCreated: (voiceRecord.extractedEvents.events?.length || 0) + 
+            eventsCreated: (voiceRecord.extractedEvents.events?.length || 0) +
                           (voiceRecord.extractedEvents.medications?.length || 0),
             results: [
               ...(voiceRecord.extractedEvents.events || []).map(event => ({
@@ -106,17 +115,17 @@ function UploadPage() {
             ],
             syncedAt: new Date().toISOString()
           };
-          
+
           setSyncNotification(mockSyncResult);
           setShowSyncNotification(true);
-          
+
           // Auto-dismiss after 8 seconds
           setTimeout(() => {
             setShowSyncNotification(false);
           }, 8000);
         }, 3000);
       }
-      
+
       setUploadSuccess(true);
       setTimeout(() => {
         setUploadSuccess(false);
@@ -135,16 +144,16 @@ function UploadPage() {
     {
       id: 'file',
       icon: DocumentPlusIcon,
-      title: 'Upload PDF/Image',
-      description: 'Lab results, notes, records',
+      title: 'Add Document',
+      description: 'PDFs, photos, or any health papers',
       iconBg: 'bg-blue-100',
       iconColor: 'text-blue-600',
     },
     {
       id: 'camera',
       icon: CameraIcon,
-      title: 'Take Photo',
-      description: 'Capture document with camera',
+      title: 'Quick Photo',
+      description: 'Snap a picture of your document',
       iconBg: 'bg-purple-100',
       iconColor: 'text-purple-600',
     },
@@ -168,13 +177,31 @@ function UploadPage() {
 
   return (
     <div className="min-h-screen bg-white pb-20">
+      {/* Upload Bottom Sheet */}
+      <UploadBottomSheet
+        isOpen={showBottomSheet}
+        onClose={() => setShowBottomSheet(false)}
+        onUploadComplete={() => {
+          setShowSuccessAnimation(true);
+          setTimeout(() => setShowSuccessAnimation(false), 3000);
+        }}
+      />
+
+      {/* Success Animation */}
+      <UploadSuccessAnimation
+        show={showSuccessAnimation}
+        message="Perfect! Document Secured"
+        subMessage="Your document is safe with us"
+        onComplete={() => setShowSuccessAnimation(false)}
+      />
+
       {/* Sync Notification */}
       <SyncNotification
         syncResult={syncNotification}
         isVisible={showSyncNotification}
         onDismiss={() => setShowSyncNotification(false)}
       />
-      
+
       <div className="pt-safe-top px-4">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -182,10 +209,10 @@ function UploadPage() {
           className="py-6"
         >
           <h1 className="text-2xl font-bold text-gray-900">
-            Add Health Records
+            Let's Add Your Documents
           </h1>
           <p className="text-gray-600 mt-1">
-            Choose how to import your records
+            No rush - we'll keep everything safe and organized
           </p>
         </motion.div>
 
@@ -194,29 +221,29 @@ function UploadPage() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className={`mb-4 px-3 py-2 rounded-lg flex items-center space-x-2 ${
-            backendStatus === 'connected' 
-              ? 'bg-green-50 border border-green-200' 
+            backendStatus === 'connected'
+              ? 'bg-green-50 border border-green-200'
               : backendStatus === 'offline'
               ? 'bg-yellow-50 border border-yellow-200'
               : 'bg-gray-50 border border-gray-100'
           }`}
         >
           <ServerIcon className={`w-4 h-4 ${
-            backendStatus === 'connected' 
-              ? 'text-green-600' 
+            backendStatus === 'connected'
+              ? 'text-green-600'
               : backendStatus === 'offline'
               ? 'text-yellow-600'
               : 'text-gray-600'
           }`} />
           <span className={`text-xs font-medium ${
-            backendStatus === 'connected' 
-              ? 'text-green-700' 
+            backendStatus === 'connected'
+              ? 'text-green-700'
               : backendStatus === 'offline'
               ? 'text-yellow-700'
               : 'text-gray-700'
           }`}>
-            {backendStatus === 'connected' 
-              ? 'Server Connected - Files stored securely' 
+            {backendStatus === 'connected'
+              ? 'Server Connected - Files stored securely'
               : backendStatus === 'offline'
               ? 'Offline Mode - Files stored locally'
               : 'Checking server connection...'}
@@ -225,6 +252,37 @@ function UploadPage() {
 
         {!uploadMethod && !uploadSuccess && (
           <div className="space-y-3">
+            {/* Quick Access Button - Opens Bottom Sheet */}
+            <motion.button
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowCamera(true)}
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-2xl p-5 flex items-center justify-between shadow-lg hover:shadow-xl transition-shadow"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="bg-white/20 backdrop-blur p-3 rounded-xl">
+                  <DocumentPlusIcon className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-bold text-lg">Quick Add</h3>
+                  <p className="text-sm text-white/90">Fastest way to add documents</p>
+                </div>
+              </div>
+              <div className="bg-white/20 backdrop-blur px-3 py-1 rounded-full">
+                <span className="text-xs font-semibold">RECOMMENDED</span>
+              </div>
+            </motion.button>
+
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-3 bg-white text-gray-500">or choose below</span>
+              </div>
+            </div>
+
             {uploadMethods.map((method, index) => (
               <motion.button
                 key={method.id}
@@ -331,7 +389,7 @@ function UploadPage() {
 
         {/* Voice Recording Interface */}
         {uploadMethod === 'voice' && !uploadSuccess && (
-          <VoiceRecorder 
+          <VoiceRecorder
             onComplete={handleVoiceComplete}
             onCancel={handleVoiceCancel}
           />
@@ -347,11 +405,11 @@ function UploadPage() {
             <div className="flex items-center justify-center mb-4">
               <CloudArrowUpIcon className="w-16 h-16 text-blue-600 animate-pulse" />
             </div>
-            
+
             <p className="text-center font-medium text-gray-900 mb-2">
-              Uploading...
+              Almost there! Processing your document...
             </p>
-            
+
             <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
               <motion.div
                 className="h-full bg-blue-600"
@@ -360,9 +418,9 @@ function UploadPage() {
                 transition={{ duration: 0.3 }}
               />
             </div>
-            
+
             <p className="text-center text-sm text-gray-500 mt-2">
-              {uploadProgress}% complete
+              {uploadProgress}% complete - You're doing great!
             </p>
           </motion.div>
         )}
@@ -377,10 +435,10 @@ function UploadPage() {
             <div className="flex flex-col items-center">
               <CheckCircleIcon className="w-16 h-16 text-green-600 mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Upload Successful!
+                Perfect! Document Secured
               </h3>
               <p className="text-sm text-gray-600 text-center">
-                Your record is being processed and will be ready soon
+                Your document is safe with us and ready when you need it
               </p>
             </div>
           </motion.div>
@@ -393,15 +451,80 @@ function UploadPage() {
           transition={{ delay: 0.3 }}
           className="mt-8 bg-blue-50 rounded-2xl p-4 shadow-lg"
         >
-          <h3 className="font-medium text-blue-600 mb-2">Quick Tips</h3>
+          <h3 className="font-medium text-blue-600 mb-2">Good to Know</h3>
           <ul className="space-y-1 text-sm text-gray-600">
-            <li>• PDFs are processed automatically with AI</li>
-            <li>• Photos are enhanced and text is extracted</li>
-            <li>• Provider connections update nightly</li>
-            <li>• All uploads are encrypted and secure</li>
+            <li>• We'll organize everything automatically for you</li>
+            <li>• Blurry photos? No problem - we'll enhance them</li>
+            <li>• Your documents are encrypted and private</li>
+            <li>• You can share with doctors anytime</li>
           </ul>
         </motion.div>
       </div>
+
+      {/* Camera Capture Modal - Direct from Quick Add */}
+      {showCamera && (
+        <CameraCapture
+          onComplete={(image) => {
+            setCapturedImage(image);
+            setShowCamera(false);
+            setShowSummary(true);
+          }}
+          onCancel={() => setShowCamera(false)}
+        />
+      )}
+
+      {/* Document Extraction Summary - Direct after capture */}
+      {showSummary && capturedImage && (
+        <DocumentExtractionSummary
+          capturedImage={capturedImage}
+          onSave={async (data) => {
+            // Create file from captured image
+            const file = new File([data.blob], `capture-${Date.now()}.jpg`, {
+              type: 'image/jpeg'
+            });
+            file.extractedData = data.extractedData;
+            file.syncOptions = data.syncOptions;
+
+            await uploadFile(file);
+            setShowSummary(false);
+            setCapturedImage(null);
+            setShowSuccessAnimation(true);
+
+            // Show sync notification if sync options were selected
+            if (data.syncOptions && data.syncOptions.length > 0) {
+              setTimeout(() => {
+                const mockSyncResult = {
+                  success: true,
+                  eventsCreated: data.syncOptions.length,
+                  results: data.syncOptions.map(opt => ({
+                    summary: `Synced to ${opt}`,
+                    start: { dateTime: new Date().toISOString() }
+                  })),
+                  syncedAt: new Date().toISOString()
+                };
+
+                setSyncNotification(mockSyncResult);
+                setShowSyncNotification(true);
+
+                setTimeout(() => {
+                  setShowSyncNotification(false);
+                }, 8000);
+              }, 3000);
+            }
+
+            setTimeout(() => setShowSuccessAnimation(false), 3000);
+          }}
+          onRetake={() => {
+            setShowSummary(false);
+            setCapturedImage(null);
+            setShowCamera(true);
+          }}
+          onCancel={() => {
+            setShowSummary(false);
+            setCapturedImage(null);
+          }}
+        />
+      )}
     </div>
   );
 }

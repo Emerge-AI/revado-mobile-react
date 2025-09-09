@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a mobile-optimized Progressive Web App (PWA) for managing and sharing health records with dentists. Built with Vite + React 19, it provides an iOS-native-like experience with 60fps animations, touch gestures, and offline support.
+This is a mobile-optimized Progressive Web App (PWA) for managing and sharing health records with doctors. Built with Vite + React 19, it provides an iOS-native-like experience with 60fps animations, touch gestures, and offline support.
 
 ## Essential Commands
 
@@ -49,7 +49,7 @@ src/
 │   ├── AuthPage.jsx # Email + SMS authentication
 │   ├── HomePage.jsx # Dashboard with quick actions
 │   ├── UploadPage.jsx # File upload & provider connection
-│   ├── SharePage.jsx # Share records with dentist
+│   ├── SharePage.jsx # Share records with doctor
 │   └── TimelinePage.jsx # Health records timeline
 └── App.jsx          # Root component with routing
 ```
@@ -89,7 +89,7 @@ src/
 - **E-2**: Upload files & connect providers ✓
 - **E-3**: Simulated AI processing with confidence tracking ✓
 - **E-4**: Timeline with hide/delete controls ✓
-- **E-5**: Share package generation with dentist email ✓
+- **E-5**: Share package generation with doctor email ✓
 - **E-6-8**: Backend features (simulated in contexts)
 
 ## Performance Targets

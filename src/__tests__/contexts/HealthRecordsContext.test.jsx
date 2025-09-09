@@ -55,15 +55,15 @@ function TestComponent() {
       <div data-testid="upload-progress">{uploadProgress}</div>
       <div data-testid="records-count">{records.length}</div>
       <div data-testid="processing-queue">{processingQueue.length}</div>
-      <button 
-        data-testid="upload-file" 
+      <button
+        data-testid="upload-file"
         onClick={() => uploadFile(new File(['content'], 'test.pdf', { type: 'application/pdf' }))}
       >
         Upload
       </button>
-      <button 
-        data-testid="generate-share" 
-        onClick={() => generateSharePackage('dentist@example.com')}
+      <button
+        data-testid="generate-share"
+        onClick={() => generateSharePackage('doctor@example.com')}
       >
         Share
       </button>
@@ -87,7 +87,7 @@ describe('HealthRecordsContext', () => {
     // Reset all mocks
     jest.clearAllMocks();
     localStorage.clear();
-    
+
     // Setup default mock implementations
     mockApi = apiService;
     mockEmail = { sendHealthRecordsEmail, createMailtoLink, isEmailServiceConfigured };
@@ -111,12 +111,12 @@ describe('HealthRecordsContext', () => {
         uploadedAt: new Date().toISOString()
       }
     });
-    
+
     mockApi.getRecords.mockResolvedValue({
       success: true,
       records: []
     });
-    
+
     mockApi.getUploadStatus.mockResolvedValue({
       status: 'completed'
     });
@@ -135,7 +135,7 @@ describe('HealthRecordsContext', () => {
       fileName: 'health_records.pdf',
       size: 12345
     });
-    
+
     mockPdf.generateTextSummary.mockReturnValue('Mock text summary');
 
     // File helpers mocks
@@ -158,7 +158,7 @@ describe('HealthRecordsContext', () => {
 
     it('should upload file with correct field mapping', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <HealthRecordsProvider>
           <TestComponent />
@@ -195,7 +195,7 @@ describe('HealthRecordsContext', () => {
 
     it('should handle upload progress correctly', async () => {
       const user = userEvent.setup();
-      
+
       // Mock upload with progress callback
       mockApi.uploadFile.mockImplementation((file, progressCallback) => {
         // Simulate progress updates
@@ -203,7 +203,7 @@ describe('HealthRecordsContext', () => {
         setTimeout(() => progressCallback(50), 200);
         setTimeout(() => progressCallback(75), 300);
         setTimeout(() => progressCallback(100), 400);
-        
+
         return Promise.resolve({
           success: true,
           file: {
@@ -241,7 +241,7 @@ describe('HealthRecordsContext', () => {
 
     it('should poll for processing status and update record when complete', async () => {
       const user = userEvent.setup();
-      
+
       // Mock status checking
       let statusCallCount = 0;
       mockApi.getUploadStatus.mockImplementation(() => {
@@ -315,7 +315,7 @@ describe('HealthRecordsContext', () => {
 
     it('should upload file to local storage with correct field mapping', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <HealthRecordsProvider>
           <TestComponent />
@@ -380,7 +380,7 @@ describe('HealthRecordsContext', () => {
 
     it('should generate share package with correct file attachments', async () => {
       const user = userEvent.setup();
-      
+
       // Mock file attachments preparation
       mockFileHelpers.prepareFileAttachments.mockResolvedValue([{
         name: 'medical_report.pdf',
@@ -431,7 +431,7 @@ describe('HealthRecordsContext', () => {
       await waitFor(() => {
         expect(mockEmail.sendHealthRecordsEmail).toHaveBeenCalledWith(
           expect.objectContaining({
-            recipientEmail: 'dentist@example.com',
+            recipientEmail: 'doctor@example.com',
             fileAttachments: expect.arrayContaining([
               expect.objectContaining({
                 name: 'medical_report.pdf',
@@ -445,10 +445,10 @@ describe('HealthRecordsContext', () => {
 
     it('should use mailto fallback when email service not configured', async () => {
       const user = userEvent.setup();
-      
+
       mockEmail.isEmailServiceConfigured.mockReturnValue(false);
-      mockEmail.createMailtoLink.mockReturnValue('mailto:dentist@example.com?subject=Health%20Records');
-      
+      mockEmail.createMailtoLink.mockReturnValue('mailto:doctor@example.com?subject=Health%20Records');
+
       // Mock window.open
       const mockOpen = jest.fn();
       Object.defineProperty(window, 'open', { value: mockOpen });
@@ -468,7 +468,7 @@ describe('HealthRecordsContext', () => {
 
       await waitFor(() => {
         expect(mockEmail.createMailtoLink).toHaveBeenCalledWith({
-          recipientEmail: 'dentist@example.com',
+          recipientEmail: 'doctor@example.com',
           patientName: 'Patient',
           recordCount: 1,
           recordsSummary: 'Please find the attached PDF summary of health records.'
@@ -476,13 +476,13 @@ describe('HealthRecordsContext', () => {
       });
 
       await waitFor(() => {
-        expect(mockOpen).toHaveBeenCalledWith('mailto:dentist@example.com?subject=Health%20Records', '_blank');
+        expect(mockOpen).toHaveBeenCalledWith('mailto:doctor@example.com?subject=Health%20Records', '_blank');
       });
     });
 
     it('should filter out hidden records from share package', async () => {
       const user = userEvent.setup();
-      
+
       const mixedRecords = [
         {
           id: 'visible-record',
@@ -535,7 +535,7 @@ describe('HealthRecordsContext', () => {
 
     it('should handle share package errors gracefully', async () => {
       const user = userEvent.setup();
-      
+
       mockPdf.generateHealthRecordsPDF.mockRejectedValue(new Error('PDF generation failed'));
 
       render(
@@ -551,7 +551,7 @@ describe('HealthRecordsContext', () => {
 
       await expect(async () => {
         await user.click(screen.getByTestId('generate-share'));
-        
+
         // Wait for error to be handled
         await waitFor(() => {
           expect(mockPdf.generateHealthRecordsPDF).toHaveBeenCalled();
@@ -581,7 +581,7 @@ describe('HealthRecordsContext', () => {
       });
 
       const user = userEvent.setup();
-      
+
       render(
         <HealthRecordsProvider>
           <TestComponent />
@@ -624,7 +624,7 @@ describe('HealthRecordsContext', () => {
       });
 
       const user = userEvent.setup();
-      
+
       render(
         <HealthRecordsProvider>
           <TestComponent />
@@ -647,7 +647,7 @@ describe('HealthRecordsContext', () => {
   describe('Error Handling', () => {
     it('should handle upload failures gracefully', async () => {
       const user = userEvent.setup();
-      
+
       mockApi.uploadFile.mockRejectedValue(new Error('Upload failed'));
 
       render(
@@ -672,10 +672,10 @@ describe('HealthRecordsContext', () => {
 
     it('should handle backend unavailability during operations', async () => {
       const user = userEvent.setup();
-      
+
       // Start with backend available
       mockApi.isBackendAvailable.mockResolvedValue(true);
-      
+
       render(
         <HealthRecordsProvider>
           <TestComponent />

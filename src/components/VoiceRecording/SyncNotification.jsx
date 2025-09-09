@@ -33,7 +33,7 @@ function SyncNotification({ syncResult, isVisible, onDismiss }) {
                 </motion.div>
                 <h3 className="text-white font-semibold">Calendar Sync Complete!</h3>
               </div>
-              
+
               <button
                 onClick={onDismiss}
                 className="p-1 rounded-full hover:bg-white/20 transition-colors"
@@ -42,7 +42,7 @@ function SyncNotification({ syncResult, isVisible, onDismiss }) {
               </button>
             </div>
           </div>
-          
+
           {/* Content */}
           <div className="p-4">
             <div className="flex items-center justify-between mb-3">
@@ -51,7 +51,7 @@ function SyncNotification({ syncResult, isVisible, onDismiss }) {
                 {new Date(syncResult.syncedAt || Date.now()).toLocaleTimeString()}
               </span>
             </div>
-            
+
             {/* Sync Summary */}
             <div className="grid grid-cols-3 gap-3 mb-3">
               <div className="text-center p-2 bg-blue-50 rounded-lg">
@@ -63,7 +63,7 @@ function SyncNotification({ syncResult, isVisible, onDismiss }) {
                 </p>
                 <p className="text-xs text-blue-600">Appointments</p>
               </div>
-              
+
               <div className="text-center p-2 bg-purple-50 rounded-lg">
                 <div className="flex items-center justify-center mb-1">
                   <BeakerIcon className="w-4 h-4 text-purple-600" />
@@ -73,7 +73,7 @@ function SyncNotification({ syncResult, isVisible, onDismiss }) {
                 </p>
                 <p className="text-xs text-purple-600">Reminders</p>
               </div>
-              
+
               <div className="text-center p-2 bg-green-50 rounded-lg">
                 <div className="flex items-center justify-center mb-1">
                   <BellAlertIcon className="w-4 h-4 text-green-600" />
@@ -84,7 +84,7 @@ function SyncNotification({ syncResult, isVisible, onDismiss }) {
                 <p className="text-xs text-green-600">Total Events</p>
               </div>
             </div>
-            
+
             {/* Recent Events Preview */}
             {syncResult.results && syncResult.results.length > 0 && (
               <div className="border-t border-gray-100 pt-3">
@@ -107,7 +107,7 @@ function SyncNotification({ syncResult, isVisible, onDismiss }) {
                 </div>
               </div>
             )}
-            
+
             {/* Quick Action */}
             <motion.button
               whileHover={{ scale: 1.02 }}

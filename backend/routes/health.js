@@ -32,13 +32,13 @@ router.get('/', async (req, res) => {
         status: 'checking...'
       }
     };
-    
+
     // Check database connection
     try {
       const db = getDatabase();
       if (db) {
         healthCheck.database.status = 'connected';
-        
+
         // Get some stats - better-sqlite3 uses synchronous API
         const result = db.prepare('SELECT COUNT(*) as count FROM health_records').get();
         healthCheck.database.recordCount = result.count;
@@ -47,7 +47,7 @@ router.get('/', async (req, res) => {
       healthCheck.database.status = 'error';
       healthCheck.database.error = dbError.message;
     }
-    
+
     // Check uploads directory
     try {
       const uploadsDir = path.join(__dirname, '..', 'uploads');
@@ -56,11 +56,11 @@ router.get('/', async (req, res) => {
         healthCheck.storage.status = 'available';
         healthCheck.storage.path = uploadsDir;
         healthCheck.storage.writable = true;
-        
+
         // Count files in uploads
         const subdirs = ['images', 'pdfs', 'documents'];
         let totalFiles = 0;
-        
+
         for (const subdir of subdirs) {
           const dirPath = path.join(uploadsDir, subdir);
           if (fs.existsSync(dirPath)) {
@@ -68,7 +68,7 @@ router.get('/', async (req, res) => {
             totalFiles += files.length;
           }
         }
-        
+
         healthCheck.storage.fileCount = totalFiles;
       } else {
         healthCheck.storage.status = 'missing';
@@ -77,12 +77,12 @@ router.get('/', async (req, res) => {
       healthCheck.storage.status = 'error';
       healthCheck.storage.error = storageError.message;
     }
-    
+
     // Determine overall health
-    const isHealthy = 
+    const isHealthy =
       healthCheck.database.status !== 'error' &&
       healthCheck.storage.status !== 'error';
-    
+
     res.status(isHealthy ? 200 : 503).json(healthCheck);
   } catch (error) {
     console.error('Health check error:', error);
@@ -101,7 +101,7 @@ router.get('/', async (req, res) => {
 router.get('/ready', (req, res) => {
   // Check if server is ready to accept requests
   const db = getDatabase();
-  
+
   if (db) {
     res.json({ ready: true });
   } else {

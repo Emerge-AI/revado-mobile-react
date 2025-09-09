@@ -8,7 +8,7 @@
       <path d="M5 5 L17 20 L29 5 L35 8 L20 25 L17 22 L14 25 L-1 8 Z" fill="#0066cc"/>
     </g>
   </g>
-  
+
   <!-- Text -->
   <g transform="translate(55, 25)">
     <text x="0" y="10" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#0066cc">Molina</text>

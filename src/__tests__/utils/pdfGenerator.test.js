@@ -31,7 +31,10 @@ jest.mock('html2canvas', () => jest.fn());
 global.FileReader = class {
   readAsDataURL() {
     setTimeout(() => {
-      this.onloadend({ target: { result: 'data:application/pdf;base64,bW9ja0Jhc2U2NA==' } });
+      this.result = 'data:application/pdf;base64,bW9ja0Jhc2U2NA==';
+      if (this.onloadend) {
+        this.onloadend();
+      }
     }, 0);
   }
 };
@@ -39,6 +42,8 @@ global.FileReader = class {
 describe('PDF Generator Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Reset mock implementations
+    mockPDF.output.mockReturnValue(new Blob(['fake pdf'], { type: 'application/pdf' }));
   });
 
   describe('generateHealthRecordsPDF', () => {
@@ -132,15 +137,15 @@ describe('PDF Generator Tests', () => {
       await generateHealthRecordsPDF(mockPatientData);
 
       expect(mockPDF.text).toHaveBeenCalledWith('Records Included', expect.any(Number), expect.any(Number));
-      
+
       // Check that displayName is used instead of originalName in the PDF
       expect(mockPDF.text).toHaveBeenCalledWith('Lab_Results_2024', expect.any(Number), expect.any(Number));
       expect(mockPDF.text).toHaveBeenCalledWith('X-Ray_Chest', expect.any(Number), expect.any(Number));
-      
+
       // Check dates are formatted
       expect(mockPDF.text).toHaveBeenCalledWith(
         expect.stringMatching(/Date: \d{1,2}\/\d{1,2}\/\d{4}/),
-        expect.any(Number), 
+        expect.any(Number),
         expect.any(Number)
       );
     });
@@ -161,7 +166,7 @@ describe('PDF Generator Tests', () => {
         expect.any(Number),
         expect.any(Number)
       );
-      
+
       expect(mockPDF.text).toHaveBeenCalledWith(
         '[Attached] PNG Image',
         expect.any(Number),
@@ -225,7 +230,7 @@ describe('PDF Generator Tests', () => {
       };
 
       const result = await generateHealthRecordsPDF(edgeCaseData);
-      
+
       expect(result.fileName).toMatch(/health_records_José_María_O'Brien-Smith_Jr\._\d+\.pdf/);
     });
 
@@ -238,7 +243,8 @@ describe('PDF Generator Tests', () => {
       const result = await generateHealthRecordsPDF(emptyData);
 
       expect(mockPDF.text).toHaveBeenCalledWith('Records Shared: 0', expect.any(Number), expect.any(Number));
-      expect(mockPDF.text).toHaveBeenCalledWith('Note: 0 original file(s) are attached to this email', expect.any(Number), expect.any(Number));
+      // Note: attachment message is only shown when attachmentCount > 0
+      expect(mockPDF.text).not.toHaveBeenCalledWith('Note: 0 original file(s) are attached to this email', expect.any(Number), expect.any(Number));
     });
 
     it('should handle records without extracted data', async () => {

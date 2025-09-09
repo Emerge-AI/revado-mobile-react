@@ -26,23 +26,23 @@ const DOCUMENT_PATTERNS = {
  */
 function detectDocumentType(text) {
   const scores = {};
-  
+
   for (const [type, pattern] of Object.entries(DOCUMENT_PATTERNS)) {
     const matches = text.match(pattern);
     scores[type] = matches ? matches.length : 0;
   }
-  
+
   // Find type with highest score
   let maxScore = 0;
   let detectedType = 'general';
-  
+
   for (const [type, score] of Object.entries(scores)) {
     if (score > maxScore) {
       maxScore = score;
       detectedType = type;
     }
   }
-  
+
   return detectedType;
 }
 
@@ -51,7 +51,7 @@ function detectDocumentType(text) {
  */
 function getAnalysisPrompt(documentType, text) {
   const basePrompt = `You are a medical data extraction specialist. Analyze the following medical document and extract key information in a structured JSON format. Be precise and include only information explicitly stated in the document.`;
-  
+
   const prompts = {
     xray: `
 ${basePrompt}
@@ -215,7 +215,7 @@ Return a JSON object with these exact keys:
   "diagnosis": "dental diagnosis",
   "treatmentPlan": "recommended treatment",
   "nextVisit": "next appointment recommendation",
-  "provider": "dentist name",
+  "provider": "doctor name",
   "practice": "dental practice name",
   "date": "visit date",
   "summary": "Brief summary of dental visit"
@@ -252,7 +252,7 @@ Return a JSON object with these exact keys:
   "summary": "2-3 sentence summary of the document"
 }`
   };
-  
+
   return prompts[documentType] || prompts.general;
 }
 
@@ -370,11 +370,11 @@ function generateSimulatedAnalysis(documentType, documentText) {
 
   // Add some variation based on document content
   const analysis = analyses[documentType] || analyses.general;
-  
+
   // Add a note that this is simulated
   analysis.isSimulated = true;
   analysis.simulationNote = "Demo analysis - API key required for real analysis";
-  
+
   return analysis;
 }
 
@@ -385,12 +385,12 @@ export async function analyzeMedicalDocument(filePath, fileType = 'pdf') {
   console.log('[AI Analysis Service] analyzeMedicalDocument called');
   console.log('[AI Analysis Service] File path:', filePath);
   console.log('[AI Analysis Service] File type:', fileType);
-  
+
   try {
     // Check if AI analysis is enabled
     console.log('[AI Analysis Service] Checking if AI analysis is enabled...');
     console.log('[AI Analysis Service] ENABLE_AI_ANALYSIS:', process.env.ENABLE_AI_ANALYSIS);
-    
+
     if (process.env.ENABLE_AI_ANALYSIS !== 'true') {
       console.log('[AI Analysis Service] AI analysis is disabled');
       return {
@@ -424,29 +424,29 @@ export async function analyzeMedicalDocument(filePath, fileType = 'pdf') {
 
     // Detect document type
     const documentType = detectDocumentType(documentText);
-    
+
     // Get appropriate prompt
     const prompt = getAnalysisPrompt(documentType, documentText);
 
     // Try to call Claude API, fall back to simulation if it fails
     let analysisData;
     let isSimulated = false;
-    
+
     console.log('[AI Analysis Service] Attempting to use Claude API...');
-    
+
     try {
       // Check for API key
       const hasApiKey = !!process.env.ANTHROPIC_API_KEY && process.env.ANTHROPIC_API_KEY !== 'your-api-key-here';
       console.log('[AI Analysis Service] API key present:', hasApiKey);
       console.log('[AI Analysis Service] API key length:', process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.length : 0);
-      
+
       if (!hasApiKey) {
         throw new Error('API key not configured - using simulation');
       }
-      
+
       console.log('[AI Analysis Service] Making request to Anthropic API...');
       console.log('[AI Analysis Service] Model:', process.env.AI_MODEL || 'claude-3-5-sonnet-20241022');
-      
+
       const response = await anthropic.messages.create({
         model: process.env.AI_MODEL || 'claude-3-5-sonnet-20241022',
         max_tokens: parseInt(process.env.AI_MAX_TOKENS) || 4096,
@@ -463,7 +463,7 @@ export async function analyzeMedicalDocument(filePath, fileType = 'pdf') {
       // Parse the response
       const analysisText = response.content[0].text;
       console.log('[AI Analysis Service] Response text length:', analysisText.length);
-      
+
       // Extract JSON from response
       try {
         // Try to find JSON in the response
@@ -487,10 +487,10 @@ export async function analyzeMedicalDocument(filePath, fileType = 'pdf') {
       console.log('[AI Analysis Service] Claude API error:', apiError.message);
       console.log('[AI Analysis Service] Error type:', apiError.constructor.name);
       console.log('[AI Analysis Service] Falling back to simulation...');
-      
+
       analysisData = generateSimulatedAnalysis(documentType, documentText);
       isSimulated = true;
-      
+
       console.log('[AI Analysis Service] Simulated analysis generated');
     }
 
@@ -507,7 +507,7 @@ export async function analyzeMedicalDocument(filePath, fileType = 'pdf') {
       isSimulated: isSimulated,
       timestamp: new Date().toISOString()
     };
-    
+
     console.log('[AI Analysis Service] Returning result:', {
       success: result.success,
       documentType: result.documentType,
@@ -515,19 +515,19 @@ export async function analyzeMedicalDocument(filePath, fileType = 'pdf') {
       model: result.model,
       confidence: result.confidence
     });
-    
+
     return result;
 
   } catch (error) {
     console.error('[AI Analysis Service] Medical document analysis error:', error);
     console.error('[AI Analysis Service] Error stack:', error.stack);
-    
+
     const errorResult = {
       success: false,
       error: error.message || 'Analysis failed',
       details: error
     };
-    
+
     console.log('[AI Analysis Service] Returning error result:', errorResult);
     return errorResult;
   }
@@ -547,9 +547,9 @@ function calculateConfidence(analysisData) {
   // Count non-null/non-empty fields
   for (const [key, value] of Object.entries(analysisData)) {
     if (key === 'documentType' || key === 'summary') continue;
-    
+
     totalFields++;
-    
+
     if (value !== null && value !== undefined) {
       if (Array.isArray(value) && value.length > 0) {
         filledFields++;
@@ -601,7 +601,7 @@ Please provide a structured analysis in JSON format.`;
     });
 
     const analysisText = response.content[0].text;
-    
+
     return {
       success: true,
       analysis: analysisText,
@@ -622,7 +622,7 @@ Please provide a structured analysis in JSON format.`;
  */
 export async function batchAnalyze(filePaths) {
   const results = [];
-  
+
   for (const filePath of filePaths) {
     try {
       const result = await analyzeMedicalDocument(filePath);
@@ -638,7 +638,7 @@ export async function batchAnalyze(filePaths) {
       });
     }
   }
-  
+
   return results;
 }
 

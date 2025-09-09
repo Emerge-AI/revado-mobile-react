@@ -7,7 +7,7 @@ import path from 'path'
 const httpsConfig = (() => {
   const certPath = path.resolve('./certs/localhost.pem')
   const keyPath = path.resolve('./certs/localhost-key.pem')
-  
+
   if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
     console.log('🔒 HTTPS enabled with local certificates')
     return {
@@ -15,7 +15,7 @@ const httpsConfig = (() => {
       cert: fs.readFileSync(certPath),
     }
   }
-  
+
   console.log('⚠️  HTTPS certificates not found. Run ./setup-https.sh to enable HTTPS')
   console.log('   Face ID/Touch ID will NOT work without HTTPS!')
   return false

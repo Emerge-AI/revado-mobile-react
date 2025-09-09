@@ -7,7 +7,7 @@
       <ellipse cx="25" cy="15" rx="15" ry="8" fill="white" transform="rotate(-15 25 15)"/>
     </g>
   </g>
-  
+
   <!-- Text -->
   <g transform="translate(70, 35)">
     <text x="0" y="0" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="#00a651">Cigna</text>

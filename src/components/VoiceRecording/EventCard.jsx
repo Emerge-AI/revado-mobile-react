@@ -170,7 +170,7 @@ function EventCard({ event, onAddToCalendar, onDismiss, isExpanded = false, onTo
     >
       {/* Header with priority stripe */}
       <div className={`h-1 ${priorityConfig.accent}`} />
-      
+
       {/* Main content */}
       <div className="p-5">
         {/* Top row - Icon, Title, Priority, Actions */}
@@ -179,7 +179,7 @@ function EventCard({ event, onAddToCalendar, onDismiss, isExpanded = false, onTo
             <div className={`p-2.5 ${typeConfig.bg} rounded-xl flex-shrink-0`}>
               <EventIcon className={`w-5 h-5 ${typeConfig.color}`} />
             </div>
-            
+
             <div className="flex-1 min-w-0">
               <h3 className="font-bold text-gray-900 text-lg leading-tight mb-1 truncate">
                 {event.title}
@@ -217,21 +217,21 @@ function EventCard({ event, onAddToCalendar, onDismiss, isExpanded = false, onTo
               )}
             </span>
           </div>
-          
+
           {event.time && (
             <div className="flex items-center gap-2 text-gray-700">
               <ClockIcon className="w-4 h-4 text-green-600" />
               <span className="text-sm font-medium">{event.time}</span>
             </div>
           )}
-          
+
           {event.location && (
             <div className="flex items-center gap-2 text-gray-700">
               <MapPinIcon className="w-4 h-4 text-purple-600" />
               <span className="text-sm font-medium truncate">{event.location}</span>
             </div>
           )}
-          
+
           {event.provider && (
             <div className="flex items-center gap-2 text-gray-700">
               <UserIcon className="w-4 h-4 text-gray-600" />
@@ -264,7 +264,7 @@ function EventCard({ event, onAddToCalendar, onDismiss, isExpanded = false, onTo
                 )}
               </div>
             </div>
-            
+
             {isExpanded && event.prepInstructions && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
@@ -296,7 +296,7 @@ function EventCard({ event, onAddToCalendar, onDismiss, isExpanded = false, onTo
             <PlusIcon className="w-4 h-4" />
             Add to Calendar
           </motion.button>
-          
+
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -305,7 +305,7 @@ function EventCard({ event, onAddToCalendar, onDismiss, isExpanded = false, onTo
           >
             <XMarkIcon className="w-4 h-4" />
           </motion.button>
-          
+
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}

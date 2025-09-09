@@ -23,12 +23,12 @@ import EventCard from './EventCard';
 import MedicationTracker from './MedicationTracker';
 import { extractMedicalEvents, generateMedicationTracking } from '../../services/eventExtraction';
 
-function ConversationSummary({ 
-  transcription, 
-  analysis, 
-  duration, 
-  onSave, 
-  onEdit 
+function ConversationSummary({
+  transcription,
+  analysis,
+  duration,
+  onSave,
+  onEdit
 }) {
   const [showFullTranscript, setShowFullTranscript] = useState(false);
   const [editedSummary, setEditedSummary] = useState(analysis?.summary || '');
@@ -40,7 +40,7 @@ function ConversationSummary({
   const [saveOption, setSaveOption] = useState('health-records'); // 'health-records', 'health-records-sync'
   const [showSaveOptions, setShowSaveOptions] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  
+
   // Extract events and medications when component mounts
   useEffect(() => {
     const processEvents = async () => {
@@ -54,7 +54,7 @@ function ConversationSummary({
         setIsProcessingEvents(false);
       }
     };
-    
+
     if (transcription) {
       processEvents();
     }
@@ -97,13 +97,13 @@ function ConversationSummary({
 
   const handleSaveSummary = async () => {
     setIsSaving(true);
-    
+
     try {
       const updatedAnalysis = {
         ...analysis,
         summary: editedSummary
       };
-      
+
       const saveData = {
         transcription,
         analysis: updatedAnalysis,
@@ -111,38 +111,38 @@ function ConversationSummary({
         extractedEvents: extractedData,
         saveWithSync: saveOption === 'health-records-sync'
       };
-      
+
       // Simulate save delay
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       setIsEditing(false);
       setSaveSuccess(true);
-      
+
       // Show success briefly then proceed
       setTimeout(() => {
         onSave(saveData);
       }, 1500);
-      
+
     } catch (error) {
       console.error('Save failed:', error);
     } finally {
       setIsSaving(false);
     }
   };
-  
+
   const handleToggleEventExpand = (eventId) => {
     setExpandedEvents(prev => ({
       ...prev,
       [eventId]: !prev[eventId]
     }));
   };
-  
+
   const handleAddToCalendar = (event) => {
     // In real app would integrate with Google Calendar API
     console.log('Adding to calendar:', event);
     alert(`Would add "${event.title}" to your calendar for ${event.date}`);
   };
-  
+
   const handleDismissEvent = (event) => {
     console.log('Dismissing event:', event);
     // Remove event from extractedData
@@ -166,7 +166,7 @@ function ConversationSummary({
       >
         <motion.div
           className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg"
-          animate={{ 
+          animate={{
             boxShadow: [
               "0 10px 30px rgba(34, 197, 94, 0.3)",
               "0 15px 40px rgba(34, 197, 94, 0.4)",
@@ -177,7 +177,7 @@ function ConversationSummary({
         >
           <CheckCircleIcon className="w-8 h-8 text-white" />
         </motion.div>
-        
+
         <h3 className="text-xl font-bold text-gray-900 mb-2">
           Analysis Complete!
         </h3>
@@ -531,7 +531,7 @@ function ConversationSummary({
               {saveOption === 'health-records-sync' ? 'Saved & Syncing!' : 'Successfully Saved!'}
             </p>
             <p className="text-sm text-green-600">
-              {saveOption === 'health-records-sync' 
+              {saveOption === 'health-records-sync'
                 ? 'Voice record saved and events syncing to calendar'
                 : 'Voice conversation added to your health records'
               }
@@ -550,7 +550,7 @@ function ConversationSummary({
                   <DocumentArrowUpIcon className="w-5 h-5 text-blue-600" />
                   Choose Save Option
                 </h4>
-                
+
                 <div className="space-y-3">
                   <motion.button
                     whileHover={{ scale: 1.02 }}
@@ -575,7 +575,7 @@ function ConversationSummary({
                       </div>
                     </div>
                   </motion.button>
-                  
+
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -623,7 +623,7 @@ function ConversationSummary({
                 </div>
               </motion.div>
             )}
-            
+
             {/* Main Action Buttons */}
             <div className="flex gap-3">
               <motion.button
@@ -666,7 +666,7 @@ function ConversationSummary({
                   </div>
                 )}
               </motion.button>
-              
+
               {/* Options Toggle Button */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -674,11 +674,11 @@ function ConversationSummary({
                 onClick={() => setShowSaveOptions(!showSaveOptions)}
                 className="px-4 py-4 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
               >
-                <ChevronDownIcon 
-                  className={`w-5 h-5 transition-transform ${showSaveOptions ? 'rotate-180' : ''}`} 
+                <ChevronDownIcon
+                  className={`w-5 h-5 transition-transform ${showSaveOptions ? 'rotate-180' : ''}`}
                 />
               </motion.button>
-              
+
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

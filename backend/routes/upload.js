@@ -19,10 +19,10 @@ router.post('/single', uploadSingle, async (req, res) => {
 
     // Get user ID from request (in production, this would come from auth middleware)
     const userId = req.body.userId || req.headers['x-user-id'] || 'demo-user';
-    
+
     // Get file info
     const fileInfo = getFileInfo(req.file);
-    
+
     // Determine file type category
     let fileType = 'document';
     if (req.file.mimetype.startsWith('image/')) {
@@ -30,15 +30,15 @@ router.post('/single', uploadSingle, async (req, res) => {
     } else if (req.file.mimetype === 'application/pdf') {
       fileType = 'pdf';
     }
-    
+
     // Create display name (original filename without extension)
     const displayName = path.parse(req.file.originalname).name;
-    
+
     // Store file metadata in database
     const recordId = uuidv4();
     await runQuery(
       `INSERT INTO records (
-        id, user_id, original_name, display_name, filename, file_path, 
+        id, user_id, original_name, display_name, filename, file_path,
         file_type, file_size, mime_type, status
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
@@ -54,30 +54,30 @@ router.post('/single', uploadSingle, async (req, res) => {
         'uploaded'
       ]
     );
-    
+
     // Build file URL
     const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${fileType}s/${req.file.filename}`;
-    
+
     // Trigger AI analysis for PDFs if enabled
     if (fileType === 'pdf' && process.env.ENABLE_AI_ANALYSIS === 'true') {
       // Run analysis asynchronously
       setTimeout(async () => {
         try {
           console.log(`Starting AI analysis for record ${recordId}`);
-          
+
           // Update status to processing
           await runQuery(
             `UPDATE records SET status = ?, analysis_status = ? WHERE id = ?`,
             ['processing', 'processing', recordId]
           );
-          
+
           // Perform analysis
           const analysisResult = await analyzeMedicalDocument(req.file.path, 'pdf');
-          
+
           if (analysisResult.success) {
             // Update with analysis results
             await runQuery(
-              `UPDATE records SET 
+              `UPDATE records SET
                 status = ?,
                 processed_at = ?,
                 ai_analysis = ?,
@@ -101,7 +101,7 @@ router.post('/single', uploadSingle, async (req, res) => {
           } else {
             // Mark as completed but analysis failed
             await runQuery(
-              `UPDATE records SET 
+              `UPDATE records SET
                 status = ?,
                 processed_at = ?,
                 analysis_status = ?
@@ -128,7 +128,7 @@ router.post('/single', uploadSingle, async (req, res) => {
         );
       }, 3000);
     }
-    
+
     res.json({
       success: true,
       message: 'File uploaded successfully',
@@ -146,12 +146,12 @@ router.post('/single', uploadSingle, async (req, res) => {
     });
   } catch (error) {
     console.error('Upload error:', error);
-    
+
     // Clean up uploaded file on error
     if (req.file && req.file.path) {
       await deleteUploadedFile(req.file.path).catch(console.error);
     }
-    
+
     res.status(500).json({
       error: 'Upload failed',
       message: error.message
@@ -171,24 +171,24 @@ router.post('/multiple', uploadMultiple, async (req, res) => {
 
     const userId = req.body.userId || req.headers['x-user-id'] || 'demo-user';
     const uploadedFiles = [];
-    
+
     for (const file of req.files) {
       const fileInfo = getFileInfo(file);
-      
+
       let fileType = 'document';
       if (file.mimetype.startsWith('image/')) {
         fileType = 'image';
       } else if (file.mimetype === 'application/pdf') {
         fileType = 'pdf';
       }
-      
+
       // Create display name (original filename without extension)
       const displayName = path.parse(file.originalname).name;
-      
+
       const recordId = uuidv4();
       await runQuery(
         `INSERT INTO records (
-          id, user_id, original_name, display_name, filename, file_path, 
+          id, user_id, original_name, display_name, filename, file_path,
           file_type, file_size, mime_type, status
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
@@ -204,9 +204,9 @@ router.post('/multiple', uploadMultiple, async (req, res) => {
           'uploaded'
         ]
       );
-      
+
       const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${fileType}s/${file.filename}`;
-      
+
       uploadedFiles.push({
         id: recordId,
         originalName: file.originalname,
@@ -218,7 +218,7 @@ router.post('/multiple', uploadMultiple, async (req, res) => {
         type: fileType,
         status: 'processing'
       });
-      
+
       // Trigger AI analysis for PDFs
       if (fileType === 'pdf' && process.env.ENABLE_AI_ANALYSIS === 'true') {
         setTimeout(async () => {
@@ -228,12 +228,12 @@ router.post('/multiple', uploadMultiple, async (req, res) => {
               `UPDATE records SET analysis_status = ? WHERE id = ?`,
               ['processing', recordId]
             );
-            
+
             const analysisResult = await analyzeMedicalDocument(file.path, 'pdf');
-            
+
             if (analysisResult.success) {
               await runQuery(
-                `UPDATE records SET 
+                `UPDATE records SET
                   status = ?,
                   processed_at = ?,
                   ai_analysis = ?,
@@ -276,7 +276,7 @@ router.post('/multiple', uploadMultiple, async (req, res) => {
         }, 3000);
       }
     }
-    
+
     res.json({
       success: true,
       message: `${uploadedFiles.length} files uploaded successfully`,
@@ -284,14 +284,14 @@ router.post('/multiple', uploadMultiple, async (req, res) => {
     });
   } catch (error) {
     console.error('Multiple upload error:', error);
-    
+
     // Clean up uploaded files on error
     if (req.files) {
       for (const file of req.files) {
         await deleteUploadedFile(file.path).catch(console.error);
       }
     }
-    
+
     res.status(500).json({
       error: 'Upload failed',
       message: error.message
@@ -307,23 +307,23 @@ router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.headers['x-user-id'] || 'demo-user';
-    
+
     // Get file record from database
     const record = await getOne(
       'SELECT * FROM records WHERE id = ? AND user_id = ?',
       [id, userId]
     );
-    
+
     if (!record) {
       return res.status(404).json({ error: 'File not found' });
     }
-    
+
     // Delete physical file
     await deleteUploadedFile(record.file_path);
-    
+
     // Delete database record
     await runQuery('DELETE FROM records WHERE id = ?', [id]);
-    
+
     res.json({
       success: true,
       message: 'File deleted successfully'
@@ -345,20 +345,20 @@ router.get('/status/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.headers['x-user-id'] || 'demo-user';
-    
+
     const record = await getOne(
       'SELECT * FROM records WHERE id = ? AND user_id = ?',
       [id, userId]
     );
-    
+
     if (!record) {
       return res.status(404).json({ error: 'Record not found' });
     }
-    
+
     // Determine file type category
     let fileType = record.file_type;
     const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${fileType}s/${record.filename}`;
-    
+
     res.json({
       success: true,
       status: record.status,

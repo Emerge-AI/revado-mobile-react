@@ -12,15 +12,28 @@ import {
   Cog6ToothIcon,
   ChevronRightIcon,
   SparklesIcon,
+  MapPinIcon,
 } from '@heroicons/react/24/outline';
 
 function ConnectPage() {
   const navigate = useNavigate();
-  const { connections, getConnectedProvidersCount, loading } = useConnections();
+  const { connections, getConnectedProvidersCount, getProviders, loading } = useConnections();
   const [showConnectionTip, setShowConnectionTip] = useState(true);
 
   const connectedCount = getConnectedProvidersCount();
   const recentConnections = connections.slice(0, 3); // Show 3 most recent
+
+  // Get NYC healthcare providers
+  const allHealthcareProviders = getProviders('healthcare');
+  const nycProviders = allHealthcareProviders.filter(provider =>
+    provider.location && (
+      provider.location.includes('New York') ||
+      provider.location.includes('Brooklyn') ||
+      provider.location.includes('Bronx') ||
+      provider.location.includes('Staten Island') ||
+      provider.location.includes('Long Island')
+    )
+  ).slice(0, 3); // Show top 3 NYC providers
 
   const connectionCategories = [
     {
@@ -51,7 +64,7 @@ function ConnectPage() {
     const now = new Date();
     const then = new Date(date);
     const seconds = Math.floor((now - then) / 1000);
-    
+
     if (seconds < 60) return 'just now';
     const minutes = Math.floor(seconds / 60);
     if (minutes < 60) return `${minutes}m ago`;
@@ -159,12 +172,86 @@ function ConnectPage() {
           </div>
         )}
 
+        {/* Featured NYC Healthcare */}
+        {nycProviders.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <MapPinIcon className="w-5 h-5 text-blue-600" />
+                Featured NYC Healthcare
+              </h2>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/connect/healthcare')}
+                className="text-sm font-medium text-primary-600 hover:text-primary-700"
+              >
+                View all NYC
+              </motion.button>
+            </div>
+
+            <div className="grid gap-3">
+              {nycProviders.map((provider) => {
+                const isConnected = connections.some(c => c.providerId === provider.id && c.status === 'connected');
+                return (
+                  <motion.button
+                    key={provider.id}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    onClick={() => navigate('/connect/healthcare')}
+                    className="bg-white rounded-2xl p-4 border border-gray-100 shadow-lg hover:shadow-xl transition-all text-left"
+                  >
+                    <div className="flex items-center space-x-4">
+                      {/* Provider Icon */}
+                      <div className={`rounded-xl p-3 flex-shrink-0`} style={{ backgroundColor: provider.brandColor + '15' }}>
+                        <BuildingOffice2Icon className="w-6 h-6" style={{ color: provider.brandColor }} />
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className="font-semibold text-gray-900 text-base truncate">
+                            {provider.name}
+                          </h3>
+                          {isConnected && (
+                            <div className="bg-success-100 rounded-full px-2 py-0.5 ml-2">
+                              <span className="text-xs font-semibold text-success-700">
+                                Connected
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2 truncate">
+                          {provider.description}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-500 flex items-center gap-1">
+                            <MapPinIcon className="w-3 h-3" />
+                            {provider.location}
+                          </span>
+                          {provider.isPopular && (
+                            <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
+                              Popular
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Arrow */}
+                      <ChevronRightIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Connection Categories */}
         <div className="mb-8">
           <h2 className="text-lg font-bold text-gray-900 mb-5">
             Connect Your Accounts
           </h2>
-          
+
           <div className="space-y-4">
             {connectionCategories.map((category) => (
               <motion.button
@@ -179,7 +266,7 @@ function ConnectPage() {
                   <div className={`${category.iconBg} rounded-xl p-3 flex-shrink-0`}>
                     <category.icon className={`w-6 h-6 ${category.iconColor}`} />
                   </div>
-                  
+
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between mb-2">
@@ -197,11 +284,11 @@ function ConnectPage() {
                         <ChevronRightIcon className="w-5 h-5 text-gray-400" />
                       </div>
                     </div>
-                    
+
                     <p className="text-sm text-gray-600 mb-3 font-medium">
                       {category.description}
                     </p>
-                    
+
                     {/* Features list */}
                     <div className="flex flex-wrap gap-2">
                       {category.features.map((feature, index) => (
@@ -235,7 +322,7 @@ function ConnectPage() {
                 View all
               </motion.button>
             </div>
-            
+
             <div className="space-y-3">
               {recentConnections.map((connection) => (
                 <motion.div
@@ -246,13 +333,12 @@ function ConnectPage() {
                 >
                   <div className="flex items-center space-x-3">
                     {/* Status indicator */}
-                    <div className={`p-2 rounded-xl flex-shrink-0 ${
-                      connection.status === 'connected' 
+                    <div className={`p-2 rounded-xl flex-shrink-0 ${connection.status === 'connected'
                         ? 'bg-success-100'
                         : connection.status === 'connecting'
-                        ? 'bg-yellow-100'
-                        : 'bg-gray-100'
-                    }`}>
+                          ? 'bg-yellow-100'
+                          : 'bg-gray-100'
+                      }`}>
                       {connection.status === 'connected' ? (
                         <CheckCircleIcon className="w-5 h-5 text-success-600" />
                       ) : connection.status === 'connecting' ? (
@@ -261,7 +347,7 @@ function ConnectPage() {
                         <PlusCircleIcon className="w-5 h-5 text-gray-600" />
                       )}
                     </div>
-                    
+
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
@@ -297,7 +383,7 @@ function ConnectPage() {
                   Get Started
                 </p>
                 <p className="text-xs text-primary-700 mb-3">
-                  Connect your insurance or healthcare accounts to automatically import your health records and make sharing with dentists effortless.
+                  Connect your insurance or healthcare accounts to automatically import your health records and make sharing with doctors effortless.
                 </p>
                 <button
                   onClick={() => setShowConnectionTip(false)}
@@ -318,7 +404,7 @@ function ConnectPage() {
               Your privacy is protected
             </p>
             <p className="text-xs text-gray-600">
-              We use read-only connections and never store your login credentials. 
+              We use read-only connections and never store your login credentials.
               All data is encrypted and you can disconnect anytime.
             </p>
           </div>

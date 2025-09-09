@@ -248,6 +248,166 @@ export function ConnectionsProvider({ children }) {
         status: 'available',
         logo: '🔬',
       },
+
+      // NYC Healthcare Systems
+      {
+        id: 'nyu-langone',
+        name: 'NYU Langone Health',
+        type: 'healthcare',
+        category: 'hospital_system',
+        description: 'NYU Langone MyChart - Premier NYC academic medical center',
+        authMethods: ['oauth2', 'credentials'],
+        supportedFeatures: ['records', 'appointments', 'test_results', 'prescriptions', 'imaging'],
+        status: 'available',
+        logo: '🏥',
+        brandColor: '#57068c',
+        brandColorLight: '#f3e8ff',
+        isPopular: true,
+        location: 'New York City',
+      },
+      {
+        id: 'mount-sinai',
+        name: 'Mount Sinai Health System',
+        type: 'healthcare',
+        category: 'hospital_system',
+        description: 'Mount Sinai MyChart - Leading NYC health system',
+        authMethods: ['oauth2', 'credentials'],
+        supportedFeatures: ['records', 'appointments', 'test_results', 'prescriptions'],
+        status: 'available',
+        logo: '⛰️',
+        brandColor: '#003d82',
+        brandColorLight: '#dbeafe',
+        isPopular: true,
+        location: 'New York City',
+      },
+      {
+        id: 'presbyterian-columbia',
+        name: 'NewYork-Presbyterian/Columbia',
+        type: 'healthcare',
+        category: 'hospital_system',
+        description: 'NewYork-Presbyterian patient portal',
+        authMethods: ['oauth2', 'credentials'],
+        supportedFeatures: ['records', 'appointments', 'test_results', 'prescriptions'],
+        status: 'available',
+        logo: '🏛️',
+        brandColor: '#c41e3a',
+        brandColorLight: '#fef2f2',
+        isPopular: true,
+        location: 'New York City',
+      },
+      {
+        id: 'presbyterian-weill-cornell',
+        name: 'NewYork-Presbyterian/Weill Cornell',
+        type: 'healthcare',
+        category: 'hospital_system',
+        description: 'Weill Cornell Medicine patient portal',
+        authMethods: ['oauth2', 'credentials'],
+        supportedFeatures: ['records', 'appointments', 'test_results', 'prescriptions'],
+        status: 'available',
+        logo: '🎓',
+        brandColor: '#c41e3a',
+        brandColorLight: '#fef2f2',
+        isPopular: true,
+        location: 'New York City',
+      },
+      {
+        id: 'hospital-for-special-surgery',
+        name: 'Hospital for Special Surgery (HSS)',
+        type: 'healthcare',
+        category: 'hospital',
+        description: 'HSS MyHealth - Orthopedic specialty hospital',
+        authMethods: ['oauth2', 'credentials'],
+        supportedFeatures: ['records', 'appointments', 'test_results'],
+        status: 'available',
+        logo: '🦴',
+        brandColor: '#0066cc',
+        brandColorLight: '#dbeafe',
+        location: 'New York City',
+      },
+      {
+        id: 'memorial-sloan-kettering',
+        name: 'Memorial Sloan Kettering (MSK)',
+        type: 'healthcare',
+        category: 'hospital',
+        description: 'MSK patient portal - Cancer specialty care',
+        authMethods: ['oauth2', 'credentials'],
+        supportedFeatures: ['records', 'appointments', 'test_results', 'treatment_plans'],
+        status: 'available',
+        logo: '🎗️',
+        brandColor: '#005eb8',
+        brandColorLight: '#dbeafe',
+        location: 'New York City',
+      },
+      {
+        id: 'manhattan-eye-ear-throat',
+        name: 'Manhattan Eye, Ear and Throat Hospital (MEETH)',
+        type: 'healthcare',
+        category: 'hospital',
+        description: 'MEETH patient portal - Specialty eye, ear, and throat care',
+        authMethods: ['oauth2', 'credentials'],
+        supportedFeatures: ['records', 'appointments', 'test_results'],
+        status: 'available',
+        logo: '👁️',
+        brandColor: '#2563eb',
+        brandColorLight: '#dbeafe',
+        location: 'New York City',
+      },
+      {
+        id: 'bk-methodist',
+        name: 'BK Methodist Hospital',
+        type: 'healthcare',
+        category: 'hospital',
+        description: 'Brooklyn Methodist Hospital patient portal',
+        authMethods: ['oauth2', 'credentials'],
+        supportedFeatures: ['records', 'appointments', 'test_results'],
+        status: 'available',
+        logo: '🏥',
+        brandColor: '#059669',
+        brandColorLight: '#d1fae5',
+        location: 'Brooklyn, NY',
+      },
+      {
+        id: 'montefiore',
+        name: 'Montefiore Health System',
+        type: 'healthcare',
+        category: 'hospital_system',
+        description: 'Montefiore patient portal - Bronx healthcare leader',
+        authMethods: ['oauth2', 'credentials'],
+        supportedFeatures: ['records', 'appointments', 'test_results', 'prescriptions'],
+        status: 'available',
+        logo: '🏥',
+        brandColor: '#dc2626',
+        brandColorLight: '#fef2f2',
+        location: 'Bronx, NY',
+      },
+      {
+        id: 'richmond-university-medical',
+        name: 'Richmond University Medical Center',
+        type: 'healthcare',
+        category: 'hospital',
+        description: 'RUMC patient portal - Staten Island healthcare',
+        authMethods: ['oauth2', 'credentials'],
+        supportedFeatures: ['records', 'appointments', 'test_results'],
+        status: 'available',
+        logo: '🏥',
+        brandColor: '#7c3aed',
+        brandColorLight: '#ede9fe',
+        location: 'Staten Island, NY',
+      },
+      {
+        id: 'northwell-health',
+        name: 'Northwell Health',
+        type: 'healthcare',
+        category: 'hospital_system',
+        description: 'Northwell MyChart - Long Island & NYC area',
+        authMethods: ['oauth2', 'credentials'],
+        supportedFeatures: ['records', 'appointments', 'test_results', 'prescriptions'],
+        status: 'available',
+        logo: '🏥',
+        brandColor: '#0891b2',
+        brandColorLight: '#cffafe',
+        location: 'Long Island, NY',
+      },
     ]
   };
 
@@ -258,7 +418,7 @@ export function ConnectionsProvider({ children }) {
       try {
         const available = await apiService.isBackendAvailable();
         setUseBackend(available);
-        
+
         if (available) {
           console.log('[Connections] Backend API available, using server storage');
           await loadProvidersFromBackend();
@@ -267,13 +427,13 @@ export function ConnectionsProvider({ children }) {
           console.log('[Connections] Backend API not available, using demo data');
           // Load demo providers
           setProviders([...demoProviders.insurance, ...demoProviders.healthcare]);
-          
+
           // Load cached connections from localStorage
           const cachedConnections = localStorage.getItem('userConnections');
           if (cachedConnections) {
             setConnections(JSON.parse(cachedConnections));
           }
-          
+
           // Load sync status
           const cachedSyncStatus = localStorage.getItem('connectionSyncStatus');
           if (cachedSyncStatus) {
@@ -342,7 +502,7 @@ export function ConnectionsProvider({ children }) {
   const createConnection = async (providerId, credentials) => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const provider = getProvider(providerId);
       if (!provider) {
@@ -355,7 +515,7 @@ export function ConnectionsProvider({ children }) {
       } else {
         // Simulate connection creation
         await new Promise(resolve => setTimeout(resolve, 2000));
-        
+
         const newConnection = {
           id: `conn_${Date.now()}`,
           providerId,
@@ -377,7 +537,7 @@ export function ConnectionsProvider({ children }) {
 
         const updatedConnections = [...connections, newConnection];
         setConnections(updatedConnections);
-        
+
         // Update sync status
         const updatedSyncStatus = {
           ...syncStatus,
@@ -417,10 +577,10 @@ export function ConnectionsProvider({ children }) {
       } else {
         // Simulate deletion
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         const updatedConnections = connections.filter(c => c.id !== connectionId);
         setConnections(updatedConnections);
-        
+
         // Remove from sync status
         const { [connectionId]: removed, ...updatedSyncStatus } = syncStatus;
         setSyncStatus(updatedSyncStatus);
@@ -452,7 +612,7 @@ export function ConnectionsProvider({ children }) {
       } else {
         // Simulate sync
         await new Promise(resolve => setTimeout(resolve, 3000));
-        
+
         const connection = connections.find(c => c.id === connectionId);
         if (connection) {
           const updatedConnection = {
@@ -462,7 +622,7 @@ export function ConnectionsProvider({ children }) {
             updatedAt: new Date().toISOString(),
           };
 
-          const updatedConnections = connections.map(c => 
+          const updatedConnections = connections.map(c =>
             c.id === connectionId ? updatedConnection : c
           );
           setConnections(updatedConnections);

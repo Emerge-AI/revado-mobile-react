@@ -15,9 +15,9 @@ import {
   CloudArrowUpIcon
 } from '@heroicons/react/24/outline';
 
-function TimelineEvent({ 
-  event, 
-  onClick, 
+function TimelineEvent({
+  event,
+  onClick,
   viewMode = 'list',
   isFirst = false,
   isLast = false,
@@ -26,7 +26,7 @@ function TimelineEvent({
 }) {
   const isShare = event.type === 'share';
   const isUpload = event.type === 'upload';
-  
+
   // Determine event styling based on type
   const getEventStyles = () => {
     if (isShare) {
@@ -57,7 +57,7 @@ function TimelineEvent({
   };
 
   const styles = getEventStyles();
-  
+
   // Get appropriate icon
   const getIcon = () => {
     if (isShare) {
@@ -134,8 +134,8 @@ function TimelineEvent({
         {/* Content Area */}
         <div className="aspect-[4/3] p-4 flex flex-col justify-end">
           {isUpload && event.url && event.mimeType?.startsWith('image/') ? (
-            <img 
-              src={event.url} 
+            <img
+              src={event.url}
               alt={event.displayName || event.originalName}
               className="absolute inset-0 w-full h-full object-cover"
             />
@@ -146,10 +146,10 @@ function TimelineEvent({
               </div>
             </div>
           )}
-          
+
           {/* Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-          
+
           {/* Text Content */}
           <div className="relative z-10 text-white">
             <p className="text-xs opacity-90">{formatTime(event.timestamp || event.uploadedAt || event.sharedAt)}</p>
@@ -168,7 +168,7 @@ function TimelineEvent({
       {/* Timeline Connector */}
       {showConnector && (
         <div className="flex-shrink-0 pt-2">
-          <TimelineConnector 
+          <TimelineConnector
             isFirst={isFirst}
             isLast={isLast}
             eventType={event.type}
@@ -176,7 +176,7 @@ function TimelineEvent({
           />
         </div>
       )}
-      
+
       {/* Event Card */}
       <motion.div
         layout
@@ -191,7 +191,7 @@ function TimelineEvent({
       <div className="flex items-start justify-between">
         <div className="flex items-start space-x-4 flex-1">
           {/* Icon */}
-          <motion.div 
+          <motion.div
             whileHover={{ scale: 1.1, rotate: 5 }}
             className={`${styles.iconBg} rounded-xl p-3 shadow-lg`}
           >
@@ -218,10 +218,10 @@ function TimelineEvent({
                 </span>
               )}
             </h3>
-              
+
             <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
               {/* Event Type Badge */}
-              <motion.span 
+              <motion.span
                 whileHover={{ scale: 1.05 }}
                 className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${styles.badge}`}
               >
@@ -282,7 +282,7 @@ function TimelineEvent({
                 </p>
               </div>
             )}
-            
+
             {/* Calendar Sync Status for Voice Records */}
             {event.type === 'voice_conversation' && event.calendarSyncResult && (
               <div className="mt-2 p-2 bg-green-50 rounded-lg border border-green-200">
@@ -301,7 +301,7 @@ function TimelineEvent({
             {/* File Status for Uploads */}
             {isUpload && event.status && (
               <div className="mt-2">
-                <motion.span 
+                <motion.span
                   whileHover={{ scale: 1.05 }}
                   className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
                     ${event.status === 'completed' ? 'bg-green-100 text-green-700' :
@@ -315,7 +315,7 @@ function TimelineEvent({
           </div>
 
         </div>
-        
+
         {/* Right Side - Thumbnail and Arrow */}
         <div className="flex items-center space-x-3">
           {/* Thumbnail for uploads */}
@@ -324,14 +324,14 @@ function TimelineEvent({
               whileHover={{ scale: 1.05 }}
               className="flex-shrink-0"
             >
-              <img 
+              <img
                 src={event.url}
                 alt={event.displayName}
                 className="w-16 h-16 rounded-xl object-cover border-2 border-white shadow-md"
               />
             </motion.div>
           )}
-          
+
           {/* Arrow indicator */}
           <motion.div
             whileHover={{ x: 4 }}

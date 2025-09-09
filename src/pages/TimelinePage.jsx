@@ -5,7 +5,7 @@ import RecordCard from '../components/RecordCard';
 import ShareHistory from '../components/ShareHistory';
 import TimelineEvent from '../components/TimelineEvent';
 import RecordDetailModal from '../components/RecordDetailModal';
-import { 
+import {
   DocumentTextIcon,
   Squares2X2Icon,
   ListBulletIcon,
@@ -36,24 +36,24 @@ function TimelinePage() {
   // Combine uploads and shares into a unified timeline with date grouping
   const timelineData = useMemo(() => {
     const shareHistory = getShareHistory?.() || [];
-    
+
     // Add type to uploads
     const uploadEvents = records.map(record => ({
       ...record,
       type: 'upload',
       timestamp: record.uploadedAt
     }));
-    
+
     // Add type to shares
     const shareEvents = shareHistory.map(share => ({
       ...share,
       type: 'share',
       timestamp: share.sharedAt
     }));
-    
+
     // Combine and sort by timestamp
     const allEvents = [...uploadEvents, ...shareEvents];
-    
+
     // Apply filter
     let filteredEvents = allEvents;
     if (filterType === 'uploads') {
@@ -61,9 +61,9 @@ function TimelinePage() {
     } else if (filterType === 'shares') {
       filteredEvents = allEvents.filter(e => e.type === 'share');
     }
-    
+
     // Sort by timestamp (newest first)
-    const sortedEvents = filteredEvents.sort((a, b) => 
+    const sortedEvents = filteredEvents.sort((a, b) =>
       new Date(b.timestamp) - new Date(a.timestamp)
     );
 
@@ -72,7 +72,7 @@ function TimelinePage() {
     sortedEvents.forEach(event => {
       const date = new Date(event.timestamp);
       const dateKey = date.toDateString();
-      
+
       if (!groupedByDate[dateKey]) {
         groupedByDate[dateKey] = {
           date: date,
@@ -81,10 +81,10 @@ function TimelinePage() {
       }
       groupedByDate[dateKey].events.push(event);
     });
-    
+
     return Object.values(groupedByDate).sort((a, b) => b.date - a.date);
   }, [records, getShareHistory, filterType]);
-  
+
   const timelineEvents = useMemo(() => {
     return timelineData.flatMap(group => group.events);
   }, [timelineData]);
@@ -105,7 +105,7 @@ function TimelinePage() {
       console.log('Share event clicked:', event);
     }
   };
-  
+
   const handleCloseDetailModal = () => {
     setShowDetailModal(false);
     setSelectedRecord(null);
@@ -117,9 +117,9 @@ function TimelinePage() {
     } else if (shareEmail && shareRecord) {
       setIsSharing(true);
       try {
-        await generateSharePackage(shareEmail, { 
+        await generateSharePackage(shareEmail, {
           recordId: shareRecord,
-          recipientName: shareEmail.split('@')[0] 
+          recipientName: shareEmail.split('@')[0]
         });
         setShareRecord(null);
         setShareEmail('');
@@ -134,12 +134,12 @@ function TimelinePage() {
       }
     }
   };
-  
+
   const handleDeleteFromModal = (recordId) => {
     setDeleteConfirm(recordId);
     handleCloseDetailModal();
   };
-  
+
   const handleToggleVisibilityFromModal = (recordId) => {
     toggleRecordVisibility(recordId);
     handleCloseDetailModal();
@@ -173,7 +173,7 @@ function TimelinePage() {
                 {timelineEvents.length} events • {records.length} records
               </p>
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -183,7 +183,7 @@ function TimelinePage() {
               >
                 <ShareIcon className="w-5 h-5" />
               </motion.button>
-              
+
               <div className="flex bg-white rounded-xl p-1 shadow-sm">
                 <button
                   onClick={() => setViewMode('list')}
@@ -216,7 +216,7 @@ function TimelinePage() {
               </div>
             </div>
           </div>
-          
+
           {/* Filter Buttons */}
           <div className="flex space-x-2 mt-4">
             <motion.button
@@ -232,7 +232,7 @@ function TimelinePage() {
               <ClockIcon className="w-4 h-4" />
               All Events
             </motion.button>
-            
+
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -246,7 +246,7 @@ function TimelinePage() {
               <ArrowUpTrayIcon className="w-4 h-4" />
               Uploads
             </motion.button>
-            
+
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -261,7 +261,7 @@ function TimelinePage() {
               Shares
             </motion.button>
           </div>
-          
+
           {/* Stats */}
           <div className="grid grid-cols-4 gap-3 mt-4">
             <div className="bg-green-50 rounded-xl p-3 text-center">
@@ -296,8 +296,8 @@ function TimelinePage() {
                 No Events Yet
               </h3>
               <p className="text-gray-600">
-                {filterType === 'shares' ? 
-                  'Share your first record to see it here' : 
+                {filterType === 'shares' ?
+                  'Share your first record to see it here' :
                   'Upload your first health record to get started'}
               </p>
             </motion.div>
@@ -322,7 +322,7 @@ function TimelinePage() {
                   const today = new Date();
                   const yesterday = new Date(today);
                   yesterday.setDate(yesterday.getDate() - 1);
-                  
+
                   if (date.toDateString() === today.toDateString()) {
                     return 'Today';
                   } else if (date.toDateString() === yesterday.toDateString()) {
@@ -335,7 +335,7 @@ function TimelinePage() {
                     });
                   }
                 };
-                
+
                 return (
                   <motion.div
                     key={dateGroup.date.toDateString()}
@@ -349,13 +349,13 @@ function TimelinePage() {
                         {formatSectionDate(dateGroup.date)}
                       </h3>
                     </div>
-                    
+
                     {/* Events for this date */}
                     <div className="space-y-4">
                       {dateGroup.events.map((event, eventIndex) => {
                         const isFirst = eventIndex === 0;
                         const isLast = eventIndex === dateGroup.events.length - 1 && groupIndex === timelineData.length - 1;
-                        
+
                         return (
                           <TimelineEvent
                             key={event.id || `${event.type}-${eventIndex}`}
@@ -386,13 +386,13 @@ function TimelinePage() {
           onDelete={handleDeleteFromModal}
           onToggleVisibility={handleToggleVisibilityFromModal}
         />
-        
+
         {/* Share History Modal */}
-        <ShareHistory 
+        <ShareHistory
           isOpen={showShareHistory}
           onClose={() => setShowShareHistory(false)}
         />
-        
+
         {/* Share Single Record Modal */}
         {shareRecord && (
           <motion.div
@@ -413,7 +413,7 @@ function TimelinePage() {
               <p className="text-sm text-gray-600 mb-6">
                 Enter the healthcare provider's email address to share this record.
               </p>
-              
+
               <input
                 type="email"
                 placeholder="provider@example.com"
@@ -421,7 +421,7 @@ function TimelinePage() {
                 onChange={(e) => setShareEmail(e.target.value)}
                 className="w-full px-4 py-3 bg-gray-50 border-0 rounded-2xl text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:bg-white:bg-gray-700 transition-all mb-6"
               />
-              
+
               <div className="flex space-x-3">
                 <button
                   onClick={() => setShareRecord(null)}
@@ -469,7 +469,7 @@ function TimelinePage() {
               <p className="text-sm text-gray-600 mb-6">
                 This action cannot be undone. The record will be permanently removed.
               </p>
-              
+
               <div className="flex space-x-3">
                 <button
                   onClick={() => setDeleteConfirm(null)}

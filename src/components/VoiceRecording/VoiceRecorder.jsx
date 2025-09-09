@@ -21,7 +21,7 @@ function VoiceRecorder({ onComplete, onCancel }) {
   const [realtimeTranscript, setRealtimeTranscript] = useState('');
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [audioLevel, setAudioLevel] = useState(0);
-  
+
   const mediaRecorderRef = useRef(null);
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
@@ -100,13 +100,13 @@ function VoiceRecorder({ onComplete, onCancel }) {
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: { 
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
           channelCount: 1,
           sampleRate: 44100,
           echoCancellation: true,
           noiseSuppression: true
-        } 
+        }
       });
 
       // Set up audio context for visualization
@@ -133,7 +133,7 @@ function VoiceRecorder({ onComplete, onCancel }) {
 
       mediaRecorder.start();
       setRecordingState('recording');
-      
+
       // Start duration timer
       intervalRef.current = setInterval(() => {
         setRecordingDuration(prev => prev + 1);
@@ -141,7 +141,7 @@ function VoiceRecorder({ onComplete, onCancel }) {
 
       // Start audio level monitoring
       monitorAudioLevel();
-      
+
       // Simulate real-time transcription
       simulateRealtimeTranscription();
 
@@ -197,30 +197,30 @@ function VoiceRecorder({ onComplete, onCancel }) {
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
     }
-    
+
     // Clean up streams
     if (mediaRecorderRef.current && mediaRecorderRef.current.stream) {
       mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
     }
-    
+
     onCancel();
   };
 
   const monitorAudioLevel = () => {
     if (!analyserRef.current) return;
-    
+
     const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-    
+
     const updateLevel = () => {
       analyserRef.current.getByteFrequencyData(dataArray);
       const average = dataArray.reduce((acc, value) => acc + value, 0) / dataArray.length;
       setAudioLevel(average / 255); // Normalize to 0-1
-      
+
       if (recordingState === 'recording') {
         animationFrameRef.current = requestAnimationFrame(updateLevel);
       }
     };
-    
+
     updateLevel();
   };
 
@@ -229,7 +229,7 @@ function VoiceRecorder({ onComplete, onCancel }) {
     const demoText = "I've been having headaches for the past three days, usually in the afternoon...";
     let currentText = '';
     let index = 0;
-    
+
     const addText = () => {
       if (index < demoText.length && recordingState === 'recording') {
         currentText += demoText[index];
@@ -238,7 +238,7 @@ function VoiceRecorder({ onComplete, onCancel }) {
         setTimeout(addText, 100 + Math.random() * 100); // Vary timing
       }
     };
-    
+
     setTimeout(addText, 1000); // Start after 1 second
   };
 
@@ -257,7 +257,7 @@ function VoiceRecorder({ onComplete, onCancel }) {
 
     // Use a random demo conversation
     const demoData = demoConversations[Math.floor(Math.random() * demoConversations.length)];
-    
+
     setTranscription(demoData.transcript);
     setAiAnalysis({
       summary: demoData.summary,
@@ -268,7 +268,7 @@ function VoiceRecorder({ onComplete, onCancel }) {
       confidence: 0.92,
       processingTime: recordingDuration
     });
-    
+
     setRecordingState('completed');
   };
 
@@ -290,7 +290,7 @@ function VoiceRecorder({ onComplete, onCancel }) {
       extractedEvents: data?.extractedEvents || null,
       createdAt: new Date().toISOString()
     };
-    
+
     onComplete(voiceRecord);
   };
 
@@ -337,7 +337,7 @@ function VoiceRecorder({ onComplete, onCancel }) {
                 transition={{ repeat: Infinity, duration: 2 }}
               />
             </motion.button>
-            
+
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               Ready to Listen
             </h3>
@@ -376,7 +376,7 @@ function VoiceRecorder({ onComplete, onCancel }) {
             </div>
 
             {/* Audio Visualizer */}
-            <RecordingVisualizer 
+            <RecordingVisualizer
               audioLevel={audioLevel}
               isRecording={recordingState === 'recording'}
             />
@@ -417,7 +417,7 @@ function VoiceRecorder({ onComplete, onCancel }) {
                   <PlayIcon className="w-6 h-6 text-gray-700" />
                 )}
               </motion.button>
-              
+
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -445,7 +445,7 @@ function VoiceRecorder({ onComplete, onCancel }) {
             >
               <SparklesIcon className="w-8 h-8 text-white" />
             </motion.div>
-            
+
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               AI is Analyzing...
             </h3>
