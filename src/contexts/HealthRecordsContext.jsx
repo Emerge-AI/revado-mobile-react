@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { sendHealthRecordsEmail, createMailtoLink, isEmailServiceConfigured } from '../services/emailService';
 import { generateHealthRecordsPDF, generateTextSummary } from '../utils/pdfGenerator';
 import { prepareFileAttachments } from '../utils/fileHelpers';

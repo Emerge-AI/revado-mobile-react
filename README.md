@@ -1,6 +1,6 @@
 # Revado Health Mobile PWA
 
-A mobile-optimized Progressive Web App for managing and sharing health records with healthcare providers. Built with React 19, Vite, and WebAuthn for secure biometric authentication.
+A mobile-optimized Progressive Web App for managing and sharing health records with healthcare providers. Built with React 19, Vite, and WebAuthn for secure biometric authentication. Everything you need to get started is in this README.
 
 ## 🚀 Quick Start
 

@@ -1,14 +1,23 @@
 import '@testing-library/jest-dom';
 
+// Mock import.meta for Vite environment variables
+global.importMeta = {
+  env: {
+    VITE_EMAILJS_SERVICE_ID: 'test_service_id',
+    VITE_EMAILJS_TEMPLATE_ID: 'test_template_id',
+    VITE_EMAILJS_PUBLIC_KEY: 'test_public_key'
+  }
+};
+
 // Mock modules that are not available in test environment
 global.matchMedia = global.matchMedia || function () {
   return {
     matches: false,
-    addListener: function () {},
-    removeListener: function () {},
-    addEventListener: function () {},
-    removeEventListener: function () {},
-    dispatchEvent: function () {},
+    addListener: function () { },
+    removeListener: function () { },
+    addEventListener: function () { },
+    removeEventListener: function () { },
+    dispatchEvent: function () { },
   };
 };
 

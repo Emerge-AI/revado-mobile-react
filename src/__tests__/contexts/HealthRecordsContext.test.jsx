@@ -3,7 +3,7 @@ import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HealthRecordsProvider, useHealthRecords } from '../../contexts/HealthRecordsContext';
 
-// Mock dependencies
+// Mock dependencies - define mocks first
 jest.mock('../../services/api', () => ({
   default: {
     isBackendAvailable: jest.fn(),
@@ -12,13 +12,19 @@ jest.mock('../../services/api', () => ({
     getUploadStatus: jest.fn(),
     deleteRecord: jest.fn(),
     toggleRecordVisibility: jest.fn(),
+    analyzeRecord: jest.fn(),
   }
 }));
 
 jest.mock('../../services/emailService', () => ({
   sendHealthRecordsEmail: jest.fn(),
   createMailtoLink: jest.fn(),
-  isEmailServiceConfigured: jest.fn()
+  isEmailServiceConfigured: jest.fn(),
+  default: {
+    sendHealthRecordsEmail: jest.fn(),
+    createMailtoLink: jest.fn(),
+    isEmailServiceConfigured: jest.fn()
+  }
 }));
 
 jest.mock('../../utils/pdfGenerator', () => ({
@@ -89,6 +95,7 @@ describe('HealthRecordsContext', () => {
     localStorage.clear();
 
     // Setup default mock implementations
+    const apiService = require('../../services/api').default;
     mockApi = apiService;
     mockEmail = { sendHealthRecordsEmail, createMailtoLink, isEmailServiceConfigured };
     mockPdf = { generateHealthRecordsPDF, generateTextSummary };

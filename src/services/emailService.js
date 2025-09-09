@@ -1,10 +1,18 @@
 import emailjs from '@emailjs/browser';
 
-// EmailJS configuration
+// EmailJS configuration - compatible with both Vite and Jest
 // You'll need to sign up at https://www.emailjs.com/ and get these values
-const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_revado';
-const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_health_records';
-const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'YOUR_PUBLIC_KEY_HERE';
+const getEnvVar = (key, defaultValue) => {
+  // Support both Vite (import.meta.env) and Jest/Node (process.env)
+  if (typeof import !== 'undefined' && import.meta && import.meta.env) {
+    return import.meta.env[key] || defaultValue;
+  }
+  return process.env[key] || defaultValue;
+};
+
+const EMAILJS_SERVICE_ID = getEnvVar('VITE_EMAILJS_SERVICE_ID', 'service_revado');
+const EMAILJS_TEMPLATE_ID = getEnvVar('VITE_EMAILJS_TEMPLATE_ID', 'template_health_records');
+const EMAILJS_PUBLIC_KEY = getEnvVar('VITE_EMAILJS_PUBLIC_KEY', 'YOUR_PUBLIC_KEY_HERE');
 
 // Initialize EmailJS
 emailjs.init(EMAILJS_PUBLIC_KEY);

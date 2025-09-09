@@ -11,6 +11,7 @@ export default {
       ]
     }]
   },
+  setupFiles: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1'
   },

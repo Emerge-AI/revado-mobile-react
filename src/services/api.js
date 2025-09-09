@@ -1,5 +1,13 @@
-// API configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+// API configuration - compatible with both Vite and Jest
+const getEnvVar = (key, defaultValue) => {
+  // Support both Vite (import.meta.env) and Jest/Node (process.env)
+  if (typeof import !== 'undefined' && import.meta && import.meta.env) {
+    return import.meta.env[key] || defaultValue;
+  }
+  return process.env[key] || defaultValue;
+};
+
+const API_BASE_URL = getEnvVar('VITE_API_URL', 'http://localhost:3001/api');
 
 // Get user ID (in production, this would come from auth)
 const getUserId = () => {
