@@ -1,13 +1,16 @@
 {
   "name": "Revado Health Records",
   "short_name": "Revado",
-  "description": "Import, manage, and share your health records with dentists in 5 minutes",
+  "description": "Import, manage, and share your health records with doctors in 5 minutes",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0A84FF",
   "orientation": "portrait-primary",
-  "categories": ["health", "medical"],
+  "categories": [
+    "health",
+    "medical"
+  ],
   "icons": [
     {
       "src": "/icon-192.png",
@@ -57,9 +60,9 @@
       ]
     },
     {
-      "name": "Share with Dentist",
+      "name": "Share with Doctor",
       "short_name": "Share",
-      "description": "Share records with your dentist",
+      "description": "Share records with your doctor",
       "url": "/share",
       "icons": [
         {

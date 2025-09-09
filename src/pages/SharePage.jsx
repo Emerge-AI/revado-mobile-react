@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useHealthRecords } from '../contexts/HealthRecordsContext';
-import { 
+import {
   EnvelopeIcon,
   DocumentTextIcon,
   CheckCircleIcon,
@@ -11,7 +11,7 @@ import {
 
 function SharePage() {
   const { records, generateSharePackage, loading } = useHealthRecords();
-  const [dentistEmail, setDentistEmail] = useState('');
+  const [doctorEmail, setDoctorEmail] = useState('');
   const [shareSuccess, setShareSuccess] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState(false);
   const [shareError, setShareError] = useState(null);
@@ -30,19 +30,19 @@ function SharePage() {
     setConfirmDialog(false);
     setShareError(null);
     setShareProgress('Preparing records...');
-    
+
     try {
       // Simulate progress stages
       setTimeout(() => setShareProgress('Generating PDF summary...'), 500);
       setTimeout(() => setShareProgress('Sending email...'), 1500);
-      
-      const result = await generateSharePackage(dentistEmail);
-      
+
+      const result = await generateSharePackage(doctorEmail);
+
       setShareProgress(null);
       setShareSuccess(true);
       setShareMethod(result.method);
-      setDentistEmail('');
-      
+      setDoctorEmail('');
+
       // Auto-hide success message after 7 seconds
       setTimeout(() => {
         setShareSuccess(false);
@@ -52,7 +52,7 @@ function SharePage() {
       console.error('Share failed:', error);
       setShareProgress(null);
       setShareError(error.message || 'Failed to share records. Please try again.');
-      
+
       // Auto-hide error after 5 seconds
       setTimeout(() => {
         setShareError(null);
@@ -69,7 +69,7 @@ function SharePage() {
           className="py-6"
         >
           <h1 className="text-2xl font-bold text-gray-900">
-            Share with Dentist
+            Share with Doctor
           </h1>
           <p className="text-ios-gray-600 mt-1">
             Send your health records securely
@@ -86,7 +86,7 @@ function SharePage() {
           <h3 className="font-semibold text-gray-900 mb-3">
             Records to Share
           </h3>
-          
+
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -99,7 +99,7 @@ function SharePage() {
                 {completedRecords.length} records
               </span>
             </div>
-            
+
             {hiddenRecords.length > 0 && (
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
@@ -174,18 +174,18 @@ function SharePage() {
           >
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Dentist's Email Address
+                Doctor's Email Address
               </label>
               <input
                 type="email"
-                value={dentistEmail}
-                onChange={(e) => setDentistEmail(e.target.value)}
-                placeholder="dentist@clinic.com"
+                value={doctorEmail}
+                onChange={(e) => setDoctorEmail(e.target.value)}
+                placeholder="doctor@clinic.com"
                 required
                 className="w-full px-4 py-3 bg-ios-gray-100 rounded-xl text-gray-900 placeholder-ios-gray-500 focus:outline-none focus:ring-2 focus:ring-ios-blue"
               />
               <p className="text-xs text-ios-gray-500 mt-2">
-                Your dentist will receive a secure email with your records
+                Your doctor will receive a secure email with your records
               </p>
             </div>
 
@@ -237,9 +237,9 @@ function SharePage() {
                 You're about to share {completedRecords.length} health records with:
               </p>
               <p className="font-medium text-gray-900 mb-6">
-                {dentistEmail}
+                {doctorEmail}
               </p>
-              
+
               <div className="flex space-x-3">
                 <button
                   onClick={() => setConfirmDialog(false)}
@@ -271,9 +271,9 @@ function SharePage() {
                 {shareMethod === 'mailto' ? 'Records Prepared!' : 'Records Sent Successfully!'}
               </h3>
               <p className="text-sm text-ios-gray-600 text-center">
-                {shareMethod === 'mailto' 
+                {shareMethod === 'mailto'
                   ? 'PDF downloaded. Please attach it to the email that opened.'
-                  : 'Your dentist will receive the records shortly'}
+                  : 'Your doctor will receive the records shortly'}
               </p>
               {shareMethod === 'mailto' && (
                 <p className="text-xs text-ios-gray-500 mt-2 text-center">
@@ -291,7 +291,7 @@ function SharePage() {
           transition={{ delay: 0.3 }}
           className="mt-8 bg-ios-blue/10 rounded-2xl p-4"
         >
-          <h3 className="font-medium text-ios-blue mb-2">What Your Dentist Receives</h3>
+          <h3 className="font-medium text-ios-blue mb-2">What Your Doctor Receives</h3>
           <ul className="space-y-1 text-sm text-ios-gray-600">
             <li>• AI-generated one-page summary</li>
             <li>• Complete C-CDA file attachment</li>

@@ -21,30 +21,33 @@ import {
   ClipboardDocumentCheckIcon,
   PhotoIcon,
   ChartBarIcon,
-  CpuChipIcon
+  CpuChipIcon,
+  ScaleIcon,
+  MagnifyingGlassIcon,
+  UserGroupIcon
 } from '@heroicons/react/24/outline';
-import { 
+import {
   HeartIcon as HeartSolid,
-  StarIcon as StarSolid 
+  StarIcon as StarSolid
 } from '@heroicons/react/24/solid';
 
 // Specialty icons mapping
 const SPECIALTY_ICONS = {
-  dental: '🦷',
-  cardiology: '❤️',
-  orthopedic: '🦴',
-  neurology: '🧠',
-  dermatology: '🔬',
-  ophthalmology: '👁️',
-  psychiatry: '🧘',
-  pediatrics: '👶',
-  obgyn: '🤱',
-  radiology: '📡',
-  general: '👨‍⚕️',
-  laboratory: '🧪',
-  immunology: '💉',
-  nutrition: '🥗',
-  fitness: '💪'
+  dental: ShieldCheckIcon,
+  cardiology: HeartIcon,
+  orthopedic: ScaleIcon,
+  neurology: CpuChipIcon,
+  dermatology: MagnifyingGlassIcon,
+  ophthalmology: EyeIcon,
+  psychiatry: UserIcon,
+  pediatrics: UserGroupIcon,
+  obgyn: UserGroupIcon,
+  radiology: PhotoIcon,
+  general: UserIcon,
+  laboratory: BeakerIcon,
+  immunology: ShieldCheckIcon,
+  nutrition: ChartBarIcon,
+  fitness: BoltIcon
 };
 
 // Categorize records by specialty
@@ -53,59 +56,59 @@ const categorizeRecord = (record) => {
   const extractedType = (record.extractedData?.type || '').toLowerCase();
   const provider = (record.extractedData?.provider || '').toLowerCase();
   const aiSummary = (record.aiAnalysis?.summary || '').toLowerCase();
-  
+
   // Check for dental
-  if (name.includes('dental') || name.includes('dentist') || name.includes('teeth') || 
-      name.includes('orthodont') || provider.includes('dental') || aiSummary.includes('dental')) {
+  if (name.includes('dental') || name.includes('doctor') || name.includes('teeth') ||
+    name.includes('orthodont') || provider.includes('dental') || aiSummary.includes('dental')) {
     return { category: 'dental', icon: SPECIALTY_ICONS.dental, color: 'cyan' };
   }
-  
+
   // Check for cardiology
-  if (name.includes('cardio') || name.includes('heart') || name.includes('ekg') || 
-      name.includes('ecg') || extractedType.includes('cardio')) {
+  if (name.includes('cardio') || name.includes('heart') || name.includes('ekg') ||
+    name.includes('ecg') || extractedType.includes('cardio')) {
     return { category: 'cardiology', icon: SPECIALTY_ICONS.cardiology, color: 'red' };
   }
-  
+
   // Check for orthopedic
-  if (name.includes('ortho') || name.includes('bone') || name.includes('joint') || 
-      name.includes('fracture') || name.includes('spine')) {
+  if (name.includes('ortho') || name.includes('bone') || name.includes('joint') ||
+    name.includes('fracture') || name.includes('spine')) {
     return { category: 'orthopedic', icon: SPECIALTY_ICONS.orthopedic, color: 'orange' };
   }
-  
+
   // Check for neurology
-  if (name.includes('neuro') || name.includes('brain') || name.includes('mri') || 
-      name.includes('nerve')) {
+  if (name.includes('neuro') || name.includes('brain') || name.includes('mri') ||
+    name.includes('nerve')) {
     return { category: 'neurology', icon: SPECIALTY_ICONS.neurology, color: 'purple' };
   }
-  
+
   // Check for radiology
-  if (name.includes('xray') || name.includes('x-ray') || name.includes('ct scan') || 
-      name.includes('mri') || name.includes('ultrasound') || extractedType.includes('imaging')) {
+  if (name.includes('xray') || name.includes('x-ray') || name.includes('ct scan') ||
+    name.includes('mri') || name.includes('ultrasound') || extractedType.includes('imaging')) {
     return { category: 'radiology', icon: SPECIALTY_ICONS.radiology, color: 'indigo' };
   }
-  
+
   // Check for lab
-  if (name.includes('lab') || name.includes('blood') || name.includes('test') || 
-      extractedType.includes('lab')) {
+  if (name.includes('lab') || name.includes('blood') || name.includes('test') ||
+    extractedType.includes('lab')) {
     return { category: 'laboratory', icon: SPECIALTY_ICONS.laboratory, color: 'green' };
   }
-  
+
   // Check for vision
-  if (name.includes('eye') || name.includes('vision') || name.includes('optical') || 
-      provider.includes('optom')) {
+  if (name.includes('eye') || name.includes('vision') || name.includes('optical') ||
+    provider.includes('optom')) {
     return { category: 'ophthalmology', icon: SPECIALTY_ICONS.ophthalmology, color: 'blue' };
   }
-  
+
   // Check for dermatology
   if (name.includes('derm') || name.includes('skin')) {
     return { category: 'dermatology', icon: SPECIALTY_ICONS.dermatology, color: 'pink' };
   }
-  
+
   // Check for mental health
   if (name.includes('psych') || name.includes('mental') || name.includes('therapy')) {
     return { category: 'psychiatry', icon: SPECIALTY_ICONS.psychiatry, color: 'teal' };
   }
-  
+
   // Default to general
   return { category: 'general', icon: SPECIALTY_ICONS.general, color: 'gray' };
 };
@@ -119,21 +122,21 @@ function HealthOracle() {
   const [showJournal, setShowJournal] = useState(false);
   const [journalEntry, setJournalEntry] = useState('');
   const cardRef = useRef(null);
-  
+
   // Motion values for parallax effect
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const rotateX = useSpring(useTransform(mouseY, [-300, 300], [3, -3]));
   const rotateY = useSpring(useTransform(mouseX, [-300, 300], [-3, 3]));
-  
+
   // Breathing animation value
   const [isBreathing, setIsBreathing] = useState(true);
-  
+
   // Determine time-based context
   useEffect(() => {
     const updateContext = () => {
       const hour = new Date().getHours();
-      
+
       if (hour >= 5 && hour < 10) {
         setCurrentContext('morning');
       } else if (hour >= 10 && hour < 14) {
@@ -146,12 +149,12 @@ function HealthOracle() {
         setCurrentContext('night');
       }
     };
-    
+
     updateContext();
     const interval = setInterval(updateContext, 60000);
     return () => clearInterval(interval);
   }, []);
-  
+
   // Calculate composite health score and categorize data sources
   useEffect(() => {
     if (!records || records.length === 0) {
@@ -165,7 +168,7 @@ function HealthOracle() {
       setDataSources([]);
       return;
     }
-    
+
     // Calculate base score components
     const completedRecords = records.filter(r => r.status === 'completed');
     const aiAnalyzedRecords = records.filter(r => r.aiAnalysis);
@@ -174,34 +177,34 @@ function HealthOracle() {
       const daysSince = (Date.now() - new Date(r.uploadedAt)) / (1000 * 60 * 60 * 24);
       return daysSince <= 30;
     });
-    
+
     // Score calculation (0-100)
     let score = 50; // Base score
-    
+
     // Data completeness (up to +20 points)
     const completenessRatio = completedRecords.length / Math.max(records.length, 1);
     score += completenessRatio * 20;
-    
+
     // AI insights (up to +15 points)
     const aiRatio = aiAnalyzedRecords.length / Math.max(completedRecords.length, 1);
     score += aiRatio * 15;
-    
+
     // Image analysis bonus (up to +10 points) - NEW
     const imageRatio = imageAnalyzedRecords.length / Math.max(completedRecords.length, 1);
     score += imageRatio * 10;
-    
+
     // Recency bonus (up to +10 points) - Reduced from 15
     const recencyBonus = Math.min(recentRecords.length * 2, 10);
     score += recencyBonus;
-    
+
     // Diversity bonus - multiple specialties (up to +5 points) - Reduced from 10
     const categories = new Set(records.map(r => categorizeRecord(r).category));
     const diversityBonus = Math.min(categories.size * 1, 5);
     score += diversityBonus;
-    
+
     // Cap at 100
     score = Math.min(Math.round(score), 100);
-    
+
     // Determine score interpretation
     let label, description, color;
     if (score >= 90) {
@@ -225,13 +228,13 @@ function HealthOracle() {
       description = 'Keep adding records';
       color = 'orange';
     }
-    
+
     // Categorize and count data sources
     const sourceMap = new Map();
-    
+
     completedRecords.forEach(record => {
       const { category, icon, color } = categorizeRecord(record);
-      
+
       if (!sourceMap.has(category)) {
         sourceMap.set(category, {
           category,
@@ -243,24 +246,24 @@ function HealthOracle() {
           hasAI: false
         });
       }
-      
+
       const source = sourceMap.get(category);
       source.count++;
       source.records.push(record);
-      
+
       const recordDate = new Date(record.uploadedAt);
       if (!source.latestDate || recordDate > source.latestDate) {
         source.latestDate = recordDate;
       }
-      
+
       if (record.aiAnalysis) {
         source.hasAI = true;
       }
     });
-    
+
     // Convert to array and sort by count
     const sources = Array.from(sourceMap.values()).sort((a, b) => b.count - a.count);
-    
+
     setCompositeScore({
       value: score,
       label,
@@ -275,10 +278,10 @@ function HealthOracle() {
         diversity: categories.size
       }
     });
-    
+
     setDataSources(sources);
   }, [records]);
-  
+
   // Handle mouse movement for parallax
   const handleMouseMove = (e) => {
     if (!cardRef.current) return;
@@ -288,16 +291,16 @@ function HealthOracle() {
     mouseX.set(e.clientX - centerX);
     mouseY.set(e.clientY - centerY);
   };
-  
+
   const handleMouseLeave = () => {
     mouseX.set(0);
     mouseY.set(0);
   };
-  
+
   // Get gradient based on score
   const getGradient = () => {
     if (!compositeScore) return 'from-gray-500 to-gray-600';
-    
+
     const colors = {
       emerald: 'from-emerald-500 via-emerald-600 to-emerald-700',
       green: 'from-green-500 via-green-600 to-green-700',
@@ -306,25 +309,25 @@ function HealthOracle() {
       orange: 'from-orange-500 via-red-500 to-pink-600',
       gray: 'from-gray-500 to-gray-600'
     };
-    
+
     return colors[compositeScore.color || 'gray'];
   };
-  
+
   // Format time ago
   const formatTimeAgo = (date) => {
     const now = new Date();
     const then = new Date(date);
     const days = Math.floor((now - then) / (1000 * 60 * 60 * 24));
-    
+
     if (days === 0) return 'Today';
     if (days === 1) return 'Yesterday';
     if (days < 7) return `${days}d ago`;
     if (days < 30) return `${Math.floor(days / 7)}w ago`;
     return then.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
-  
+
   if (!compositeScore) return null;
-  
+
   return (
     <motion.div
       ref={cardRef}
@@ -359,7 +362,7 @@ function HealthOracle() {
             ease: "easeInOut"
           }}
         />
-        
+
         {/* Content */}
         <div className="relative z-10">
           {/* Header */}
@@ -377,7 +380,7 @@ function HealthOracle() {
                 </span>
               </div>
             </div>
-            
+
             {/* Trend indicator */}
             <div className="flex items-center space-x-2">
               {compositeScore.trend === 'up' && (
@@ -386,12 +389,11 @@ function HealthOracle() {
               {compositeScore.trend === 'down' && (
                 <ArrowTrendingDownIcon className="w-4 h-4 text-white/80" />
               )}
-              <ChevronDownIcon className={`w-4 h-4 text-white/60 transition-transform ${
-                expanded ? 'rotate-180' : ''
-              }`} />
+              <ChevronDownIcon className={`w-4 h-4 text-white/60 transition-transform ${expanded ? 'rotate-180' : ''
+                }`} />
             </div>
           </div>
-          
+
           {/* Score Display */}
           <motion.div
             className="mb-3"
@@ -412,7 +414,7 @@ function HealthOracle() {
               {compositeScore.description}
             </p>
           </motion.div>
-          
+
           {/* Quick Stats Bar */}
           {!expanded && dataSources.length > 0 && (
             <div className="flex items-center space-x-2 mt-4">
@@ -424,8 +426,8 @@ function HealthOracle() {
                   transition={{ delay: i * 0.05 }}
                   className="relative"
                 >
-                  <div className="text-2xl" title={source.category}>
-                    {source.icon}
+                  <div className="w-6 h-6 text-white/80" title={source.category}>
+                    {source.icon && <source.icon className="w-6 h-6" />}
                   </div>
                   {source.hasAI && (
                     <div className="absolute -top-1 -right-1 w-2 h-2 bg-purple-400 rounded-full" />
@@ -439,7 +441,7 @@ function HealthOracle() {
               )}
             </div>
           )}
-          
+
           {/* Expandable Section */}
           <AnimatePresence>
             {expanded && (
@@ -473,7 +475,7 @@ function HealthOracle() {
                           />
                         </div>
                       </div>
-                      
+
                       <div className="bg-white/20 backdrop-blur rounded-xl p-3">
                         <div className="flex items-center justify-between">
                           <span className="text-white/70 text-xs">AI Insights</span>
@@ -490,7 +492,7 @@ function HealthOracle() {
                           />
                         </div>
                       </div>
-                      
+
                       <div className="bg-white/20 backdrop-blur rounded-xl p-3">
                         <div className="flex items-center justify-between">
                           <span className="text-white/70 text-xs">Image Analysis</span>
@@ -507,7 +509,7 @@ function HealthOracle() {
                           />
                         </div>
                       </div>
-                      
+
                       <div className="bg-white/20 backdrop-blur rounded-xl p-3">
                         <div className="flex items-center justify-between">
                           <span className="text-white/70 text-xs">Diversity</span>
@@ -526,7 +528,7 @@ function HealthOracle() {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Data Sources */}
                   <div>
                     <h3 className="text-white/90 text-xs font-semibold mb-3 uppercase tracking-wider">
@@ -543,8 +545,8 @@ function HealthOracle() {
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
-                              <div className="text-2xl">
-                                {source.icon}
+                              <div className="w-6 h-6 text-white/80">
+                                {source.icon && <source.icon className="w-6 h-6" />}
                               </div>
                               <div>
                                 <p className="text-white font-medium text-sm capitalize">
@@ -569,7 +571,7 @@ function HealthOracle() {
                           </div>
                         </motion.div>
                       ))}
-                      
+
                       {dataSources.length === 0 && (
                         <div className="text-center py-4">
                           <DocumentTextIcon className="w-8 h-8 text-white/40 mx-auto mb-2" />
@@ -579,7 +581,7 @@ function HealthOracle() {
                       )}
                     </div>
                   </div>
-                  
+
                   {/* Quick Actions */}
                   <div className="mt-4 flex space-x-2">
                     <button
@@ -601,11 +603,11 @@ function HealthOracle() {
             )}
           </AnimatePresence>
         </div>
-        
+
         {/* Decorative elements */}
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/5 rounded-full blur-3xl" />
         <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-white/5 rounded-full blur-3xl" />
-        
+
         {/* Score ring decoration */}
         <svg className="absolute top-4 right-4 w-16 h-16 opacity-20" viewBox="0 0 100 100">
           <circle
@@ -621,7 +623,7 @@ function HealthOracle() {
           />
         </svg>
       </motion.div>
-      
+
       {/* Journal Modal */}
       <AnimatePresence>
         {showJournal && (

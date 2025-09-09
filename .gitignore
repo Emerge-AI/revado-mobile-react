@@ -40,3 +40,5 @@ backend/database/*.db
 backend/.env
 backend/.env.local
 backend/.env.production
+.env.hosting
+backend/.env
