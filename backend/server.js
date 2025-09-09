@@ -42,32 +42,32 @@ app.use(cors({
   origin: function(origin, callback) {
     // Allow requests with no origin (like mobile apps or file:// URLs)
     if (!origin) return callback(null, true);
-    
+
     // List of allowed origins
     const allowedOrigins = [
       'http://localhost:5173',
-      'http://localhost:5174', 
+      'http://localhost:5174',
       'https://localhost:5173',
       'https://192.168.1.233:5173',
       'https://revado-mobile-react.vercel.app',
       'https://revado-mobile-react-*.vercel.app', // Allow preview deployments
       process.env.FRONTEND_URL
     ].filter(Boolean);
-    
+
     // In development, allow any localhost origin
     if (process.env.NODE_ENV === 'development') {
       if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin === 'null') {
         return callback(null, true);
       }
     }
-    
+
     // In production, allow Vercel deployments
     if (process.env.NODE_ENV === 'production') {
       if (origin.includes('vercel.app') && origin.includes('revado-mobile-react')) {
         return callback(null, true);
       }
     }
-    
+
     // Check if origin is in allowed list
     if (allowedOrigins.some(allowed => {
       if (allowed.includes('*')) {
@@ -116,7 +116,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
   setHeaders: (res, filePath) => {
     // Set cache headers for static files
     res.set('Cache-Control', 'public, max-age=31536000');
-    
+
     // Set CORS headers for images
     res.set('Access-Control-Allow-Origin', '*');
   }
@@ -125,7 +125,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
 // Serve test page in development
 if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
   app.use('/test', express.static(path.join(__dirname, 'public')));
-  
+
   // Also add explicit route for test.html
   app.get('/test.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'test.html'));
@@ -160,7 +160,7 @@ app.get('/', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  
+
   // Multer file size error
   if (err.code === 'LIMIT_FILE_SIZE') {
     return res.status(400).json({
@@ -168,7 +168,7 @@ app.use((err, req, res, next) => {
       message: 'Maximum file size is 10MB'
     });
   }
-  
+
   // Multer file type error
   if (err.code === 'LIMIT_UNEXPECTED_FILE') {
     return res.status(400).json({
@@ -176,7 +176,7 @@ app.use((err, req, res, next) => {
       message: 'Unexpected file field'
     });
   }
-  
+
   // Default error
   res.status(err.status || 500).json({
     error: 'Internal server error',

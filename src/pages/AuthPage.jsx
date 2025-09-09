@@ -8,11 +8,11 @@ import FaceIDDebugPanel from '../components/FaceIDDebugPanel';
 import FaceIDTestButton from '../components/FaceIDTestButton';
 import FaceIDDebugger from '../components/FaceIDDebugger';
 import RevadoLogo from '../components/RevadoLogo';
-import { 
-  EnvelopeIcon, 
-  DevicePhoneMobileIcon, 
-  ShieldCheckIcon, 
-  FaceSmileIcon, 
+import {
+  EnvelopeIcon,
+  DevicePhoneMobileIcon,
+  ShieldCheckIcon,
+  FaceSmileIcon,
   LockClosedIcon,
   UserPlusIcon,
   ArrowLeftIcon
@@ -21,19 +21,19 @@ import {
 function AuthPage({ onAuthenticated }) {
   const { signIn, signUp, verifyPhone, verifySMSCode, verificationStep, checkExistingUser } = useAuth();
   const { isAvailable, authenticateWithBiometric, registerBiometric } = useBiometricAuth();
-  
+
   // Form states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
   const [smsCode, setSmsCode] = useState('');
   const [name, setName] = useState('');
-  
+
   // UI states
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [authMode, setAuthMode] = useState('initial'); // initial, signin, signup
-  
+
   // Check for biometric setup on component mount
   const [showBiometric, setShowBiometric] = useState(false);
 
@@ -43,7 +43,7 @@ function AuthPage({ onAuthenticated }) {
     const storedEmail = localStorage.getItem(config.storage.userEmail) || localStorage.getItem('userEmail');
     const biometricCredential = localStorage.getItem(config.storage.lastCredentialId);
     const credentials = localStorage.getItem(config.storage.credentials);
-    
+
     // Debug logging for mobile
     console.log('Auth page biometric check:', {
       storedEmail,
@@ -52,16 +52,16 @@ function AuthPage({ onAuthenticated }) {
       isAvailable,
       userAgent: navigator.userAgent
     });
-    
-    // Update biometric availability when it changes  
+
+    // Update biometric availability when it changes
     const shouldShowBiometric = !!(storedEmail && (biometricCredential || credentials) && isAvailable);
     setShowBiometric(shouldShowBiometric);
-    
+
     // Auto-trigger Face ID animation on mobile after a short delay
     if (shouldShowBiometric && isAvailable) {
       // Check if on mobile device
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      
+
       if (isMobile) {
         // Add a subtle animation to draw attention to the Face ID button
         setTimeout(() => {
@@ -93,7 +93,7 @@ function AuthPage({ onAuthenticated }) {
 
     try {
       const exists = await checkExistingUser(email);
-      
+
       if (exists) {
         setAuthMode('signin');
         authLogger.startTracking('signin');
@@ -112,7 +112,7 @@ function AuthPage({ onAuthenticated }) {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     // Start tracking if not already started
     if (!authLogger.startTime) {
       authLogger.startTracking('signin');
@@ -131,13 +131,13 @@ function AuthPage({ onAuthenticated }) {
         // If biometric is available and not registered, offer to set it up
         const hasBiometricCredential = localStorage.getItem(config.storage.lastCredentialId);
         const hasCredentials = localStorage.getItem(config.storage.credentials);
-        
+
         console.log('Sign in successful, checking Face ID setup:', {
           isAvailable,
           hasBiometricCredential,
           hasCredentials
         });
-        
+
         if (isAvailable && !hasBiometricCredential && !hasCredentials) {
           // Use a more mobile-friendly confirmation dialog
           setTimeout(async () => {
@@ -172,7 +172,7 @@ function AuthPage({ onAuthenticated }) {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     // Start tracking if not already started
     if (!authLogger.startTime) {
       authLogger.startTracking('signup');
@@ -187,7 +187,7 @@ function AuthPage({ onAuthenticated }) {
         } else {
           // If biometric is available, offer to set it up
           console.log('Sign up successful, checking Face ID availability:', isAvailable);
-          
+
           if (isAvailable) {
             setTimeout(async () => {
               const setupBiometric = window.confirm(
@@ -250,10 +250,10 @@ function AuthPage({ onAuthenticated }) {
           method: 'sms_verification'
         });
         console.log('Sign up completed:', logData);
-        
+
         // If biometric is available, offer to set it up
         console.log('SMS verification successful, checking Face ID availability:', isAvailable);
-        
+
         if (isAvailable) {
           const userEmail = result.user?.email || localStorage.getItem('pendingEmail');
           setTimeout(async () => {
@@ -289,19 +289,19 @@ function AuthPage({ onAuthenticated }) {
     if (navigator.vibrate) {
       navigator.vibrate(10);
     }
-    
+
     setLoading(true);
     setError('');
 
     try {
       // Start tracking for biometric sign in
       authLogger.startTracking('signin');
-      
+
       const result = await authenticateWithBiometric();
       if (result.success) {
         // Try multiple storage locations for email
-        const storedEmail = result.userEmail || 
-                           localStorage.getItem(config.storage.userEmail) || 
+        const storedEmail = result.userEmail ||
+                           localStorage.getItem(config.storage.userEmail) ||
                            localStorage.getItem('userEmail');
         if (storedEmail) {
           const signInResult = await signIn(storedEmail, null, true); // biometric sign in
@@ -371,7 +371,7 @@ function AuthPage({ onAuthenticated }) {
 
       // Use the existing signIn method to properly authenticate
       const result = await signIn(dummyUser.email, dummyUser.password);
-      
+
       if (result.success) {
         onAuthenticated();
       } else {
@@ -388,10 +388,10 @@ function AuthPage({ onAuthenticated }) {
   return (
     <div className="min-h-screen flex flex-col">
       <div className="pt-safe-top px-4 pb-8 flex-1 flex flex-col">
-        
-        
+
+
         <div className="flex-1 flex flex-col justify-center max-w-sm w-full mx-auto">
-          
+
           {/* Logo */}
           <motion.div
             initial={{ scale: 0 }}
@@ -408,7 +408,7 @@ function AuthPage({ onAuthenticated }) {
           </motion.div>
 
           <AnimatePresence mode="wait">
-            
+
             {/* Initial Screen - Choose Sign In Method */}
             {authMode === 'initial' && showBiometric && (
               <motion.div
@@ -420,14 +420,14 @@ function AuthPage({ onAuthenticated }) {
                 className="space-y-4"
               >
                 <div className="text-center mb-6">
-                  <motion.div 
+                  <motion.div
                     className="inline-flex p-6 rounded-3xl bg-gradient-to-br from-primary-50 to-primary-100 mb-4"
                     animate={{ scale: [1, 1.05, 1] }}
                     transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
                   >
                     <FaceSmileIcon className="w-16 h-16 text-primary-600" />
                   </motion.div>
-                  
+
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     Welcome Back!
                   </h2>
@@ -524,7 +524,7 @@ function AuthPage({ onAuthenticated }) {
                     <p>Has credentials obj: {localStorage.getItem(config.storage.credentials) ? 'Yes' : 'No'}</p>
                   </div>
                 )}
-                
+
                 <button
                   onClick={() => {
                     setAuthMode('signin');
@@ -556,12 +556,12 @@ function AuthPage({ onAuthenticated }) {
                     {loading ? 'Creating demo...' : 'Skip Sign In (Demo as John Doe)'}
                   </button>
                 </div>
-                
+
                 {/* Face ID Diagnostic Tests - Always show */}
                 <div className="pt-4 border-t border-gray-100">
                   <FaceIDTestButton />
                 </div>
-                
+
                 {/* Show Face ID setup option if available but not registered */}
                 {isAvailable && (
                   <>
@@ -571,7 +571,7 @@ function AuthPage({ onAuthenticated }) {
                     >
                       Have Face ID set up? Sign in to enable it
                     </button>
-                    
+
                     {/* Manual Face ID test button - remove in production */}
                     <button
                       onClick={async () => {
@@ -593,7 +593,7 @@ function AuthPage({ onAuthenticated }) {
                     >
                       🔧 Test: Setup Face ID Manually
                     </button>
-                    
+
                     {/* Diagnostic Test Button */}
                     <div className="pt-2">
                       <FaceIDTestButton />
@@ -973,7 +973,7 @@ function AuthPage({ onAuthenticated }) {
           )}
         </div>
       </div>
-      
+
       {/* Debug Panel for Face ID issues */}
       <FaceIDDebugPanel />
       <FaceIDDebugger />

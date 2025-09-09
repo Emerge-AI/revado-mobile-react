@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage';
 import UploadPage from './pages/UploadPage';
 import SharePage from './pages/SharePage';
 import MedicationsPage from './pages/MedicationsPage';
+import PrepareQuestionsPage from './pages/PrepareQuestionsPage';
 import AuthPage from './pages/AuthPage';
 import TimelinePage from './pages/TimelinePage';
 import OnboardingPage from './pages/OnboardingPage';
@@ -48,7 +49,7 @@ function App() {
             <div className="fixed inset-0 bg-gray-50">
               <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-gray-50" />
             </div>
-            
+
             <div className="relative z-10">
               <AnimatePresence mode="wait">
               <Routes>
@@ -93,6 +94,11 @@ function App() {
                     <Route path="/medications" element={
                       <TransitionWrapper>
                         <MedicationsPage />
+                      </TransitionWrapper>
+                    } />
+                    <Route path="/prepare-questions" element={
+                      <TransitionWrapper>
+                        <PrepareQuestionsPage />
                       </TransitionWrapper>
                     } />
                     <Route path="/connect" element={
@@ -150,7 +156,7 @@ function App() {
                 )}
               </Routes>
             </AnimatePresence>
-            
+
             {isAuthenticated && !showOnboarding && <TabBar />}
             <PWAInstallPrompt />
             <HTTPSWarning />

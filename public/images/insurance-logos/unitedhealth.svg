@@ -6,7 +6,7 @@
     <circle cx="25" cy="25" r="12" fill="white" stroke="none"/>
     <circle cx="25" cy="25" r="6" fill="#0073e6" stroke="none"/>
   </g>
-  
+
   <!-- Text -->
   <g transform="translate(65, 25)">
     <text x="0" y="15" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#0073e6">United</text>

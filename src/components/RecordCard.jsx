@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
+import {
   DocumentTextIcon,
   PhotoIcon,
   ShareIcon,
@@ -15,7 +15,7 @@ import {
   BeakerIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
-import { 
+import {
   CheckCircleIcon as CheckCircleIconSolid,
   ShareIcon as ShareIconSolid
 } from '@heroicons/react/24/solid';
@@ -23,8 +23,23 @@ import {
 function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete, onShare, viewMode = 'list' }) {
   const [imageError, setImageError] = useState(false);
   const [isImageZoomed, setIsImageZoomed] = useState(false);
-  
+
   const getFileTypeIcon = (record) => {
+    if (record.type === 'captured_document' && record.documentType) {
+      // Use the icon from document type if available
+      if (record.documentType.name?.includes('Insurance')) {
+        return <DocumentTextIcon className="w-5 h-5 text-blue-500" />;
+      }
+      if (record.documentType.name?.includes('Lab')) {
+        return <BeakerIcon className="w-5 h-5 text-purple-500" />;
+      }
+      if (record.documentType.name?.includes('Medication')) {
+        return <DocumentIcon className="w-5 h-5 text-green-500" />;
+      }
+      if (record.documentType.name?.includes('Vital')) {
+        return <HeartIcon className="w-5 h-5 text-red-500" />;
+      }
+    }
     if (record.mimeType?.includes('image')) {
       return <PhotoIcon className="w-5 h-5 text-blue-500" />;
     }
@@ -70,20 +85,21 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
 
   const getShareCount = () => {
     const shareHistory = JSON.parse(localStorage.getItem('shareHistory') || '[]');
-    return shareHistory.filter(share => 
-      share.recordIds?.includes(record.id) || 
+    return shareHistory.filter(share =>
+      share.recordIds?.includes(record.id) ||
       (share.sharedAt && new Date(share.sharedAt) > new Date(record.uploadedAt))
     ).length;
   };
 
   const renderImagePreview = () => {
-    if (!record.mimeType?.includes('image') || imageError) return null;
-    
-    // For demo purposes, create a placeholder image URL
-    const imageUrl = record.url || `https://picsum.photos/400/300?random=${record.id}`;
-    
+    const hasImage = record.mimeType?.includes('image') || record.capturedImage;
+    if (!hasImage || imageError) return null;
+
+    // Use captured image if available, otherwise use URL or placeholder
+    const imageUrl = record.capturedImage || record.url || `https://picsum.photos/400/300?random=${record.id}`;
+
     return (
-      <motion.div 
+      <motion.div
         className="relative overflow-hidden rounded-2xl aspect-video bg-gray-100"
         whileHover={{ scale: 1.02 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -96,7 +112,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
           onClick={() => setIsImageZoomed(true)}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-        
+
         {/* Share badge */}
         {getShareCount() > 0 && (
           <div className="absolute top-2 right-2 bg-white/50 backdrop-blur-sm rounded-full px-2 py-1 flex items-center space-x-1">
@@ -110,9 +126,9 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
 
   const renderPDFPreview = () => {
     if (!record.mimeType?.includes('pdf')) return null;
-    
+
     return (
-      <motion.div 
+      <motion.div
         className="relative overflow-hidden rounded-2xl aspect-video bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center"
         whileHover={{ scale: 1.02 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -124,7 +140,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
             {record.size ? `${Math.round(record.size / 1024)} KB` : 'Click to view'}
           </p>
         </div>
-        
+
         {/* Share badge */}
         {getShareCount() > 0 && (
           <div className="absolute top-2 right-2 bg-white/50 backdrop-blur-sm rounded-full px-2 py-1 flex items-center space-x-1">
@@ -150,7 +166,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
             <div className="p-3">
               {record.mimeType?.includes('image') ? renderImagePreview() : renderPDFPreview()}
             </div>
-            
+
             {/* Card Content */}
             <div className="px-3 pb-3">
               <div className="flex items-start justify-between mb-2">
@@ -162,15 +178,15 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
                 </div>
                 {getStatusIcon(record.status)}
               </div>
-              
+
               <p className="text-xs text-gray-500 mb-2">
                 {formatDate(record.uploadedAt)}
               </p>
-              
+
               {/* Status Badge */}
               <div className="flex items-center justify-between">
                 <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                  record.status === 'completed' 
+                  record.status === 'completed'
                     ? 'bg-green-100 text-green-700'
                     : record.status === 'processing'
                     ? 'bg-orange-100 text-orange-700'
@@ -178,7 +194,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
                 }`}>
                   {record.status}
                 </span>
-                
+
                 {record.hidden && (
                   <div className="p-1 bg-gray-100 rounded-full">
                     <EyeSlashIcon className="w-3 h-3 text-gray-500" />
@@ -187,7 +203,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
               </div>
             </div>
           </div>
-          
+
           {/* Quick Actions Overlay */}
           <div className="absolute inset-0 bg-white/50 backdrop-blur-sm rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center space-x-3">
             <motion.button
@@ -205,7 +221,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
                 <EyeSlashIcon className="w-5 h-5 text-white" />
               )}
             </motion.button>
-            
+
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
@@ -217,7 +233,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
             >
               <ShareIcon className="w-5 h-5 text-white" />
             </motion.button>
-            
+
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
@@ -277,7 +293,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
             <div className="p-2 bg-gray-50 rounded-2xl">
               {getFileTypeIcon(record)}
             </div>
-            
+
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-2 mb-1">
                 <h3 className="font-semibold text-gray-900 truncate">
@@ -301,14 +317,14 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
                   </div>
                 )}
               </div>
-              
+
               <p className="text-sm text-gray-500 mb-2">
                 {formatDate(record.uploadedAt)}
               </p>
-              
+
               <div className="flex items-center space-x-2">
                 <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                  record.status === 'completed' 
+                  record.status === 'completed'
                     ? 'bg-green-100 text-green-700'
                     : record.status === 'processing'
                     ? 'bg-orange-100 text-orange-700'
@@ -316,13 +332,13 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
                 }`}>
                   {record.status}
                 </span>
-                
+
                 {record.hidden && (
                   <span className="text-xs px-2 py-1 rounded-full font-medium bg-gray-100 text-gray-600">
                     Hidden
                   </span>
                 )}
-                
+
                 {record.aiAnalysis && (
                   <span className="text-xs px-2 py-1 rounded-full font-medium bg-purple-100 text-purple-700">
                     AI Analyzed
@@ -331,7 +347,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
               </div>
             </div>
           </div>
-          
+
           <motion.div
             animate={{ rotate: isExpanded ? 180 : 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -388,7 +404,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
                     </div>
                   </div>
                 )}
-                
+
                 {/* Action Buttons */}
                 <div className="grid grid-cols-3 gap-2">
                   <motion.button
@@ -412,7 +428,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
                       </>
                     )}
                   </motion.button>
-                  
+
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -425,7 +441,7 @@ function RecordCard({ record, isExpanded, onToggle, onToggleVisibility, onDelete
                     <ShareIcon className="w-4 h-4" />
                     <span>Share</span>
                   </motion.button>
-                  
+
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}

@@ -7,7 +7,7 @@
     <circle cx="25" cy="25" r="5" fill="#0073e6" stroke="none"/>
     <circle cx="27" cy="23" r="2" fill="white" stroke="none"/>
   </g>
-  
+
   <!-- Text -->
   <g transform="translate(65, 35)">
     <text x="0" y="0" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#0073e6">VSP Vision</text>

@@ -6,16 +6,16 @@
       <rect x="15" y="5" width="10" height="40" fill="#1e40af" rx="2"/>
       <rect x="5" y="18" width="30" height="10" fill="#1e40af" rx="2"/>
     </g>
-    
+
     <!-- Blue Shield (right side) -->
     <g transform="translate(50, 0)">
-      <path d="M15 5 L25 10 L30 25 L25 40 L15 45 L5 40 L0 25 L5 10 Z" 
+      <path d="M15 5 L25 10 L30 25 L25 40 L15 45 L5 40 L0 25 L5 10 Z"
             fill="#1e40af" stroke="none"/>
-      <path d="M15 12 L20 15 L22 25 L20 35 L15 38 L10 35 L8 25 L10 15 Z" 
+      <path d="M15 12 L20 15 L22 25 L20 35 L15 38 L10 35 L8 25 L10 15 Z"
             fill="white" stroke="none"/>
     </g>
   </g>
-  
+
   <!-- Text -->
   <g transform="translate(95, 20)">
     <text x="0" y="15" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1e40af">BLUE CROSS</text>

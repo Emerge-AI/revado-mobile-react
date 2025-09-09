@@ -7,7 +7,7 @@
       <path d="M12 20 L30 5 L35 10 L22 20 L35 35 L30 40 L12 25" fill="#00a651"/>
     </g>
   </g>
-  
+
   <!-- Text -->
   <g transform="translate(55, 20)">
     <text x="0" y="15" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#00a651">Kaiser</text>

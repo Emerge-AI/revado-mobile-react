@@ -26,13 +26,13 @@ subdirs.forEach(dir => {
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     let folder = 'documents'; // default folder
-    
+
     if (file.mimetype.startsWith('image/')) {
       folder = 'images';
     } else if (file.mimetype === 'application/pdf') {
       folder = 'pdfs';
     }
-    
+
     const destPath = path.join(uploadDir, folder);
     cb(null, destPath);
   },
@@ -62,7 +62,7 @@ const fileFilter = (req, file, cb) => {
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'text/plain'
   ];
-  
+
   if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
@@ -144,18 +144,18 @@ export const cleanupTempFiles = () => {
   const tempDir = path.join(uploadDir, 'temp');
   const now = Date.now();
   const maxAge = 24 * 60 * 60 * 1000; // 24 hours
-  
+
   fs.readdir(tempDir, (err, files) => {
     if (err) {
       console.error('Error reading temp directory:', err);
       return;
     }
-    
+
     files.forEach(file => {
       const filePath = path.join(tempDir, file);
       fs.stat(filePath, (err, stats) => {
         if (err) return;
-        
+
         if (now - stats.mtimeMs > maxAge) {
           fs.unlink(filePath, (err) => {
             if (err) {

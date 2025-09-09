@@ -42,3 +42,7 @@ backend/.env.local
 backend/.env.production
 .env.hosting
 backend/.env
+*.db
+*.db-shm
+*.db-wal
+.secrets.baseline

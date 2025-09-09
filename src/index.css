@@ -8,7 +8,7 @@
     padding: 0;
     box-sizing: border-box;
   }
-  
+
   html {
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
@@ -49,20 +49,20 @@
   .animation-delay-4000 {
     animation-delay: 4s;
   }
-  
+
   /* Subtle glassmorphism effect */
   .glass {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
   }
-  
+
   .glass-dark {
     background: rgba(17, 24, 39, 0.95);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
   }
-  
+
   /* Subtle gradient text */
   .gradient-text {
     background: linear-gradient(to right, #4b5563 0%, #6b7280 100%);
@@ -70,13 +70,13 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  
+
   /* Shimmer effect */
   .shimmer {
     position: relative;
     overflow: hidden;
   }
-  
+
   .shimmer::after {
     content: '';
     position: absolute;
@@ -92,23 +92,23 @@
     );
     animation: shimmer 2s infinite;
   }
-  
+
   /* Custom timeline styles */
   .timeline-gradient {
     background: linear-gradient(180deg, transparent 0%, rgba(99, 102, 241, 0.1) 50%, transparent 100%);
   }
-  
+
   /* Enhanced backdrop blur */
   .backdrop-blur-xl {
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
   }
-  
+
   /* Smooth scrolling for timeline */
   .timeline-scroll {
     scroll-behavior: smooth;
   }
-  
+
   /* iOS-style spring animations */
   .spring-bounce {
     transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);

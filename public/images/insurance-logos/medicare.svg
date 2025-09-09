@@ -6,7 +6,7 @@
     <rect x="10" y="10" width="30" height="30" fill="white" rx="3" stroke="none"/>
     <text x="25" y="28" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#0066cc" text-anchor="middle">M</text>
   </g>
-  
+
   <!-- Text -->
   <g transform="translate(70, 35)">
     <text x="0" y="0" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#0066cc">Medicare</text>

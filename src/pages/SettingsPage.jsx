@@ -5,8 +5,8 @@ import { useAuth } from '../contexts/AuthContext';
 import useBiometricAuth from '../hooks/useBiometricAuth';
 import FaceIDSetup from '../components/FaceIDSetup';
 import RevadoLogo from '../components/RevadoLogo';
-import { 
-  FaceSmileIcon, 
+import {
+  FaceSmileIcon,
   ArrowLeftIcon,
   ShieldCheckIcon,
   BellIcon,
@@ -22,14 +22,14 @@ import {
 function SettingsPage() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const { 
-    isAvailable, 
-    isBiometricEnabled, 
-    registerBiometric, 
+  const {
+    isAvailable,
+    isBiometricEnabled,
+    registerBiometric,
     disableBiometric,
-    getRegisteredDevices 
+    getRegisteredDevices
   } = useBiometricAuth();
-  
+
   const [biometricEnabled, setBiometricEnabled] = useState(isBiometricEnabled());
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -49,10 +49,10 @@ function SettingsPage() {
 
   const handleBiometricToggle = async () => {
     if (loading) return;
-    
+
     setLoading(true);
     setMessage('');
-    
+
     try {
       if (!biometricEnabled) {
         // Enable biometric
@@ -219,7 +219,7 @@ function SettingsPage() {
                 </svg>
               </div>
             </button>
-            
+
             {showDevices && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
@@ -274,13 +274,13 @@ function SettingsPage() {
                 >
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded-lg ${
-                      item.enabled 
-                        ? 'bg-blue-100' 
+                      item.enabled
+                        ? 'bg-blue-100'
                         : 'bg-gray-100'
                     }`}>
                       <item.icon className={`w-5 h-5 ${
-                        item.enabled 
-                          ? 'text-blue-600' 
+                        item.enabled
+                          ? 'text-blue-600'
                           : 'text-gray-600'
                       }`} />
                     </div>
@@ -293,7 +293,7 @@ function SettingsPage() {
                       </p>
                     </div>
                   </div>
-                  
+
                   {item.enabled && (
                     <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full font-medium">
                       Active
@@ -304,13 +304,13 @@ function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded-lg ${
-                      item.enabled 
-                        ? 'bg-blue-100' 
+                      item.enabled
+                        ? 'bg-blue-100'
                         : 'bg-gray-100'
                     }`}>
                       <item.icon className={`w-5 h-5 ${
-                        item.enabled 
-                          ? 'text-blue-600' 
+                        item.enabled
+                          ? 'text-blue-600'
                           : 'text-gray-600'
                       }`} />
                     </div>
@@ -323,13 +323,13 @@ function SettingsPage() {
                       </p>
                     </div>
                   </div>
-                  
+
                   <button
                     onClick={item.onToggle}
                     disabled={!item.available || loading}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      item.enabled 
-                        ? 'bg-blue-600' 
+                      item.enabled
+                        ? 'bg-blue-600'
                         : 'bg-gray-300'
                     } ${!item.available ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
@@ -358,7 +358,7 @@ function SettingsPage() {
                       </p>
                     </div>
                   </div>
-                  
+
                   <svg
                     className="w-5 h-5 text-gray-400"
                     fill="none"
@@ -406,7 +406,7 @@ function SettingsPage() {
             onClick={(e) => e.stopPropagation()}
             className="w-full max-w-sm"
           >
-            <FaceIDSetup 
+            <FaceIDSetup
               onClose={() => {
                 setShowFaceIDSetup(false);
                 // Update local state after changes

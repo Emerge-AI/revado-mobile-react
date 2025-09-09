@@ -15,7 +15,7 @@ class AuthLogger {
    */
   getDeviceType() {
     const ua = navigator.userAgent;
-    
+
     if (/iPhone|iPad|iPod/i.test(ua)) {
       return 'ios';
     }
@@ -60,7 +60,7 @@ class AuthLogger {
 
     const endTime = Date.now();
     const duration = (endTime - this.startTime) / 1000; // Duration in seconds
-    
+
     // Create log entry
     const logEntry = {
       timestamp: new Date().toISOString(),
@@ -114,10 +114,10 @@ class AuthLogger {
     try {
       // Get existing logs
       const existingLogs = JSON.parse(localStorage.getItem('authLogs') || '{}');
-      
+
       // Add new log
       existingLogs[filename] = data;
-      
+
       // Keep only last 100 logs to prevent localStorage overflow
       const logKeys = Object.keys(existingLogs);
       if (logKeys.length > 100) {
@@ -125,10 +125,10 @@ class AuthLogger {
         const keysToRemove = sortedKeys.slice(0, logKeys.length - 100);
         keysToRemove.forEach(key => delete existingLogs[key]);
       }
-      
+
       // Save back to localStorage
       localStorage.setItem('authLogs', JSON.stringify(existingLogs));
-      
+
       console.log(`[AuthLogger] Log saved: /logs/${filename}`);
     } catch (error) {
       console.error('[AuthLogger] Failed to save log:', error);
@@ -162,9 +162,9 @@ class AuthLogger {
     const logs = AuthLogger.getAllLogs();
     const dataStr = JSON.stringify(logs, null, 2);
     const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
+
     const exportFileDefaultName = `auth-logs-${new Date().toISOString().split('T')[0]}.json`;
-    
+
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
     linkElement.setAttribute('download', exportFileDefaultName);

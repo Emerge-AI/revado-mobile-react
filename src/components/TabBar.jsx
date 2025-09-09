@@ -1,6 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { HomeIcon, ArrowUpTrayIcon, ShareIcon } from '@heroicons/react/24/solid';
-import { BeakerIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, PlusCircleIcon, ShareIcon, LinkIcon } from '@heroicons/react/24/solid';
 
 function TabBar() {
   return (
@@ -11,8 +10,8 @@ function TabBar() {
           to="/"
           className={({ isActive }) =>
             `flex flex-col items-center justify-center min-w-[64px] min-h-[44px] rounded-lg transition-colors ${
-              isActive 
-                ? 'text-primary-600' 
+              isActive
+                ? 'text-primary-600'
                 : 'text-gray-500'
             }`
           }
@@ -31,8 +30,8 @@ function TabBar() {
           to="/upload"
           className={({ isActive }) =>
             `flex flex-col items-center justify-center min-w-[64px] min-h-[44px] rounded-lg transition-colors ${
-              isActive 
-                ? 'text-primary-600' 
+              isActive
+                ? 'text-primary-600'
                 : 'text-gray-500'
             }`
           }
@@ -40,19 +39,19 @@ function TabBar() {
           {({ isActive }) => (
             <>
               <div className={`p-1 rounded-lg ${isActive ? 'bg-primary-50' : ''}`}>
-                <ArrowUpTrayIcon className="w-6 h-6" />
+                <PlusCircleIcon className="w-6 h-6" />
               </div>
-              <span className="text-[10px] font-semibold mt-0.5">Upload</span>
+              <span className="text-[10px] font-semibold mt-0.5">Add</span>
             </>
           )}
         </NavLink>
 
         <NavLink
-          to="/medications"
+          to="/connect"
           className={({ isActive }) =>
             `flex flex-col items-center justify-center min-w-[64px] min-h-[44px] rounded-lg transition-colors ${
-              isActive 
-                ? 'text-primary-600' 
+              isActive
+                ? 'text-primary-600'
                 : 'text-gray-500'
             }`
           }
@@ -60,9 +59,9 @@ function TabBar() {
           {({ isActive }) => (
             <>
               <div className={`p-1 rounded-lg ${isActive ? 'bg-primary-50' : ''}`}>
-                <BeakerIcon className="w-6 h-6" />
+                <LinkIcon className="w-6 h-6" />
               </div>
-              <span className="text-[10px] font-semibold mt-0.5">Meds</span>
+              <span className="text-[10px] font-semibold mt-0.5">Connect</span>
             </>
           )}
         </NavLink>
@@ -71,8 +70,8 @@ function TabBar() {
           to="/share"
           className={({ isActive }) =>
             `flex flex-col items-center justify-center min-w-[64px] min-h-[44px] rounded-lg transition-colors ${
-              isActive 
-                ? 'text-primary-600' 
+              isActive
+                ? 'text-primary-600'
                 : 'text-gray-500'
             }`
           }

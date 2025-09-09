@@ -53,17 +53,17 @@ export function getMimeType(filename) {
     'gif': 'image/gif',
     'bmp': 'image/bmp',
     'webp': 'image/webp',
-    
+
     // Documents
     'pdf': 'application/pdf',
     'doc': 'application/msword',
     'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'txt': 'text/plain',
-    
+
     // Default
     '': 'application/octet-stream'
   };
-  
+
   return mimeTypes[ext] || 'application/octet-stream';
 }
 
@@ -72,11 +72,11 @@ export function getMimeType(filename) {
  */
 export function formatFileSize(bytes) {
   if (bytes === 0) return '0 Bytes';
-  
+
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
+
   return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
 }
 
@@ -95,7 +95,7 @@ export function isImageFile(filename) {
  */
 export async function prepareFileAttachments(records) {
   const attachments = [];
-  
+
   for (const record of records) {
     if (record.url && record.status === 'completed') {
       try {
@@ -105,10 +105,10 @@ export async function prepareFileAttachments(records) {
           console.log(`Skipping large file: ${fileName} (${formatFileSize(record.size)})`);
           continue;
         }
-        
+
         const base64 = await urlToBase64(record.url);
         const fileName = record.originalName || record.displayName || record.filename || 'attachment';
-        
+
         attachments.push({
           name: fileName,
           type: record.mimeType || getMimeType(fileName),
@@ -120,6 +120,6 @@ export async function prepareFileAttachments(records) {
       }
     }
   }
-  
+
   return attachments;
 }

@@ -29,11 +29,11 @@ const upload = multer({
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = [
-      'image/jpeg', 'image/png', 'image/gif', 
+      'image/jpeg', 'image/png', 'image/gif',
       'image/webp', 'image/tiff', 'image/bmp',
       'application/dicom', 'image/dicom-rle'
     ];
-    
+
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
@@ -54,10 +54,10 @@ router.post('/analyze', upload.single('image'), async (req, res) => {
         error: 'No image file provided'
       });
     }
-    
+
     const userId = req.headers['x-user-id'] || 'anonymous';
     const { description, imageType, recordId } = req.body;
-    
+
     console.log('[ImageAnalysis] Processing image:', {
       filename: req.file.filename,
       size: req.file.size,
@@ -65,7 +65,7 @@ router.post('/analyze', upload.single('image'), async (req, res) => {
       imageType,
       userId
     });
-    
+
     // Perform image analysis
     const analysisResult = await medicalImageAnalysis.analyzeImage(
       req.file.path,
@@ -75,11 +75,11 @@ router.post('/analyze', upload.single('image'), async (req, res) => {
         imageType: imageType || 'auto'
       }
     );
-    
+
     // Store analysis results in database
     const analysisId = uuidv4();
     const timestamp = new Date().toISOString();
-    
+
     db.prepare(`
       INSERT INTO image_analyses (
         id, user_id, record_id, filename, original_name,
@@ -103,19 +103,19 @@ router.post('/analyze', upload.single('image'), async (req, res) => {
       JSON.stringify(analysisResult.clinicalFlags),
       timestamp
     );
-    
+
     // If linked to a health record, update it
     if (recordId) {
       db.prepare(`
-        UPDATE health_records 
-        SET 
+        UPDATE health_records
+        SET
           image_analysis_id = ?,
           has_image_analysis = 1,
           updated_at = ?
         WHERE id = ? AND user_id = ?
       `).run(analysisId, timestamp, recordId, userId);
     }
-    
+
     // Prepare response
     const response = {
       success: true,
@@ -139,13 +139,13 @@ router.post('/analyze', upload.single('image'), async (req, res) => {
       imageUrl: `/uploads/images/${req.file.filename}`,
       timestamp: analysisResult.timestamp
     };
-    
+
     console.log('[ImageAnalysis] Analysis complete:', {
       analysisId,
       confidence: analysisResult.confidenceScore,
       flags: analysisResult.clinicalFlags.length
     });
-    
+
     res.json(response);
   } catch (error) {
     console.error('[ImageAnalysis] Error:', error);
@@ -164,23 +164,23 @@ router.get('/:id', async (req, res) => {
   try {
     const userId = req.headers['x-user-id'] || 'anonymous';
     const { id } = req.params;
-    
+
     const analysis = db.prepare(`
-      SELECT * FROM image_analyses 
+      SELECT * FROM image_analyses
       WHERE id = ? AND user_id = ?
     `).get(id, userId);
-    
+
     if (!analysis) {
       return res.status(404).json({
         success: false,
         error: 'Analysis not found'
       });
     }
-    
+
     // Parse JSON fields
     analysis.analysis_data = JSON.parse(analysis.analysis_data);
     analysis.clinical_flags = JSON.parse(analysis.clinical_flags);
-    
+
     res.json({
       success: true,
       analysis
@@ -202,19 +202,19 @@ router.get('/record/:recordId', async (req, res) => {
   try {
     const userId = req.headers['x-user-id'] || 'anonymous';
     const { recordId } = req.params;
-    
+
     const analyses = db.prepare(`
-      SELECT * FROM image_analyses 
+      SELECT * FROM image_analyses
       WHERE record_id = ? AND user_id = ?
       ORDER BY created_at DESC
     `).all(recordId, userId);
-    
+
     // Parse JSON fields
     analyses.forEach(analysis => {
       analysis.analysis_data = JSON.parse(analysis.analysis_data);
       analysis.clinical_flags = JSON.parse(analysis.clinical_flags);
     });
-    
+
     res.json({
       success: true,
       analyses
@@ -240,14 +240,14 @@ router.post('/batch', upload.array('images', 10), async (req, res) => {
         error: 'No image files provided'
       });
     }
-    
+
     const userId = req.headers['x-user-id'] || 'anonymous';
     const { recordId } = req.body;
-    
+
     console.log('[ImageAnalysis] Batch processing', req.files.length, 'images');
-    
+
     const results = [];
-    
+
     for (const file of req.files) {
       try {
         // Analyze each image
@@ -259,11 +259,11 @@ router.post('/batch', upload.array('images', 10), async (req, res) => {
             imageType: 'auto'
           }
         );
-        
+
         // Store in database
         const analysisId = uuidv4();
         const timestamp = new Date().toISOString();
-        
+
         db.prepare(`
           INSERT INTO image_analyses (
             id, user_id, record_id, filename, original_name,
@@ -287,7 +287,7 @@ router.post('/batch', upload.array('images', 10), async (req, res) => {
           JSON.stringify(analysisResult.clinicalFlags),
           timestamp
         );
-        
+
         results.push({
           analysisId,
           filename: file.originalname,
@@ -304,7 +304,7 @@ router.post('/batch', upload.array('images', 10), async (req, res) => {
         });
       }
     }
-    
+
     res.json({
       success: true,
       totalProcessed: req.files.length,
@@ -326,9 +326,9 @@ router.post('/batch', upload.array('images', 10), async (req, res) => {
 router.get('/stats/summary', async (req, res) => {
   try {
     const userId = req.headers['x-user-id'] || 'anonymous';
-    
+
     const stats = db.prepare(`
-      SELECT 
+      SELECT
         COUNT(*) as total_analyses,
         AVG(quality_score) as avg_quality_score,
         AVG(confidence_score) as avg_confidence_score,
@@ -339,10 +339,10 @@ router.get('/stats/summary', async (req, res) => {
       FROM image_analyses
       WHERE user_id = ?
     `).get(userId);
-    
+
     // Get image type distribution
     const typeDistribution = db.prepare(`
-      SELECT 
+      SELECT
         image_type,
         COUNT(*) as count,
         AVG(quality_score) as avg_quality,
@@ -352,7 +352,7 @@ router.get('/stats/summary', async (req, res) => {
       GROUP BY image_type
       ORDER BY count DESC
     `).all(userId);
-    
+
     res.json({
       success: true,
       stats: {

@@ -15,17 +15,17 @@ export function bufferToBase64(buffer) {
       console.error('[WebAuthn] bufferToBase64: buffer is null or undefined');
       return '';
     }
-    
+
     const bytes = new Uint8Array(buffer);
     // Use chunking for large buffers to avoid stack overflow
     const chunkSize = 0x8000; // 32KB chunks
     let binary = '';
-    
+
     for (let i = 0; i < bytes.length; i += chunkSize) {
       const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
       binary += String.fromCharCode.apply(null, chunk);
     }
-    
+
     return btoa(binary);
   } catch (error) {
     console.error('[WebAuthn] bufferToBase64 error:', error);
@@ -43,7 +43,7 @@ export function base64ToBuffer(base64) {
       console.error('[WebAuthn] base64ToBuffer: invalid input', base64);
       return new ArrayBuffer(0);
     }
-    
+
     const binary = atob(base64);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) {
@@ -85,13 +85,13 @@ export function encodeCredential(credential) {
     type: credential.type,
     response: {
       clientDataJSON: bufferToBase64(credential.response.clientDataJSON),
-      attestationObject: credential.response.attestationObject ? 
+      attestationObject: credential.response.attestationObject ?
         bufferToBase64(credential.response.attestationObject) : undefined,
-      authenticatorData: credential.response.authenticatorData ? 
+      authenticatorData: credential.response.authenticatorData ?
         bufferToBase64(credential.response.authenticatorData) : undefined,
-      signature: credential.response.signature ? 
+      signature: credential.response.signature ?
         bufferToBase64(credential.response.signature) : undefined,
-      userHandle: credential.response.userHandle ? 
+      userHandle: credential.response.userHandle ?
         bufferToBase64(credential.response.userHandle) : undefined,
     }
   };
@@ -103,11 +103,11 @@ export function encodeCredential(credential) {
 export function preparePublicKeyOptions(options) {
   return {
     ...options,
-    challenge: typeof options.challenge === 'string' ? 
+    challenge: typeof options.challenge === 'string' ?
       base64ToBuffer(options.challenge) : options.challenge,
     user: {
       ...options.user,
-      id: typeof options.user.id === 'string' ? 
+      id: typeof options.user.id === 'string' ?
         new TextEncoder().encode(options.user.id) : options.user.id
     },
     excludeCredentials: options.excludeCredentials?.map(cred => ({
@@ -123,7 +123,7 @@ export function preparePublicKeyOptions(options) {
 export function preparePublicKeyRequestOptions(options) {
   return {
     ...options,
-    challenge: typeof options.challenge === 'string' ? 
+    challenge: typeof options.challenge === 'string' ?
       base64ToBuffer(options.challenge) : options.challenge,
     allowCredentials: options.allowCredentials?.map(cred => ({
       ...cred,
@@ -149,25 +149,25 @@ export function generateChallenge() {
  */
 export async function isPlatformAuthenticatorAvailable() {
   console.log('[WebAuthn] Checking platform authenticator availability...');
-  
+
   if (!window.PublicKeyCredential) {
     console.error('[WebAuthn] ❌ PublicKeyCredential not available in window');
     return false;
   }
-  
+
   console.log('[WebAuthn] ✓ PublicKeyCredential exists');
-  
+
   try {
     // Check if the method exists
     if (!PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
       console.error('[WebAuthn] ❌ isUserVerifyingPlatformAuthenticatorAvailable method not found');
       return false;
     }
-    
+
     console.log('[WebAuthn] Calling isUserVerifyingPlatformAuthenticatorAvailable()...');
     const result = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
     console.log('[WebAuthn] Platform authenticator available:', result);
-    
+
     // Additional iOS-specific logging
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (isIOS) {
@@ -177,7 +177,7 @@ export async function isPlatformAuthenticatorAvailable() {
       console.log('[WebAuthn] Hostname:', window.location.hostname);
       console.log('[WebAuthn] Port:', window.location.port);
     }
-    
+
     return result;
   } catch (error) {
     console.error('[WebAuthn] ❌ Error checking platform authenticator:', error);
@@ -193,9 +193,9 @@ export async function isPlatformAuthenticatorAvailable() {
 export function storeCredentialInfo(credentialId, userEmail, metadata = {}) {
   try {
     console.log('[WebAuthnHelpers] Storing credential:', { credentialId, userEmail, metadata });
-    
+
     const credentials = JSON.parse(localStorage.getItem(config.storage.credentials) || '{}');
-    
+
     credentials[credentialId] = {
       id: credentialId,
       userEmail,
@@ -203,16 +203,16 @@ export function storeCredentialInfo(credentialId, userEmail, metadata = {}) {
       lastUsed: new Date().toISOString(),
       ...metadata
     };
-    
+
     const credentialsStr = JSON.stringify(credentials);
     console.log('[WebAuthnHelpers] Saving to localStorage:', {
       key: config.storage.credentials,
       value: credentialsStr
     });
-    
+
     localStorage.setItem(config.storage.credentials, credentialsStr);
     localStorage.setItem(config.storage.userEmail, userEmail);
-    
+
     // Verify storage
     const stored = localStorage.getItem(config.storage.credentials);
     console.log('[WebAuthnHelpers] Storage verification:', {
@@ -255,20 +255,20 @@ export function clearStoredCredentials() {
  */
 export function cleanupPartialRegistration() {
   console.log('[WebAuthnHelpers] Cleaning up partial registration...');
-  
+
   // Get current state
   const credentials = localStorage.getItem(config.storage.credentials);
   const lastCredentialId = localStorage.getItem(config.storage.lastCredentialId);
   const biometricEnabled = localStorage.getItem(config.storage.biometricEnabled);
-  
+
   let needsCleanup = false;
-  
+
   // Check for partial registration (has credential ID but no actual credentials)
   if (lastCredentialId && !credentials) {
     console.log('[WebAuthnHelpers] Found orphaned credential ID without credentials');
     needsCleanup = true;
   }
-  
+
   // Check for test credentials only
   if (credentials) {
     try {
@@ -283,18 +283,18 @@ export function cleanupPartialRegistration() {
       needsCleanup = true;
     }
   }
-  
+
   // Check for mismatched state
   if (biometricEnabled === 'true' && !credentials) {
     console.log('[WebAuthnHelpers] Biometric enabled but no credentials found');
     needsCleanup = true;
   }
-  
+
   if (needsCleanup) {
     console.log('[WebAuthnHelpers] Performing cleanup...');
     clearStoredCredentials();
     return true;
   }
-  
+
   return false;
 }

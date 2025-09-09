@@ -36,13 +36,13 @@ export async function generateHealthRecordsPDF({
     // Add header
     pdf.setFillColor(...primaryColor);
     pdf.rect(0, 0, 210, 30, 'F');
-    
+
     // Add title
     pdf.setTextColor(255, 255, 255);
     pdf.setFontSize(20);
     pdf.setFont('helvetica', 'bold');
     pdf.text('Health Records Summary', 105, 15, { align: 'center' });
-    
+
     pdf.setFontSize(10);
     pdf.setFont('helvetica', 'normal');
     pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 105, 23, { align: 'center' });
@@ -55,7 +55,7 @@ export async function generateHealthRecordsPDF({
     pdf.setFontSize(14);
     pdf.setFont('helvetica', 'bold');
     pdf.text('Patient Information', 20, yPosition);
-    
+
     yPosition += 10;
     pdf.setFontSize(11);
     pdf.setFont('helvetica', 'normal');
@@ -64,7 +64,7 @@ export async function generateHealthRecordsPDF({
     pdf.text(`Email: ${patientEmail}`, 20, yPosition);
     yPosition += 7;
     pdf.text(`Records Shared: ${records.length}`, 20, yPosition);
-    
+
     // Add separator line
     yPosition += 10;
     pdf.setDrawColor(...lightGray);
@@ -76,15 +76,15 @@ export async function generateHealthRecordsPDF({
       pdf.setFontSize(14);
       pdf.setFont('helvetica', 'bold');
       pdf.text('Medical Summary', 20, yPosition);
-      
+
       yPosition += 10;
       pdf.setFontSize(10);
       pdf.setFont('helvetica', 'normal');
-      
+
       // Generate AI-style summary
       const summary = generateAISummary(records);
       const lines = pdf.splitTextToSize(summary, 170);
-      
+
       lines.forEach((line) => {
         if (yPosition > 270) {
           pdf.addPage();
@@ -93,7 +93,7 @@ export async function generateHealthRecordsPDF({
         pdf.text(line, 20, yPosition);
         yPosition += 6;
       });
-      
+
       // Add separator
       yPosition += 5;
       pdf.line(20, yPosition, 190, yPosition);
@@ -125,20 +125,20 @@ export async function generateHealthRecordsPDF({
         pdf.addPage();
         yPosition = 30;
       }
-      
+
       // Record number
       pdf.setFont('helvetica', 'bold');
       pdf.text(`${index + 1}.`, 20, yPosition);
-      
+
       // Record details
       pdf.setFont('helvetica', 'normal');
       const recordName = record.displayName || record.originalName || record.filename || 'Unnamed Record';
       const recordDate = record.uploadedAt ? new Date(record.uploadedAt).toLocaleDateString() : 'N/A';
       const recordType = getReadableFileType(record);
-      
+
       pdf.text(`${recordName}`, 30, yPosition);
       pdf.text(`Date: ${recordDate}`, 120, yPosition);
-      
+
       // Show if file is attached and file type
       if (record.url && record.size && record.size < 500 * 1024) {
         pdf.setTextColor(10, 132, 255); // iOS blue
@@ -147,9 +147,9 @@ export async function generateHealthRecordsPDF({
       } else {
         pdf.text(`${recordType}`, 160, yPosition);
       }
-      
+
       yPosition += 7;
-      
+
       // Add extracted data if available
       if (record.extractedData) {
         pdf.setFontSize(9);
@@ -163,7 +163,7 @@ export async function generateHealthRecordsPDF({
         pdf.setTextColor(...textColor);
         pdf.setFontSize(10);
       }
-      
+
       yPosition += 3;
     });
 
@@ -171,12 +171,12 @@ export async function generateHealthRecordsPDF({
     const pageCount = pdf.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       pdf.setPage(i);
-      
+
       // Add page number
       pdf.setFontSize(9);
       pdf.setTextColor(150, 150, 150);
       pdf.text(`Page ${i} of ${pageCount}`, 105, 285, { align: 'center' });
-      
+
       // Add security notice
       pdf.setFontSize(8);
       pdf.text('This document contains protected health information', 105, 290, { align: 'center' });
@@ -185,7 +185,7 @@ export async function generateHealthRecordsPDF({
     // Generate blob for attachment
     const pdfBlob = pdf.output('blob');
     const pdfBase64 = await blobToBase64(pdfBlob);
-    
+
     return {
       blob: pdfBlob,
       base64: pdfBase64,
@@ -205,16 +205,16 @@ export async function generateHealthRecordsPDF({
 function generateAISummary(records) {
   // This is a mock AI summary generator
   // In production, you would use an actual AI service
-  
+
   const recordTypes = {};
   let earliestDate = null;
   let latestDate = null;
-  
+
   records.forEach(record => {
     // Count record types
     const type = record.type || 'document';
     recordTypes[type] = (recordTypes[type] || 0) + 1;
-    
+
     // Track date range
     if (record.uploadedAt) {
       const date = new Date(record.uploadedAt);
@@ -222,47 +222,47 @@ function generateAISummary(records) {
       if (!latestDate || date > latestDate) latestDate = date;
     }
   });
-  
+
   // Build summary
   let summary = `This health records package contains ${records.length} document${records.length !== 1 ? 's' : ''} `;
-  
+
   if (earliestDate && latestDate) {
     summary += `spanning from ${earliestDate.toLocaleDateString()} to ${latestDate.toLocaleDateString()}. `;
   }
-  
+
   // Add record type breakdown
   const typeDescriptions = Object.entries(recordTypes)
     .map(([type, count]) => `${count} ${type}${count !== 1 ? 's' : ''}`)
     .join(', ');
-  
+
   summary += `The records include: ${typeDescriptions}. `;
-  
+
   // Add health insights (mock)
-  const hasLabResults = records.some(r => 
+  const hasLabResults = records.some(r =>
     r.extractedData?.type?.toLowerCase().includes('lab') ||
     r.name?.toLowerCase().includes('lab')
   );
-  
-  const hasImagingResults = records.some(r => 
+
+  const hasImagingResults = records.some(r =>
     r.type === 'image' ||
     r.extractedData?.type?.toLowerCase().includes('imaging') ||
     r.name?.toLowerCase().includes('xray') ||
     r.name?.toLowerCase().includes('scan')
   );
-  
+
   if (hasLabResults) {
     summary += 'Laboratory results are included for comprehensive health assessment. ';
   }
-  
+
   if (hasImagingResults) {
     summary += 'Imaging studies are included for visual diagnostic information. ';
   }
-  
+
   // Add recommendation
   summary += '\n\nRecommendation: Please review all attached records for a complete understanding of the patient\'s health history. ';
   summary += 'Pay special attention to recent test results and any noted abnormalities. ';
   summary += 'Contact the patient if additional information or clarification is needed.';
-  
+
   return summary;
 }
 
@@ -291,26 +291,26 @@ export function generateTextSummary({ patientName, patientEmail, records }) {
   summary += `Email: ${patientEmail}\n`;
   summary += `Date: ${new Date().toLocaleDateString()}\n`;
   summary += `Total Records: ${records.length}\n\n`;
-  
+
   summary += `RECORDS LIST:\n`;
   summary += `${'-'.repeat(50)}\n`;
-  
+
   records.forEach((record, index) => {
     const recordName = record.displayName || record.originalName || record.filename || 'Unnamed Record';
     const recordType = getReadableFileType(record);
-    
+
     summary += `\n${index + 1}. ${recordName}\n`;
     summary += `   Date: ${record.uploadedAt ? new Date(record.uploadedAt).toLocaleDateString() : 'N/A'}\n`;
     summary += `   Type: ${recordType}\n`;
-    
+
     if (record.extractedData?.summary) {
       summary += `   Summary: ${record.extractedData.summary}\n`;
     }
   });
-  
+
   summary += `\n${'='.repeat(50)}\n`;
   summary += `Generated by Revado Health App\n`;
-  
+
   return summary;
 }
 
@@ -352,7 +352,7 @@ function getReadableFileType(record) {
       }
     }
   }
-  
+
   // Fallback to type field
   if (record.type) {
     switch (record.type.toLowerCase()) {
@@ -367,7 +367,7 @@ function getReadableFileType(record) {
         return record.type.charAt(0).toUpperCase() + record.type.slice(1);
     }
   }
-  
+
   return 'Unknown';
 }
 
